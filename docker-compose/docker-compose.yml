@@ -1,0 +1,5 @@
+version: '2.1'
+
+services:
+  app:
+    image: 'abrarov/docker-compose-init-container-app'
