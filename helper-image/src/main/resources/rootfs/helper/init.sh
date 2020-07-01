@@ -4,10 +4,15 @@ set -e
 
 export PATH="/helper:${PATH}"
 
+# Implements work done by init container
 init() {
-  touch /config/data
+  if ! [ -d /config ]; then
+    mkdir -p /config;
+  fi
+  echo 'Hello, User!' > /config/greeting.txt
 }
 
+# Runs simple echo server used by containers to wait until init container finishes its work
 run_server() {
   script_dir="$(cd "$(dirname "${0}")" >/dev/null 2>&1 && pwd)"
 

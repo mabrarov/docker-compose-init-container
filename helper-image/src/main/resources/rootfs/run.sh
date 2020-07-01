@@ -2,8 +2,11 @@
 
 set -e
 
+# Workaround for possible Docker Compose bug.
+# Waits for some time to avoid error when Docker Compose starts stopped container
+# and that container stops quickly. Even if container stops with zero exit code
+# Docker Compose logs error. It looks like Docker Compose has some race condition issue.
 main() {
-  # Wait for some time to avoid error when Docker Compose starts stopped container
   time_to_wait_sec="${1}"
   if [ "${time_to_wait_sec}" = "" ]; then
     time_to_wait_sec=5

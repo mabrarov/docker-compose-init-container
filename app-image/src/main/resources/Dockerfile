@@ -2,6 +2,8 @@ FROM gcr.io/distroless/java-debian10
 
 ADD rootfs.tar /
 
+# Entprypoint of base image executes java which we don't need
+# because Docker Compose project overrides command to implement awaiting for init container
 ENTRYPOINT []
 
 CMD ["/tini", "-e", "130", "-e", "143", "--", "/usr/bin/java", "-jar", "/app.jar"]
