@@ -14,9 +14,7 @@ init() {
 
 # Runs simple echo server used by containers to wait until init container finishes its work
 run_server() {
-  script_dir="$(cd "$(dirname "${0}")" >/dev/null 2>&1 && pwd)"
-
-  ${script_dir}/http-echo -listen=:8080 -text="ready" &
+  http-echo -listen=:8080 -text="ready" &
   server_pid="${!}"
 
   trap "kill -HUP \"${server_pid}\"" HUP
