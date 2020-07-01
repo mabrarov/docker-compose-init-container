@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java-debian10
+FROM gcr.io/distroless/static-debian10
 
 ADD rootfs.tar /
 

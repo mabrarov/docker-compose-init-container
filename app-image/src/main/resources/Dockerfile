@@ -8,6 +8,10 @@ ENTRYPOINT []
 
 CMD ["/tini", "-e", "130", "-e", "143", "--", "/usr/bin/java", "-jar", "/app.jar"]
 
+ENV GREETING_FILE="/config/greeting.txt"
+
+EXPOSE 8080
+
 LABEL name="@docker.repository@" \
     version="@project.version@" \
     release="@project.version@" \

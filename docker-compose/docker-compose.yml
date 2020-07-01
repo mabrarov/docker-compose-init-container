@@ -20,3 +20,5 @@ services:
     volumes_from:
       - 'helper:ro'
       - 'init:ro'
+    ports:
+      - '8080:8080'

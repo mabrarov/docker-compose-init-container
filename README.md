@@ -31,6 +31,18 @@ mvnw.cmd clean package
 
 Refer to [docker-compose](docker-compose) directory for example of Docker Compose project
 
+Check [http://localhost:8080](http://localhost:8080) URL, e.g. with curl:
+
+```bash
+curl -s http://localhost:8080
+```
+
+Expected output is
+
+```text
+Hello, User!
+```
+
 ## Testing with OpenShift Origin
 
 TODO
