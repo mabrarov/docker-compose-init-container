@@ -5,10 +5,10 @@ Simulation of K8s / OpenShift init container within Docker Compose.
 **Note** that some support from docker images is required - they should not use "complex" entrypoints,
 preventing overridden docker container command to intercept start of container with helpers.
 
-Idea is to use the same image for init container and pod container b/w K8s / OpenShift an 
-Docker Compose. Docker Compose uses additional image sharing helpers which are used to intercept
-end of init container work and start of pod container work to implement awaiting of pod container
-for completion of work of init container.
+Idea is to use the same images for init container and pod container b/w K8s / OpenShift and
+Docker Compose. Docker Compose project uses additional image sharing helpers which are used 
+to intercept end of init container work and start of pod container to implement awaiting 
+of pod container for completion of work of init container.
 
 ## Building
 
