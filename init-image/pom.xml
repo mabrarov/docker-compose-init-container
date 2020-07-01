@@ -29,8 +29,9 @@
                         </goals>
                         <configuration>
                             <skip>${docker.skip}</skip>
-                            <url>https://busybox.net/downloads/binaries/1.31.0-defconfig-multiarch-musl/busybox-x86_64</url>
+                            <url>https://busybox.net/downloads/binaries/${busybox.version}-defconfig-multiarch-musl/busybox-x86_64</url>
                             <outputFileName>busybox</outputFileName>
+                            <sha512>${busybox.sha512}</sha512>
                         </configuration>
                     </execution>
                 </executions>

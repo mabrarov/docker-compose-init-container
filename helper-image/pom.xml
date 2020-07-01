@@ -22,6 +22,19 @@
                 <artifactId>download-maven-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>download-http-echo</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${docker.skip}</skip>
+                            <url>https://github.com/hashicorp/http-echo/releases/download/v${httpecho.version}/http-echo_${httpecho.version}_linux_amd64.tar.gz</url>
+                            <outputFileName>http-echo.tar.gz</outputFileName>
+                            <sha512>${httpecho.sha512}</sha512>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>download-dockerize</id>
                         <phase>generate-resources</phase>
                         <goals>
@@ -31,6 +44,20 @@
                             <skip>${docker.skip}</skip>
                             <url>https://github.com/jwilder/dockerize/releases/download/v${dockerize.version}/dockerize-linux-amd64-v${dockerize.version}.tar.gz</url>
                             <outputFileName>dockerize.tar.gz</outputFileName>
+                            <sha512>${dockerize.sha512}</sha512>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>download-busybox</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${docker.skip}</skip>
+                            <url>https://busybox.net/downloads/binaries/${busybox.version}-defconfig-multiarch-musl/busybox-x86_64</url>
+                            <outputFileName>busybox</outputFileName>
+                            <sha512>${busybox.sha512}</sha512>
                         </configuration>
                     </execution>
                 </executions>
@@ -39,6 +66,21 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
+                    <execution>
+                        <id>unpack-http-echo</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${docker.skip}</skip>
+                            <target>
+                                <untar src="${project.build.directory}/http-echo.tar.gz"
+                                       dest="${project.build.directory}"
+                                       compression="gzip"/>
+                            </target>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>unpack-dockerize</id>
                         <phase>generate-resources</phase>

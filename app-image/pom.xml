@@ -38,6 +38,7 @@
                             <skip>${docker.skip}</skip>
                             <url>https://github.com/krallin/tini/releases/download/v${tini.version}/tini</url>
                             <outputFileName>tini</outputFileName>
+                            <sha512>${tini.sha512}</sha512>
                         </configuration>
                     </execution>
                 </executions>
