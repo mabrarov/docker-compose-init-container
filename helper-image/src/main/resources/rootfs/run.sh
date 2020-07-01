@@ -9,7 +9,6 @@ main() {
     time_to_wait_sec=5
   fi
 
-  script_dir="$(cd "$(dirname "${0}")" >/dev/null 2>&1 && pwd)"
   ping -q -i 1 -c "${time_to_wait_sec}" 127.0.0.1 >/dev/null 2>&1 &
   pid="${!}"
 

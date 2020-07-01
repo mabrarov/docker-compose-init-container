@@ -8,15 +8,6 @@ init() {
   touch /config/data
 }
 
-pid_alive() {
-  pid="${1}"
-  if ps -p "${pid}" > /dev/null 2>&1; then
-    echo 1
-  else
-    echo 0
-  fi
-}
-
 run_server() {
   script_dir="$(cd "$(dirname "${0}")" >/dev/null 2>&1 && pwd)"
 
