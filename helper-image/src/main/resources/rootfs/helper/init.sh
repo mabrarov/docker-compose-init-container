@@ -2,7 +2,7 @@
 
 set -e
 
-export PATH="/helper:${PATH}"
+export PATH="${PATH}:/helper"
 
 # Implements work done by init container
 init() {
