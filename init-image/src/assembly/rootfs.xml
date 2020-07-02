@@ -15,5 +15,14 @@
             </includes>
             <fileMode>0555</fileMode>
         </fileSet>
+        <fileSet>
+            <outputDirectory/>
+            <directory>${project.basedir}/src/main/resources/rootfs</directory>
+            <includes>
+                <include>**/*.sh</include>
+            </includes>
+            <fileMode>0555</fileMode>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
     </fileSets>
 </assembly>

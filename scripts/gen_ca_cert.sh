@@ -21,7 +21,7 @@ locality="Moscow"
 organization="Private Person"
 organizational_unit_name=""
 common_name="Test Certificate Authority"
-keystore_entry="test_ca"
+keystore_entry="ca"
 
 #
 # Don't change anything below here
@@ -122,11 +122,11 @@ echo "commonName = ${common_name}"
   -infiles "${csr_file}"
 
 # Combine generated certificate with generated private key into keystore
-"${openssl_bin}" pkcs12 \
-  -export \
-  -in "${cert_file}" \
-  -inkey "${key_file}" \
-  -name "${keystore_entry}" \
-  -noiter \
-  -nomaciter \
-  -out "${keystore_file}"
+#"${openssl_bin}" pkcs12 \
+#  -export \
+#  -in "${cert_file}" \
+#  -inkey "${key_file}" \
+#  -name "${keystore_entry}" \
+#  -noiter \
+#  -nomaciter \
+#  -out "${keystore_file}"

@@ -7,18 +7,34 @@ services:
       - '/helper'
   init:
     image: 'abrarov/docker-compose-init-container-initializer'
-    command: ['/helper/busybox', 'sh', '/helper/init.sh']
+    user: 'root'
+    command: ['/helper/init.sh']
+    environment:
+      CRT_FILE: '/tls-cert.crt'
+      KEY_FILE: '/tls-key.pem'
+      KEYSTORE_FILE: '/config/keystore.p12'
+      KEYSTORE_PASSWORD: 'pass'
+      KEY_ALIAS: 'alias'
     volumes_from:
       - 'helper:ro'
     volumes:
       - '/config'
+      - './tls-cert.crt:/tls-cert.crt:ro'
+      - './tls-key.pem:/tls-key.pem:ro'
   app:
     image: 'abrarov/docker-compose-init-container-app'
-    user: '100502'
+    user: 'root'
     command: ['/helper/dockerize', '-wait', 'tcp://init:8080', '-timeout', '60s',
               '/tini', '-s', '-e', '130', '-e', '143', '--', '/usr/bin/java', '-jar', '/app.jar']
+    environment:
+      SERVER_PORT: '8443'
+      SERVER_SSL_ENABLED: 'true'
+      SERVER_SSL_KEY_STORE: '/config/keystore.p12'
+      SERVER_SSL_KEY_STORE_PASSWORD: 'pass'
+      SERVER_SSL_KEY_STORE_TYPE: 'PKCS12'
+      SERVER_SSL_KEY_ALIAS: 'alias'
     volumes_from:
       - 'helper:ro'
       - 'init:ro'
     ports:
-      - '8080:8080'
+      - '8443:8443'

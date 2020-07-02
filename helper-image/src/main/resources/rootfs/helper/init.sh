@@ -2,19 +2,16 @@
 
 set -e
 
-export PATH="${PATH}:/helper"
-
 # Implements work done by init container
 init() {
-  if ! [ -d /config ]; then
-    mkdir -p /config;
-  fi
-  echo 'Hello, User!' > /config/greeting.txt
+  /run.sh
 }
 
 # Runs simple echo server used by containers to wait until init container finishes its work
 run_server() {
-  http-echo -listen=:8080 -text="ready" &
+  script_dir="$(cd "$(dirname "${0}")" >/dev/null 2>&1 && pwd)"
+
+  "${script_dir}/http-echo" -listen=:8080 -text="ready" &
   server_pid="${!}"
 
   trap "kill -HUP \"${server_pid}\"" HUP

@@ -11,7 +11,6 @@
             <outputDirectory>helper</outputDirectory>
             <directory>${project.build.directory}</directory>
             <includes>
-                <include>busybox</include>
                 <include>http-echo</include>
                 <include>dockerize</include>
             </includes>

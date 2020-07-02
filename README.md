@@ -34,13 +34,13 @@ Refer to [docker-compose](docker-compose) directory for example of Docker Compos
 Check [http://localhost:8080](http://localhost:8080) URL, e.g. with curl:
 
 ```bash
-curl -s http://localhost:8080
+curl -ks https://localhost:8443
 ```
 
 Expected output is
 
 ```text
-Hello, User!
+Hello, World!
 ```
 
 ## Testing with OpenShift Origin

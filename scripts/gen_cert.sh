@@ -137,12 +137,12 @@ echo "commonName = ${friendly_name}"
 
 # Combine chain of generated certificate and CA certificate
 # with generated private key into keystore
-"${openssl_bin}" pkcs12 \
-  -export \
-  -in "${cert_chain_file}" \
-  -inkey "${key_file}" \
-  -CAfile "${ca_cert_file}" \
-  -name "${friendly_name}" \
-  -noiter \
-  -nomaciter \
-  -out "${keystore_file}"
+#"${openssl_bin}" pkcs12 \
+#  -export \
+#  -in "${cert_chain_file}" \
+#  -inkey "${key_file}" \
+#  -CAfile "${ca_cert_file}" \
+#  -name "${friendly_name}" \
+#  -noiter \
+#  -nomaciter \
+#  -out "${keystore_file}"

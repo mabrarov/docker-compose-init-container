@@ -1,5 +1,7 @@
 FROM gcr.io/distroless/java-debian10
 
+ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+
 ADD rootfs.tar /
 
 # Entprypoint of base image executes java which we don't need
@@ -7,10 +9,6 @@ ADD rootfs.tar /
 ENTRYPOINT []
 
 CMD ["/tini", "-e", "130", "-e", "143", "--", "/usr/bin/java", "-jar", "/app.jar"]
-
-ENV GREETING_FILE="/config/greeting.txt"
-
-EXPOSE 8080
 
 LABEL name="@docker.repository@" \
     version="@project.version@" \
