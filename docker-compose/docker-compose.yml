@@ -33,6 +33,9 @@ services:
       SERVER_SSL_KEY_STORE_PASSWORD: 'pass'
       SERVER_SSL_KEY_STORE_TYPE: 'PKCS12'
       SERVER_SSL_KEY_ALIAS: 'alias'
+    read_only: true
+    volumes:
+      - '/tmp'
     volumes_from:
       - 'helper:ro'
       - 'init:ro'
