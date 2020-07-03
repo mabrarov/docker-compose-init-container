@@ -36,7 +36,6 @@ key_file="${out_path}/private.pem"
 serial_file="${out_path}/serial.srl"
 cert_file="${out_path}/cert.crt"
 cert_chain_file="${out_path}/chain.crt"
-keystore_file="${out_path}/keystore.p12"
 
 friendly_name="${1}"
 
@@ -74,7 +73,6 @@ rm -f "${serial_file}"
 rm -f "${csr_file}"
 rm -f "${cert_file}"
 rm -f "${cert_chain_file}"
-rm -f "${keystore_file}"
 
 (
 echo "[ req ]"
@@ -134,15 +132,3 @@ echo "commonName = ${friendly_name}"
 
 # ... and of  CA certificate.
 "${openssl_bin}" x509 -inform PEM -in "${ca_cert_file}" >> "${cert_chain_file}"
-
-# Combine chain of generated certificate and CA certificate
-# with generated private key into keystore
-#"${openssl_bin}" pkcs12 \
-#  -export \
-#  -in "${cert_chain_file}" \
-#  -inkey "${key_file}" \
-#  -CAfile "${ca_cert_file}" \
-#  -name "${friendly_name}" \
-#  -noiter \
-#  -nomaciter \
-#  -out "${keystore_file}"

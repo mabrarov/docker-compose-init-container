@@ -21,7 +21,6 @@ locality="Moscow"
 organization="Private Person"
 organizational_unit_name=""
 common_name="Test Certificate Authority"
-keystore_entry="ca"
 
 #
 # Don't change anything below here
@@ -35,7 +34,6 @@ key_file="${out_path}/ca_private.pem"
 database_file="${out_path}/ca_index.txt"
 serial_file="${out_path}/ca_serial.srl"
 cert_file="${out_path}/ca_cert.crt"
-keystore_file="${out_path}/ca_keystore.p12"
 
 mkdir -p "${out_path}"
 rm -f "${openssl_conf}"
@@ -43,7 +41,6 @@ rm -f "${database_file}"
 rm -f "${key_file}"
 rm -f "${csr_file}"
 rm -f "${cert_file}"
-rm -f "${keystore_file}"
 touch "${database_file}"
 
 (
@@ -120,13 +117,3 @@ echo "commonName = ${common_name}"
   -extensions v3_ca \
   -config "${openssl_conf}" \
   -infiles "${csr_file}"
-
-# Combine generated certificate with generated private key into keystore
-#"${openssl_bin}" pkcs12 \
-#  -export \
-#  -in "${cert_file}" \
-#  -inkey "${key_file}" \
-#  -name "${keystore_entry}" \
-#  -noiter \
-#  -nomaciter \
-#  -out "${keystore_file}"

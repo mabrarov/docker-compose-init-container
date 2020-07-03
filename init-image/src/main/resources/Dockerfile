@@ -1,14 +1,27 @@
-FROM gcr.io/distroless/base-debian10
+FROM gcr.io/distroless/java-debian10
+
+ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 
 ADD rootfs.tar /
 
 RUN ["/bin/busybox", "sh", "-c", "set -e && for cmd in $(/bin/busybox --list); do /bin/busybox ln -s /bin/busybox \"/bin/${cmd}\"; done"]
 
-#ENV CRT_FILE='certificate-pem-base64.crt'
-#ENV KEY_FILE='private-key-pem-base64.pem'
+ENV CA_STORE_JDK_FILE="/usr/lib/jvm/java-11-openjdk-amd64/lib/security/cacerts" \
+    CA_STORE_JDK_PASSWORD="changeit"
+
+#ENV CA_STORE*_FILE="ca-certificate-trust-store-sun-jks.jks"
+#ENV CA_STORE*_PASSWORD="ca-certificate-trust-store-password"
+#ENV CA_BUNDLE*_FILE="ca-certificate-bundle-pem-base64.crt"
+#ENV TRUST_STORE_FILE="trust-store-sun-jks.jks"
+#ENV TRUST_STORE_PASSWORD="trust-store-password"
+#ENV CRT_FILE="certificate-pem-base64.crt"
+#ENV KEY_FILE="private-key-pem-base64.pem"
 #ENV KEYSTORE_FILE="keystore-pkcs12.p12"
-#ENV KEYSTORE_PASSWORD='keystore-password'
+#ENV KEYSTORE_PASSWORD="keystore-password"
 #ENV KEY_ALIAS="key-alias"
+
+# Entprypoint of base image executes java which we don't need
+ENTRYPOINT []
 
 # Work of init container
 CMD ["/run.sh"]
