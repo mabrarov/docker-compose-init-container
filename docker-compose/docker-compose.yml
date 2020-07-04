@@ -46,4 +46,4 @@ services:
       - 'helper:ro'
       - 'init:ro'
     ports:
-      - '8443:8443'
+      - '443:8443'
