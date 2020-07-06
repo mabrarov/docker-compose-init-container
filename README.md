@@ -223,7 +223,7 @@ openshift_registry="172.30.1.1:5000"
    e.g. with curl:
 
    ```bash
-   curl -ks https://${openshift_app}.router.default.svc.cluster.local
+   curl -ks "https://${openshift_app}.router.default.svc.cluster.local"
    ```
 
    Expected output is
