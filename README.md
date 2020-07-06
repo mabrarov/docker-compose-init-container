@@ -76,7 +76,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    done
    ```
 
-1. Add hosts entry to access OpenShift application
+1. Add hosts entry to access application
 
    ```bash
    echo "${docker_address} ${app_subdomain}.docker-compose-init-container.local" \
@@ -98,7 +98,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    Hello, World!
    ```
 
-1. Remove hosts entry used to access OpenShift application
+1. Remove hosts entry used to access application
 
    ```bash
    sudo sed -ir "/${app_subdomain}\\.docker-compose-init-container\\.local/d" /etc/hosts
@@ -112,15 +112,15 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
 ## Testing with OpenShift
 
-All commands were tested using Bash on Cent OS 7.7. Commands for other OS and shells - 
-like determining public IP address of host - may differ.
+All commands were tested using Bash on Cent OS 7.7.
+Commands for other OS and shells - like determining public IP address of host - may differ.
 
-[OpenShift Origin Client Tools](https://www.okd.io/download.html) can be used to
+[oc Client Tools](https://www.okd.io/download.html) can be used to
 
-* Setup instance of [OKD](https://www.okd.io/) (OpenShift Origin)
-* Communicate with OpenShift cluster (existing OpenShift cluster or OpenShift Origin instance)
+* Setup local instance of [OKD](https://www.okd.io)
+* Communicate with OpenShift cluster (existing OpenShift cluster or local OKD instance)
 
-Setup of oc commandline tool from OpenShift Origin Client Tools can be done using following command
+Setup of oc commandline tool from oc Client Tools can be done using following command
 
 ```bash
 openshift_version="3.11.0" && openshift_build="0cbc58b" && \
@@ -128,10 +128,9 @@ curl -Ls "https://github.com/openshift/origin/releases/download/v${openshift_ver
 | sudo tar -xz --strip-components=1 -C /usr/bin "openshift-origin-client-tools-v${openshift_version}-${openshift_build}-linux-64bit/oc"
 ```
 
-### OpenShift Origin Setup
+### OKD Setup
 
-In case of need in OpenShift instance one could use [OKD](https://www.okd.io/) (OpenShift Origin) to
-setup OpenShift instance easily
+In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to setup local OpenShift instance easily
 
 1. Configure Docker insecure registry - add 172.30.0.0/16 subnet into insecure-registries list of
    Docker daemon configuration, e.g. into /etc/docker/daemon.json file.
@@ -145,9 +144,9 @@ setup OpenShift instance easily
    ```
 
 1. Restart Docker daemon to apply changes
-1. Determine & decide what address will be used to access OpenShift, 
+1. Determine & decide what address (existing domain name or IP address) will be used to access OpenShift,
    e.g. localhost or IP address of VM.
-   
+
    Let's assume that OpenShift address is defined in `openshift_address` environment variable, e.g.
 
    ```bash
@@ -156,7 +155,7 @@ setup OpenShift instance easily
    | head -n 1)"
    ``` 
 
-1. Setup & start OpenShift Origin instance
+1. Create & start OKD instance
 
    ```bash
    openshift_version="3.11.0" && \
@@ -180,7 +179,7 @@ setup OpenShift instance easily
 
 ### OpenShift Testing Assumptions
 
-1. OpenShift API server IP address is defined by `openshift_address` environment variable
+1. OpenShift API server **IP address** is defined by `openshift_address` environment variable
 1. OpenShift API server user name is defined by `openshift_user` environment variable
 1. OpenShift API server user password is defined by `openshift_password` environment variable
 1. Name of OpenShift project for deployment is defined by `openshift_project` environment 
@@ -235,7 +234,7 @@ openshift_registry="172.30.1.1:5000"
    oc rollout status -n "${openshift_project}" "dc/${openshift_app}"
    ```
 
-1. Add hosts entry to access OpenShift application
+1. Add hosts entry to access application
 
    ```bash
    echo "${openshift_address} ${openshift_app}.docker-compose-init-container.local" \
@@ -268,21 +267,21 @@ openshift_registry="172.30.1.1:5000"
    oc delete secret "${openshift_app}"
    ```
 
-1. Remove hosts entry used to access OpenShift application
+1. Remove hosts entry used to access application
 
    ```bash
    sudo sed -ir "/${openshift_app}\\.docker-compose-init-container\\.local/d" /etc/hosts
    ```
 
-### OpenShift Origin Removal
+### OKD Removal
 
-1. Stop and remove OpenShift Origin containers
+1. Stop and remove OKD containers
 
    ```bash
    oc cluster down
    ```
 
-1. Remove OpenShift mounts
+1. Remove OKD mounts
 
    ```bash
    for openshift_mount in $(mount | grep openshift | awk '{ print $3 }'); do
@@ -290,7 +289,7 @@ openshift_registry="172.30.1.1:5000"
    done
    ```
 
-1. Remove OpenShift Origin configuration
+1. Remove OKD configuration
 
    ```bash
    sudo rm -rf "$(cd ~ &> /dev/null && pwd)/openshift.local.clusterup"
