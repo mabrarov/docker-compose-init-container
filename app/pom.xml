@@ -11,7 +11,7 @@
     <artifactId>app</artifactId>
 
     <properties>
-        <starter.class>org.mabrarov.dockercomposeinitcontainer.Main</starter.class>
+        <starter.class>org.mabrarov.dockercomposeinitcontainer.Application</starter.class>
     </properties>
 
     <dependencies>

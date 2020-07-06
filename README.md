@@ -71,7 +71,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
    ```bash
    while ! docker-compose -f docker-compose/docker-compose.yml logs app \
-   | grep -E '^.*\s+INFO\s+.*\[\s*main\]\s+.*dockercomposeinitcontainer\.Main\s*:\s*Started Main\s*.*$' \
+   | grep -E '^.*\s+INFO\s+.*\[\s*main\]\s+(.*\.)?Application\s*:\s*Started Application\s*.*$' \
    > /dev/null ;
    do
    sleep 5s;
