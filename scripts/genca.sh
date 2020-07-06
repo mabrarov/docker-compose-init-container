@@ -2,6 +2,8 @@
 
 set -e
 
+export MSYS_NO_PATHCONV=1
+
 this_path="$(cd "$(dirname "${0}")" &> /dev/null && pwd)"
 
 # Change these variables for your environment.
@@ -43,16 +45,30 @@ rm -f "${csr_file}"
 rm -f "${cert_file}"
 touch "${database_file}"
 
+native_path() {
+  path="${1}"
+  echo "$(uname -s)" | grep '^MINGW.*$' &> /dev/null && mingw=1 || mingw=0
+  if [[ "${mingw}" -eq 0 ]]; then
+    echo "${path}"
+    return
+  fi
+  if ! echo "${path}" | grep -P '^\/[a-zA-Z](\/.*)?$' &> /dev/null ; then
+    echo "${path}"
+    return
+  fi
+  echo "${path}" | sed -r 's/^\/([a-zA-Z])(\/.*)?$/\U\1\E:\2/;t;d'
+}
+
 (
 echo "[ ca ]"
 echo "default_ca = default_ca"
 echo ""
 echo "[ default_ca ]"
-echo "database = ${database_file}"
-echo "new_certs_dir = ${out_path}"
-echo "certificate = ${cert_file}"
-echo "private_key = ${key_file}"
-echo "serial = ${serial_file}"
+echo "database = $(native_path "${database_file}")"
+echo "new_certs_dir = $(native_path "${out_path}")"
+echo "certificate = $(native_path "${cert_file}")"
+echo "private_key = $(native_path "${key_file}")"
+echo "serial = $(native_path "${serial_file}")"
 echo "default_md = ${digest}"
 echo "policy = default_policy"
 echo ""
@@ -96,24 +112,24 @@ echo "commonName = ${common_name}"
 ) > "${openssl_conf}"
 
 # Generate private key
-"${openssl_bin}" genrsa "${bits}" "-${digest}" > "${key_file}"
+"${openssl_bin}" genrsa "${bits}" > "${key_file}"
 
 # Generate certificate request
 "${openssl_bin}" req \
   -new \
-  -key "${key_file}" \
-  -config "${openssl_conf}" \
+  -key "$(native_path "${key_file}")" \
+  -config "$(native_path "${openssl_conf}")" \
   "-${digest}" \
-  -out "${csr_file}"
+  -out "$(native_path "${csr_file}")"
 
 # Self-sign certificate request and so generate self-signed CA certificate
 "${openssl_bin}" ca \
   -batch \
   -create_serial \
-  -out "${cert_file}" \
+  -out "$(native_path "${cert_file}")" \
   -days "${days}" \
-  -keyfile "${key_file}" \
+  -keyfile "$(native_path "${key_file}")" \
   -selfsign \
   -extensions v3_ca \
-  -config "${openssl_conf}" \
-  -infiles "${csr_file}"
+  -config "$(native_path "${openssl_conf}")" \
+  -infiles "$(native_path "${csr_file}")"

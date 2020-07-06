@@ -2,6 +2,8 @@
 
 set -e
 
+export MSYS_NO_PATHCONV=1
+
 this_path="$(cd "$(dirname "${0}")" &> /dev/null && pwd)"
 
 # Change these variables for your environment.
@@ -74,6 +76,20 @@ rm -f "${csr_file}"
 rm -f "${cert_file}"
 rm -f "${cert_chain_file}"
 
+native_path() {
+  path="${1}"
+  echo "$(uname -s)" | grep '^MINGW.*$' &> /dev/null && mingw=1 || mingw=0
+  if [[ "${mingw}" -eq 0 ]]; then
+    echo "${path}"
+    return
+  fi
+  if ! echo "${path}" | grep -P '^\/[a-zA-Z](\/.*)?$' &> /dev/null ; then
+    echo "${path}"
+    return
+  fi
+  echo "${path}" | sed -r 's/^\/([a-zA-Z])(\/.*)?$/\U\1\E:\2/;t;d'
+}
+
 (
 echo "[ req ]"
 echo "default_bits = ${bits}"
@@ -103,32 +119,31 @@ echo "commonName = ${friendly_name}"
 ) > "${openssl_conf}"
 
 # Generate private key
-"${openssl_bin}" genrsa "${bits}" "-${digest}" > "${key_file}"
+"${openssl_bin}" genrsa "${bits}" > "${key_file}"
 
 # Generate certificate request
 "${openssl_bin}" req \
   -new \
-  -key "${key_file}" \
-  -config "${openssl_conf}" \
+  -key "$(native_path "${key_file}")" \
+  -config "$(native_path "${openssl_conf}")" \
   "-${digest}" \
-  -out "${csr_file}"
+  -out "$(native_path "${csr_file}")"
 
 # Sign certificate request
 "${openssl_bin}" x509 \
   -req \
-  -in "${csr_file}" \
-  -CAkey "${ca_private_key}" \
-  -CA "${ca_cert_file}" \
-  -CAserial "${serial_file}" \
+  -in "$(native_path "${csr_file}")" \
+  -CAkey "$(native_path "${ca_private_key}")" \
+  -CA "$(native_path "${ca_cert_file}")" \
+  -CAserial "$(native_path "${serial_file}")" \
   -CAcreateserial \
   -days "${days}" \
   "-${digest}" \
-  -extfile "${openssl_conf}" \
+  -extfile "$(native_path "${openssl_conf}")" \
   -extensions v3_req \
-  -out "${cert_file}"
+  -out "$(native_path "${cert_file}")"
 
 # Create certificate chan consisting of generated certificate...
-"${openssl_bin}" x509 -inform PEM -in "${cert_file}" > "${cert_chain_file}"
-
-# ... and of  CA certificate.
-"${openssl_bin}" x509 -inform PEM -in "${ca_cert_file}" >> "${cert_chain_file}"
+"${openssl_bin}" x509 -inform PEM -in "$(native_path "${cert_file}")" > "${cert_chain_file}"
+# ... and of CA certificate.
+"${openssl_bin}" x509 -inform PEM -in "$(native_path "${ca_cert_file}")" >> "${cert_chain_file}"
