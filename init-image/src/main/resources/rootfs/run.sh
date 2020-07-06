@@ -75,11 +75,20 @@ gen_keystore() {
     mkdir -p "${keystore_dir}"
   fi
 
-  echo "Generating ${KEYSTORE_FILE} keystore using ${KEY_FILE} key, ${CRT_FILE} certificate and ${KEY_ALIAS} alias"
+  crt_file="${CRT_FILE}"
+
+  if [ "${CA_CRT_FILE}" = "" ]; then
+    echo "Generating ${KEYSTORE_FILE} keystore using ${KEY_FILE} key, ${CRT_FILE} certificate and ${KEY_ALIAS} alias"
+  else
+    echo "Generating ${KEYSTORE_FILE} keystore using ${KEY_FILE} key, ${CRT_FILE} certificate, ${CA_CRT_FILE} CA certificate and ${KEY_ALIAS} alias"
+    crt_file="/tmp/cert.crt"
+    cat "${CRT_FILE}" "${CA_CRT_FILE}" > "${crt_file}"
+  fi
+
   openssl pkcs12 \
     -export \
     -inkey "${KEY_FILE}" \
-    -in "${CRT_FILE}" \
+    -in "${crt_file}" \
     -name "${KEY_ALIAS}" \
     -out "${KEYSTORE_FILE}" \
     -password pass:"${KEYSTORE_PASSWORD}"

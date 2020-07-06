@@ -13,6 +13,7 @@ services:
       CA_BUNDLE_FILE: '/ca-cert.crt'
       TRUST_STORE_FILE: '/config/truststore.jks'
       TRUST_STORE_PASSWORD: 'password_of_6_chars_min'
+      CA_CRT_FILE: '/ca-cert.crt'
       CRT_FILE: '/tls-cert.crt'
       KEY_FILE: '/tls-key.pem'
       KEYSTORE_FILE: '/config/keystore.p12'
@@ -22,9 +23,9 @@ services:
       - 'helper:ro'
     volumes:
       - '/config'
-      - './ca-cert.crt:/ca-cert.crt:ro'
-      - './tls-cert.crt:/tls-cert.crt:ro'
-      - './tls-key.pem:/tls-key.pem:ro'
+      - '../certificates/ca-cert.crt:/ca-cert.crt:ro'
+      - '../certificates/tls-cert.crt:/tls-cert.crt:ro'
+      - '../certificates/tls-key.pem:/tls-key.pem:ro'
   app:
     image: 'abrarov/docker-compose-init-container-app'
     user: 'root'

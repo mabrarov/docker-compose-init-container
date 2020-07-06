@@ -22,6 +22,12 @@ parameters:
   - name: 'OPENSHIFT_CERTS_DIR'
     value: '/var/run/secrets/openshift.io/services_servicing_certs'
     required: true
+  - name: 'ROUTE_CA_CERT_FILE'
+    required: true
+  - name: 'ROUTE_CERT_FILE'
+    required: true
+  - name: 'ROUTE_KEY_FILE'
+    required: true
 objects:
   - apiVersion: 'v1'
     kind: 'Secret'
@@ -102,6 +108,8 @@ objects:
                     secretKeyRef:
                       name: '${APP}'
                       key: 'TRUST_STORE_PASSWORD'
+                - name: 'CA_CRT_FILE'
+                  value: '/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt'
                 - name: 'CRT_FILE'
                   value: '${OPENSHIFT_CERTS_DIR}/tls.crt'
                 - name: 'KEY_FILE'
@@ -149,12 +157,18 @@ objects:
     metadata:
       name: '${APP}'
     spec:
-      host: '${APP}.router.default.svc.cluster.local'
+      host: '${APP}.docker-compose-init-container.local'
       port:
         targetPort: 'https'
       tls:
         insecureEdgeTerminationPolicy: 'Redirect'
         termination: 'reencrypt'
+        caCertificate: |-
+          ${ROUTE_CA_CERT_FILE}
+        certificate: |-
+          ${ROUTE_CERT_FILE}
+        key: |-
+          ${ROUTE_KEY_FILE}
       to:
         kind: 'Service'
         name: '${APP}'
