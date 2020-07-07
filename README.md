@@ -294,3 +294,52 @@ openshift_registry="172.30.1.1:5000"
    ```bash
    sudo rm -rf "$(cd ~ &> /dev/null && pwd)/openshift.local.clusterup"
    ```
+
+## Testing with Kubernetes
+
+### kubectl Setup
+
+```bash
+k8s_version="1.18.0" && \
+curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
+| sudo tee /usr/local/bin/kubectl > /dev/null && \
+sudo chmod +x /usr/local/bin/kubectl
+```
+
+### Minikube Setup
+
+In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) to setup local K8s instance easily
+
+1. Download minikube
+
+   ```bash
+   minikube_version="1.11.0" && \
+   curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
+   | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
+   | sudo tee /usr/local/bin/minikube > /dev/null && \
+   sudo chmod +x /usr/local/bin/minikube
+   ```
+
+1. Create & start K8s instance
+
+   ```bash
+   minikube start --driver=docker --addons=dashboard
+   ```
+
+1. Start proxy if need to access outside host where Minikube runs
+
+   ```text
+   kubectl proxy --address='0.0.0.0' --disable-filter=true --port=8080
+   ```
+
+1. Check K8s dashboard using [http://localhost:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/](http://localhost:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
+
+   If accessing outside of host where Minikube runs then replace localhost with external address of host where Minikube runs, e.g.
+
+   ```bash
+   k8s_address="$(ip address show \
+   | sed -r 's/^[[:space:]]*inet (192(\.[0-9]{1,3}){3})\/[0-9]+ brd (([0-9]{1,3}\.){3}[0-9]{1,3}) scope global .*$/\1/;t;d' \
+   | head -n 1)"
+   ```
+
+   and use [http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/](http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
