@@ -35,7 +35,6 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
-                            <skip>${docker.skip}</skip>
                             <url>https://github.com/krallin/tini/releases/download/v${tini.version}/tini</url>
                             <outputFileName>tini</outputFileName>
                             <sha512>${tini.sha512}</sha512>
@@ -54,7 +53,6 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <skipAssembly>${docker.skip}</skipAssembly>
                             <finalName>rootfs</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <attach>false</attach>
@@ -70,12 +68,23 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <skipAssembly>${docker.skip}</skipAssembly>
                             <finalName>context</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <attach>false</attach>
                             <descriptors>
                                 <descriptor>src/assembly/docker-context.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-source</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>src/assembly/source.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
@@ -103,13 +112,6 @@
                         <id>build-docker-image</id>
                         <goals>
                             <goal>build</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                    <execution>
-                        <id>archive-docker-context</id>
-                        <goals>
-                            <goal>source</goal>
                         </goals>
                         <phase>package</phase>
                     </execution>
