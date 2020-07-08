@@ -29,6 +29,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <resource.delimiter>@</resource.delimiter>
         <git.commit.dateFormat>yyyy-MM-dd'T'HH:mm:ssXXX</git.commit.dateFormat>
+        <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <tini.version>0.19.0</tini.version>
@@ -69,6 +70,11 @@
                         <skipPoms>false</skipPoms>
                         <dateFormat>${git.commit.dateFormat}</dateFormat>
                         <dateFormatTimeZone>UTC</dateFormatTimeZone>
+                        <includeOnlyProperties>
+                            <includeOnlyProperty>^git.build.(version)$</includeOnlyProperty>
+                            <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
+                            <includeOnlyProperty>^git.commit.time$</includeOnlyProperty>
+                        </includeOnlyProperties>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -100,7 +106,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.3.0</version>
                     <configuration>
                         <delimiters>
                             <delimiter>${resource.delimiter}</delimiter>
