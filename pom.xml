@@ -61,19 +61,25 @@
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
                     <artifactId>git-commit-id-plugin</artifactId>
+                    <!--
+                        FIXME: migrate to 4.0.1+ version once it is published
+                        Until that happens keep generateGitPropertiesFile == false
+                        Refer to https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/472
+                    -->
                     <version>4.0.0</version>
                     <configuration>
                         <verbose>false</verbose>
-                        <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                        <generateGitPropertiesFile>false</generateGitPropertiesFile>
                         <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                         <offline>true</offline>
                         <skipPoms>false</skipPoms>
                         <dateFormat>${git.commit.dateFormat}</dateFormat>
                         <dateFormatTimeZone>UTC</dateFormatTimeZone>
                         <includeOnlyProperties>
-                            <includeOnlyProperty>^git.build.(version)$</includeOnlyProperty>
-                            <includeOnlyProperty>^git.commit.id.(abbrev|full)$</includeOnlyProperty>
-                            <includeOnlyProperty>^git.commit.time$</includeOnlyProperty>
+                            <includeOnlyProperty>^git\.build\.version$</includeOnlyProperty>
+                            <includeOnlyProperty>^git\.commit\.id(\.abbrev)?$</includeOnlyProperty>
+                            <includeOnlyProperty>^git\.commit\.time$</includeOnlyProperty>
+                            <includeOnlyProperty>^git\.remote\.origin\.url$</includeOnlyProperty>
                         </includeOnlyProperties>
                     </configuration>
                 </plugin>
