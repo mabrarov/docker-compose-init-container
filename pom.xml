@@ -41,7 +41,7 @@
         <dockerize.version>0.6.1</dockerize.version>
         <dockerize.sha512>182e90d35bc9dd05fd567512fc0b35f612de80898324a29e2db182edf4eb0bca6e0b0cab6891f7e5b469383cdd70584543181737318439cecc6f310292b442af</dockerize.sha512>
         <docker.verbose>true</docker.verbose>
-        <docker.skip.build>true</docker.skip.build>
+        <docker.skip>true</docker.skip>
         <docker.cleanup>none</docker.cleanup>
     </properties>
 
@@ -141,7 +141,7 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <docker.skip.build>false</docker.skip.build>
+                <docker.skip>false</docker.skip>
             </properties>
         </profile>
     </profiles>
