@@ -117,6 +117,10 @@
                         <delimiters>
                             <delimiter>${resource.delimiter}</delimiter>
                         </delimiters>
+                        <overrideUid>0</overrideUid>
+                        <overrideUserName>root</overrideUserName>
+                        <overrideGid>0</overrideGid>
+                        <overrideGroupName>root</overrideGroupName>
                     </configuration>
                 </plugin>
                 <plugin>
