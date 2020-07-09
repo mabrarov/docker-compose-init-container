@@ -128,7 +128,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>build-source</id>
+                        <id>archive-docker-context</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
