@@ -172,9 +172,10 @@ In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to 
    docker pull "docker.io/openshift/origin-docker-registry:v${openshift_short_version}" && \
    docker pull "docker.io/openshift/origin-web-console:v${openshift_short_version}" && \
    docker pull "docker.io/openshift/origin-service-serving-cert-signer:v${openshift_short_version}" && \
-   pushd ~ && \
-   oc cluster up --public-hostname="${openshift_address}" --enable="registry,router,web-console" ; \
-   popd
+   oc cluster up \
+   --base-dir="${HOME}/openshift.local.clusterup" \
+   --public-hostname="${openshift_address}" \
+   --enable="registry,router,web-console"
    ```
 
 ### OpenShift Testing Assumptions
@@ -292,5 +293,5 @@ openshift_registry="172.30.1.1:5000"
 1. Remove OKD configuration
 
    ```bash
-   sudo rm -rf "$(cd ~ &> /dev/null && pwd)/openshift.local.clusterup"
+   sudo rm -rf "${HOME}/openshift.local.clusterup"
    ```
