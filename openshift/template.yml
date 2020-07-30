@@ -136,13 +136,13 @@ objects:
               emptyDir: {}
             - name: 'openshift-certs-volume'
               secret:
-                secretName: 'openshift-certs'
+                secretName: '${APP}-openshift-certs'
   - apiVersion: 'v1'
     kind: 'Service'
     metadata:
       name: '${APP}'
       annotations:
-        service.alpha.openshift.io/serving-cert-secret-name: 'openshift-certs'
+        service.alpha.openshift.io/serving-cert-secret-name: '${APP}-openshift-certs'
     spec:
       ports:
         - name: 'https'
@@ -150,7 +150,7 @@ objects:
           targetPort: ${{SERVER_PORT}}
           protocol: 'TCP'
       selector:
-        deploymentconfig: '${APP}'
+        app: '${APP}'
       type: 'ClusterIP'
   - apiVersion: 'v1'
     kind: 'Route'

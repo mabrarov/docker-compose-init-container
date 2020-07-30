@@ -257,7 +257,13 @@ openshift_registry="172.30.1.1:5000"
    Hello, World!
    ```
 
-1. Stop and remove OpenShift application
+1. Remove hosts entry used to access application
+
+   ```bash
+   sudo sed -ir "/${openshift_app}\\.docker-compose-init-container\\.local/d" /etc/hosts
+   ```
+
+1. Stop and remove OpenShift application, remove images from OpenShift registry
 
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
@@ -265,13 +271,9 @@ openshift_registry="172.30.1.1:5000"
    oc delete route "${openshift_app}" && \
    oc delete service "${openshift_app}" && \
    oc delete dc "${openshift_app}" && \
-   oc delete secret "${openshift_app}"
-   ```
-
-1. Remove hosts entry used to access application
-
-   ```bash
-   sudo sed -ir "/${openshift_app}\\.docker-compose-init-container\\.local/d" /etc/hosts
+   oc delete secret "${openshift_app}" && \
+   oc delete imagestream "${openshift_app}" && \
+   oc delete imagestream "${openshift_app}-initializer"
    ```
 
 ### OKD Removal
