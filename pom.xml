@@ -62,15 +62,9 @@
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
                     <artifactId>git-commit-id-plugin</artifactId>
-                    <!--
-                        FIXME: migrate to 4.0.1+ version once it is published
-                        Until that happens keep generateGitPropertiesFile == false
-                        Refer to https://github.com/git-commit-id/git-commit-id-maven-plugin/issues/472
-                    -->
-                    <version>4.0.0</version>
+                    <version>4.0.2</version>
                     <configuration>
                         <verbose>false</verbose>
-                        <generateGitPropertiesFile>false</generateGitPropertiesFile>
                         <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                         <offline>true</offline>
                         <skipPoms>false</skipPoms>
@@ -88,11 +82,6 @@
                     <groupId>com.googlecode.maven-download-plugin</groupId>
                     <artifactId>download-maven-plugin</artifactId>
                     <version>1.6.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.0.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
