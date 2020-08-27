@@ -235,8 +235,9 @@ jacoco_port="6300"
    oc rollout status -n "${openshift_project}" "dc/${openshift_app}"
    ```
 
-   If there is a need to deploy with JaCoCo agent turned on, then use this command instead
-   (adds `JAVA_OPTIONS` OpenShift template parameter comparing to previous command)
+   If there is a need to deploy with [JaCoCo](https://www.jacoco.org) agent turned on, 
+   then use this command instead (adds `JAVA_OPTIONS` OpenShift template parameter comparing to 
+   previous command)
 
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
