@@ -50,8 +50,8 @@ e.g.
 
 ```bash
 docker_address="$([[ "${DOCKER_HOST}" = "" ]] && echo "127.0.0.1" \
-|| echo "${DOCKER_HOST}" \
-| sed -r 's/^([a-zA-Z0-9_]+:\/\/)?(([0-9]+\.){3}[0-9]+)(:[0-9]+)?$/\2/;t;d')" && \
+  || echo "${DOCKER_HOST}" \
+  | sed -r 's/^([a-zA-Z0-9_]+:\/\/)?(([0-9]+\.){3}[0-9]+)(:[0-9]+)?$/\2/;t;d')" && \
 app_subdomain="app"
 ```
 
@@ -69,10 +69,10 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
    ```bash
    while ! docker-compose -f docker-compose/docker-compose.yml logs app \
-   | grep -E '^.*\s+INFO\s+.*\[\s*main\]\s+(.*\.)?Application\s*:\s*Started Application\s*.*$' \
-   > /dev/null ;
+     | grep -E '^.*\s+INFO\s+.*\[\s*main\]\s+(.*\.)?Application\s*:\s*Started Application\s*.*$' \
+     > /dev/null ;
    do
-   sleep 5s;
+     sleep 5s;
    done
    ```
 
@@ -80,16 +80,15 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
    ```bash
    echo "${docker_address} ${app_subdomain}.docker-compose-init-container.local" \
-   | sudo tee -a /etc/hosts
+     | sudo tee -a /etc/hosts
    ```
 
 1. Check [https://${app_subdomain}.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
    e.g. with curl:
 
    ```bash
-   curl -s \
-   --cacert "$(pwd)/certificates/ca-cert.crt" \
-   "https://${app_subdomain}.docker-compose-init-container.local"
+   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
+     "https://${app_subdomain}.docker-compose-init-container.local"
    ```
 
    Expected output is
@@ -125,7 +124,7 @@ Setup of oc commandline tool from oc Client Tools can be done using following co
 ```bash
 openshift_version="3.11.0" && openshift_build="0cbc58b" && \
 curl -Ls "https://github.com/openshift/origin/releases/download/v${openshift_version}/openshift-origin-client-tools-v${openshift_version}-${openshift_build}-linux-64bit.tar.gz" \
-| sudo tar -xz --strip-components=1 -C /usr/bin "openshift-origin-client-tools-v${openshift_version}-${openshift_build}-linux-64bit/oc"
+  | sudo tar -xz --strip-components=1 -C /usr/bin "openshift-origin-client-tools-v${openshift_version}-${openshift_build}-linux-64bit/oc"
 ```
 
 ### OKD Setup
@@ -151,8 +150,8 @@ In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to 
 
    ```bash
    openshift_address="$(ip address show \
-   | sed -r 's/^[[:space:]]*inet (192(\.[0-9]{1,3}){3})\/[0-9]+ brd (([0-9]{1,3}\.){3}[0-9]{1,3}) scope global .*$/\1/;t;d' \
-   | head -n 1)"
+     | sed -r 's/^[[:space:]]*inet (192(\.[0-9]{1,3}){3})\/[0-9]+ brd (([0-9]{1,3}\.){3}[0-9]{1,3}) scope global .*$/\1/;t;d' \
+     | head -n 1)"
    ``` 
 
 1. Create & start OKD instance
@@ -160,7 +159,7 @@ In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to 
    ```bash
    openshift_version="3.11.0" && \
    openshift_short_version="$(echo ${openshift_version} \
-   | sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+$/\1/')" && \
+     | sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+$/\1/')" && \
    docker pull "docker.io/openshift/origin-control-plane:v${openshift_short_version}" && \
    docker pull "docker.io/openshift/origin-hyperkube:v${openshift_short_version}" && \
    docker pull "docker.io/openshift/origin-hypershift:v${openshift_short_version}" && \
@@ -173,9 +172,9 @@ In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to 
    docker pull "docker.io/openshift/origin-web-console:v${openshift_short_version}" && \
    docker pull "docker.io/openshift/origin-service-serving-cert-signer:v${openshift_short_version}" && \
    oc cluster up \
-   --base-dir="${HOME}/openshift.local.clusterup" \
-   --public-hostname="${openshift_address}" \
-   --enable="registry,router,web-console"
+     --base-dir="${HOME}/openshift.local.clusterup" \
+     --public-hostname="${openshift_address}" \
+     --enable="registry,router,web-console"
    ```
 
 ### OpenShift Testing Assumptions
@@ -194,8 +193,8 @@ e.g.
 
 ```bash
 openshift_address="$(ip address show \
-| sed -r 's/^[[:space:]]*inet (192(\.[0-9]{1,3}){3})\/[0-9]+ brd (([0-9]{1,3}\.){3}[0-9]{1,3}) scope global .*$/\1/;t;d' \
-| head -n 1)" && \
+  | sed -r 's/^[[:space:]]*inet (192(\.[0-9]{1,3}){3})\/[0-9]+ brd (([0-9]{1,3}\.){3}[0-9]{1,3}) scope global .*$/\1/;t;d' \
+  | head -n 1)" && \
 openshift_user="developer" && \
 openshift_password="developer" && \
 openshift_project="myproject" && \
@@ -209,11 +208,11 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    docker tag abrarov/docker-compose-init-container-app \
-   "${openshift_registry}/${openshift_project}/${openshift_app}" && \
+     "${openshift_registry}/${openshift_project}/${openshift_app}" && \
    docker tag abrarov/docker-compose-init-container-initializer \
-   "${openshift_registry}/${openshift_project}/${openshift_app}-initializer" && \
+     "${openshift_registry}/${openshift_project}/${openshift_app}-initializer" && \
    oc login -u "${openshift_user}" -p "${openshift_password}" \
-   --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
+     --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
    docker login -p "$(oc whoami -t)" -u unused "${openshift_registry}" && \
    docker push "${openshift_registry}/${openshift_project}/${openshift_app}" && \
    docker push "${openshift_registry}/${openshift_project}/${openshift_app}-initializer"
@@ -223,15 +222,15 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
-   --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
+     --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
    oc process -n "${openshift_project}" -o yaml -f openshift/template.yml \
-   "NAMESPACE=${openshift_project}" \
-   "APP=${openshift_app}" \
-   "REGISTRY=${openshift_registry}" \
-   "ROUTE_CA_CERT_FILE=$(cat certificates/ca-cert.crt)" \
-   "ROUTE_CERT_FILE=$(cat certificates/tls-cert.crt)" \
-   "ROUTE_KEY_FILE=$(cat certificates/tls-key.pem)" \
-   | oc apply -n "${openshift_project}" -f - && \
+     "NAMESPACE=${openshift_project}" \
+     "APP=${openshift_app}" \
+     "REGISTRY=${openshift_registry}" \
+     "ROUTE_CA_CERT_FILE=$(cat certificates/ca-cert.crt)" \
+     "ROUTE_CERT_FILE=$(cat certificates/tls-cert.crt)" \
+     "ROUTE_KEY_FILE=$(cat certificates/tls-key.pem)" \
+     | oc apply -n "${openshift_project}" -f - && \
    oc rollout status -n "${openshift_project}" "dc/${openshift_app}"
    ```
 
@@ -239,16 +238,15 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    echo "${openshift_address} ${openshift_app}.docker-compose-init-container.local" \
-   | sudo tee -a /etc/hosts
+     | sudo tee -a /etc/hosts
    ```
 
 1. Check [https://${openshift_app}.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
    e.g. with curl:
 
    ```bash
-   curl -s \
-   --cacert "$(pwd)/certificates/ca-cert.crt" \
-   "https://${openshift_app}.docker-compose-init-container.local"
+   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
+     "https://${openshift_app}.docker-compose-init-container.local"
    ```
 
    Expected output is
@@ -267,7 +265,7 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
-   --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
+     --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
    oc delete route "${openshift_app}" && \
    oc delete service "${openshift_app}" && \
    oc delete dc "${openshift_app}" && \
@@ -288,7 +286,7 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    for openshift_mount in $(mount | grep openshift | awk '{ print $3 }'); do
-   echo "Unmounting ${openshift_mount}" && sudo umount "${openshift_mount}"; 
+     echo "Unmounting ${openshift_mount}" && sudo umount "${openshift_mount}"; 
    done
    ```
 
