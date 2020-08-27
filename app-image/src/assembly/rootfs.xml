@@ -26,5 +26,14 @@
             <useProjectArtifact>false</useProjectArtifact>
             <fileMode>0444</fileMode>
         </dependencySet>
+        <dependencySet>
+            <outputDirectory/>
+            <includes>
+                <include>org.jacoco:org.jacoco.agent:jar:runtime</include>
+            </includes>
+            <outputFileNameMapping>jacoco.jar</outputFileNameMapping>
+            <useProjectArtifact>false</useProjectArtifact>
+            <fileMode>0444</fileMode>
+        </dependencySet>
     </dependencySets>
 </assembly>
