@@ -355,8 +355,8 @@ jacoco_port="6300"
 1. Remove OKD mounts
 
    ```bash
-   for openshift_mount in $(mount | grep openshift | awk '{ print $3 }'); do
-     echo "Unmounting ${openshift_mount}" && sudo umount "${openshift_mount}"; 
+   for openshift_mount in $(mount | grep openshift | awk '{ print $3 }'); do \
+     echo "Unmounting ${openshift_mount}" && sudo umount "${openshift_mount}"; \
    done
    ```
 
