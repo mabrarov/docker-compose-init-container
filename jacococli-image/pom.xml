@@ -8,41 +8,36 @@
         <version>0.0.1</version>
     </parent>
 
-    <artifactId>app-image</artifactId>
+    <artifactId>jacococli-image</artifactId>
     <packaging>pom</packaging>
 
     <properties>
-        <docker.repository>abrarov/docker-compose-init-container-app</docker.repository>
+        <docker.repository>abrarov/jacococli</docker.repository>
     </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.mabrarov.docker-compose-init-container</groupId>
-            <artifactId>app</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jacoco</groupId>
-            <artifactId>org.jacoco.agent</artifactId>
-            <classifier>runtime</classifier>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
             <plugin>
-                <groupId>com.googlecode.maven-download-plugin</groupId>
-                <artifactId>download-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>download-tini</id>
-                        <phase>generate-resources</phase>
+                        <id>unpack-jacococli</id>
                         <goals>
-                            <goal>wget</goal>
+                            <goal>unpack</goal>
                         </goals>
+                        <phase>generate-resources</phase>
                         <configuration>
-                            <url>https://github.com/krallin/tini/releases/download/v${tini.version}/tini</url>
-                            <outputFileName>tini</outputFileName>
-                            <sha512>${tini.sha512}</sha512>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.jacoco</groupId>
+                                    <artifactId>jacoco</artifactId>
+                                    <version>${jacoco.version}</version>
+                                    <type>zip</type>
+                                    <includes>lib/jacococli.jar</includes>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
                         </configuration>
                     </execution>
                 </executions>

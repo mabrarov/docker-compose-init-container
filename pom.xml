@@ -22,6 +22,7 @@
         <module>app-image</module>
         <module>helper-image</module>
         <module>init-image</module>
+        <module>jacococli-image</module>
     </modules>
 
     <properties>
@@ -41,6 +42,7 @@
         <httpecho.sha512>a34fb083c95afb1e09725b2d6204c1a77548aaa3bd341cbaf65548586a496ed5284af6f2d0cfaec63b171992b143dd832e9395f634a3683c95315820e90cbf92</httpecho.sha512>
         <dockerize.version>0.6.1</dockerize.version>
         <dockerize.sha512>182e90d35bc9dd05fd567512fc0b35f612de80898324a29e2db182edf4eb0bca6e0b0cab6891f7e5b469383cdd70584543181737318439cecc6f310292b442af</dockerize.sha512>
+        <jacoco.version>0.8.5</jacoco.version>
         <docker.verbose>true</docker.verbose>
         <docker.skip>true</docker.skip>
         <docker.cleanup>none</docker.cleanup>
@@ -52,6 +54,18 @@
                 <groupId>org.mabrarov.docker-compose-init-container</groupId>
                 <artifactId>app</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>org.jacoco.agent</artifactId>
+                <version>${jacoco.version}</version>
+                <classifier>runtime</classifier>
+            </dependency>
+            <dependency>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco</artifactId>
+                <version>${jacoco.version}</version>
+                <type>zip</type>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -77,6 +91,11 @@
                             <includeOnlyProperty>^git\.remote\.origin\.url$</includeOnlyProperty>
                         </includeOnlyProperties>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.2</version>
                 </plugin>
                 <plugin>
                     <groupId>com.googlecode.maven-download-plugin</groupId>
