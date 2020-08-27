@@ -129,6 +129,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
      --port "${jacoco_port}" \
      --destfile "/jacoco/$(basename "${jacoco_exec_file}")" \
      --quiet --retry 3 && \
+   mkdir -p "${jacoco_report_dir}" && \
    java -jar "${jacococli_file}" report "${jacoco_exec_file}" \
      --classfiles app/target/classes \
      --sourcefiles app/src/main/java \
