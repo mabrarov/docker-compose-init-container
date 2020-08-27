@@ -62,13 +62,23 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 1. Create and start containers
 
    ```bash
-   docker-compose -f docker-compose/docker-compose.yml up -d
+   docker-compose -p dcic -f docker-compose/docker-compose.yml up -d
+   ```
+
+   If there is a need to deploy with [JaCoCo](https://www.jacoco.org) agent turned on, 
+   then use this command instead (adds `JAVA_OPTIONS` environment variable which is picked and used
+   by Docker Compose project)
+
+   ```bash
+   jacoco_port="6300" && \
+   export JAVA_OPTIONS="-javaagent:/jacoco.jar=output=tcpserver,address=0.0.0.0,port=${jacoco_port},includes=org.mabrarov.dockercomposeinitcontainer.*"
+   docker-compose -p dcic -f docker-compose/docker-compose.yml up -d
    ```
 
 1. Wait till application starts
 
    ```bash
-   while ! docker-compose -f docker-compose/docker-compose.yml logs app \
+   while ! docker-compose -p dcic -f docker-compose/docker-compose.yml logs app \
      | grep -E '^.*\s+INFO\s+.*\[\s*main\]\s+(.*\.)?Application\s*:\s*Started Application\s*.*$' \
      > /dev/null ;
    do
@@ -97,6 +107,39 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    Hello, World!
    ```
 
+1. If deployed with JaCoCo agent turned on then check coverage using this command
+   (note that project has to be _built_ and _not cleaned_ at the time of execution of this command)
+
+   ```bash
+   jacoco_version="0.8.5" && \
+   jacoco_dir="/tmp/jacoco" && \
+   jacoco_dist_file="${jacoco_dir}/jacoco-${jacoco_version}.zip" && \
+   jacoco_exec_file="${jacoco_dir}/jacoco.exec" && \
+   jacoco_report_dir="${jacoco_dir}/report" && \
+   mkdir -p "${jacoco_dir}" && \
+   curl -Ls -o "${jacoco_dist_file}" \
+     "https://repo1.maven.org/maven2/org/jacoco/jacoco/${jacoco_version}/jacoco-${jacoco_version}.zip" && \
+   unzip -o -j "${jacoco_dist_file}" -d "${jacoco_dir}" lib/jacococli.jar && \
+   jacococli_file="${jacoco_dir}/jacococli.jar" && \
+   docker run --rm \
+     -v "$(dirname "${jacoco_exec_file}"):/jacoco" \
+     --network dcic_default \
+     abrarov/jacococli \
+     /jacococli.jar dump \
+     --address app \
+     --port "${jacoco_port}" \
+     --destfile "/jacoco/$(basename "${jacoco_exec_file}")" \
+     --quiet --retry 3 && \
+   java -jar "${jacococli_file}" report "${jacoco_exec_file}" \
+     --classfiles app/target/classes \
+     --sourcefiles app/src/main/java \
+     --html "${jacoco_report_dir}" && \
+   sudo rm -f "${jacoco_exec_file}"
+   ```
+
+   After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
+   directory (`${jacoco_report_dir}/index.html` file is report entry point).
+
 1. Remove hosts entry used to access application
 
    ```bash
@@ -106,7 +149,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 1. Stop and remove containers
 
    ```bash
-   docker-compose -f docker-compose/docker-compose.yml down -v
+   docker-compose -p dcic -f docker-compose/docker-compose.yml down -v
    ```
 
 ## Testing with OpenShift
@@ -199,8 +242,7 @@ openshift_user="developer" && \
 openshift_password="developer" && \
 openshift_project="myproject" && \
 openshift_app="app" && \
-openshift_registry="172.30.1.1:5000" && \
-jacoco_port="6300"
+openshift_registry="172.30.1.1:5000"
 ```
 
 ### OpenShift Testing Steps
@@ -240,6 +282,7 @@ jacoco_port="6300"
    previous command)
 
    ```bash
+   jacoco_port="6300" && \
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
    oc process -n "${openshift_project}" -o yaml -f openshift/template.yml \
@@ -303,7 +346,7 @@ jacoco_port="6300"
        echo "${!}")" && \
      sleep 2 && \
      java -jar "${jacococli_file}" dump \
-       --address localhost --port ${jacoco_port} \
+       --address localhost --port "${jacoco_port}" \
        --destfile "${pod_jacoco_exec_file}" \
        --quiet --retry 3 && \
      kill -s INT "${oc_port_forward_pid}" && \
