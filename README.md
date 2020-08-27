@@ -261,7 +261,7 @@ openshift_registry="172.30.1.1:5000"
    sudo sed -ir "/${openshift_app}\\.docker-compose-init-container\\.local/d" /etc/hosts
    ```
 
-1. Stop and remove OpenShift application, remove images from OpenShift registry
+1. Stop and remove OpenShift application, remove images from OpenShift registry and local Docker registry
 
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
@@ -271,7 +271,9 @@ openshift_registry="172.30.1.1:5000"
    oc delete dc "${openshift_app}" && \
    oc delete secret "${openshift_app}" && \
    oc delete imagestream "${openshift_app}" && \
-   oc delete imagestream "${openshift_app}-initializer"
+   oc delete imagestream "${openshift_app}-initializer" && \
+   docker rmi "${openshift_registry}/${openshift_project}/${openshift_app}" && \
+   docker rmi "${openshift_registry}/${openshift_project}/${openshift_app}-initializer"
    ```
 
 ### OKD Removal
