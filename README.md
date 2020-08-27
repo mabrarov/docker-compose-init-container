@@ -71,7 +71,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
    ```bash
    jacoco_port="6300" && \
-   export JAVA_OPTIONS="-javaagent:/jacoco.jar=output=tcpserver,address=0.0.0.0,port=${jacoco_port},includes=org.mabrarov.dockercomposeinitcontainer.*"
+   export JAVA_OPTIONS="-javaagent:/jacoco.jar=output=tcpserver,address=0.0.0.0,port=${jacoco_port},includes=org.mabrarov.dockercomposeinitcontainer.*" && \
    docker-compose -p dcic -f docker-compose/docker-compose.yml up -d
    ```
 
@@ -112,15 +112,14 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
    ```bash
    jacoco_version="0.8.5" && \
-   jacoco_dir="/tmp/jacoco" && \
-   jacoco_dist_file="${jacoco_dir}/jacoco-${jacoco_version}.zip" && \
-   jacoco_exec_file="${jacoco_dir}/jacoco.exec" && \
-   jacoco_report_dir="${jacoco_dir}/report" && \
-   mkdir -p "${jacoco_dir}" && \
+   jacoco_report_dir="$(pwd)/jacoco-report" && \
+   jacoco_tmp_dir="$(mktemp -d)" && \
+   jacoco_dist_file="${jacoco_tmp_dir}/jacoco-${jacoco_version}.zip" && \
+   jacoco_exec_file="${jacoco_tmp_dir}/jacoco.exec" && \
    curl -Ls -o "${jacoco_dist_file}" \
      "https://repo1.maven.org/maven2/org/jacoco/jacoco/${jacoco_version}/jacoco-${jacoco_version}.zip" && \
-   unzip -o -j "${jacoco_dist_file}" -d "${jacoco_dir}" lib/jacococli.jar && \
-   jacococli_file="${jacoco_dir}/jacococli.jar" && \
+   unzip -o -j "${jacoco_dist_file}" -d "${jacoco_tmp_dir}" lib/jacococli.jar && \
+   jacococli_file="${jacoco_tmp_dir}/jacococli.jar" && \
    docker run --rm \
      -v "$(dirname "${jacoco_exec_file}"):/jacoco" \
      --network dcic_default \
@@ -134,7 +133,8 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
      --classfiles app/target/classes \
      --sourcefiles app/src/main/java \
      --html "${jacoco_report_dir}" && \
-   sudo rm -f "${jacoco_exec_file}"
+   sudo rm -f "${jacoco_exec_file}" && \
+   rm -rf "${jacoco_tmp_dir}"
    ```
 
    After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
@@ -323,15 +323,14 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    jacoco_version="0.8.5" && \
-   jacoco_dir="/tmp/jacoco" && \
-   jacoco_dist_file="${jacoco_dir}/jacoco-${jacoco_version}.zip" && \
-   jacoco_exec_file="${jacoco_dir}/jacoco.exec" && \
-   jacoco_report_dir="${jacoco_dir}/report" && \
-   mkdir -p "${jacoco_dir}" && \
+   jacoco_report_dir="$(pwd)/jacoco-report" && \
+   jacoco_tmp_dir="$(mktemp -d)" && \
+   jacoco_dist_file="${jacoco_tmp_dir}/jacoco-${jacoco_version}.zip" && \
+   jacoco_exec_file="${jacoco_tmp_dir}/jacoco.exec" && \
    curl -Ls -o "${jacoco_dist_file}" \
      "https://repo1.maven.org/maven2/org/jacoco/jacoco/${jacoco_version}/jacoco-${jacoco_version}.zip" && \
-   unzip -o -j "${jacoco_dist_file}" -d "${jacoco_dir}" lib/jacococli.jar && \
-   jacococli_file="${jacoco_dir}/jacococli.jar" && \
+   unzip -o -j "${jacoco_dist_file}" -d "${jacoco_tmp_dir}" lib/jacococli.jar && \
+   jacococli_file="${jacoco_tmp_dir}/jacococli.jar" && \
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
    pod_counter=0 && \
@@ -354,16 +353,16 @@ openshift_registry="172.30.1.1:5000"
        jacoco_exec_merge_file="${jacoco_exec_file}.tmp" && \
        java -jar "${jacococli_file}" merge "${pod_jacoco_exec_file}" "${jacoco_exec_file}" \
          --destfile "${jacoco_exec_merge_file}" && \
-       mv -f "${jacoco_exec_merge_file}" "${jacoco_exec_file}" && \
-       rm -f "${pod_jacoco_exec_file}"; \
+       mv -f "${jacoco_exec_merge_file}" "${jacoco_exec_file}"; \
      fi && \
      pod_counter=$((pod_counter+1)); \
    done && \
+   mkdir -p "${jacoco_report_dir}" && \
    java -jar "${jacococli_file}" report "${jacoco_exec_file}" \
      --classfiles app/target/classes \
      --sourcefiles app/src/main/java \
      --html "${jacoco_report_dir}" && \
-   rm -f "${jacoco_exec_file}"
+   rm -rf "${jacoco_tmp_dir}"
    ```
 
    After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
