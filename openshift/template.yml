@@ -28,6 +28,8 @@ parameters:
     required: true
   - name: 'ROUTE_KEY_FILE'
     required: true
+  - name: 'JAVA_OPTIONS'
+    required: false
 objects:
   - apiVersion: 'v1'
     kind: 'Secret'
@@ -53,7 +55,7 @@ objects:
               image: '${REGISTRY}/${NAMESPACE}/${APP}'
               env:
                 - name: 'JAVA_TOOL_OPTIONS'
-                  value: '-XX:+PerfDisableSharedMem -Djavax.net.ssl.trustStore=${CONFIG_DIR}/truststore.jks'
+                  value: '-XX:+PerfDisableSharedMem -Djavax.net.ssl.trustStore=${CONFIG_DIR}/truststore.jks ${JAVA_OPTIONS}'
                 - name: 'TRUST_STORE_PASSWORD'
                   valueFrom:
                     secretKeyRef:

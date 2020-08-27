@@ -199,7 +199,8 @@ openshift_user="developer" && \
 openshift_password="developer" && \
 openshift_project="myproject" && \
 openshift_app="app" && \
-openshift_registry="172.30.1.1:5000"
+openshift_registry="172.30.1.1:5000" && \
+jacoco_port="6300"
 ```
 
 ### OpenShift Testing Steps
@@ -234,6 +235,24 @@ openshift_registry="172.30.1.1:5000"
    oc rollout status -n "${openshift_project}" "dc/${openshift_app}"
    ```
 
+   If there is a need to deploy with JaCoCo agent turned on, then use this command instead
+   (adds `JAVA_OPTIONS` OpenShift template parameter comparing to previous command)
+
+   ```bash
+   oc login -u "${openshift_user}" -p "${openshift_password}" \
+     --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
+   oc process -n "${openshift_project}" -o yaml -f openshift/template.yml \
+     "NAMESPACE=${openshift_project}" \
+     "APP=${openshift_app}" \
+     "REGISTRY=${openshift_registry}" \
+     "ROUTE_CA_CERT_FILE=$(cat certificates/ca-cert.crt)" \
+     "ROUTE_CERT_FILE=$(cat certificates/tls-cert.crt)" \
+     "ROUTE_KEY_FILE=$(cat certificates/tls-key.pem)" \
+     "JAVA_OPTIONS=-javaagent:/jacoco.jar=output=tcpserver,address=0.0.0.0,port=${jacoco_port},includes=org.mabrarov.dockercomposeinitcontainer.*" \
+     | oc apply -n "${openshift_project}" -f - && \
+   oc rollout status -n "${openshift_project}" "dc/${openshift_app}"
+   ```
+
 1. Add hosts entry to access application
 
    ```bash
@@ -254,6 +273,53 @@ openshift_registry="172.30.1.1:5000"
    ```text
    Hello, World!
    ```
+
+1. If deployed with JaCoCo agent turned on then check coverage using these commands
+   (note that Maven project has to be built and not cleaned at the time of execution of this command)
+
+   ```bash
+   jacoco_version="0.8.5" && \
+   jacoco_dir="/tmp/jacoco" && \
+   jacoco_dist_file="${jacoco_dir}/jacoco-${jacoco_version}.zip" && \
+   jacoco_exec_file="${jacoco_dir}/jacoco.exec" && \
+   jacoco_report_dir="${jacoco_dir}/report" && \
+   mkdir -p "${jacoco_dir}" && \ 
+   curl -Ls -o "${jacoco_dist_file}" \
+     "https://repo1.maven.org/maven2/org/jacoco/jacoco/${jacoco_version}/jacoco-${jacoco_version}.zip" && \
+   unzip -o -j "${jacoco_dist_file}" -d "${jacoco_dir}" lib/jacococli.jar && \
+   jacococli_file="${jacoco_dir}/jacococli.jar" && \
+   oc login -u "${openshift_user}" -p "${openshift_password}" \
+     --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
+   pod_counter=0 && \
+   for pod_name in $(oc get pods -n "${openshift_project}" \
+     --no-headers \
+     --output="custom-columns=NAME:.metadata.name" \
+     --selector="app=${openshift_app}"); do
+     pod_jacoco_exec_file="$([[ "${pod_counter}" -eq 0 ]] && \
+       echo "${jacoco_exec_file}" || \
+       echo "${jacoco_exec_file}.${pod_counter}")" && \
+     oc_port_forward_pid="$(oc port-forward "${pod_name}" "${jacoco_port}:${jacoco_port}" > /dev/null & \
+       echo "${!}")" && \
+     sleep 2 && \
+     java -jar "${jacococli_file}" dump \
+       --address localhost --port 6300\
+       --destfile "${pod_jacoco_exec_file}" \
+       --quiet --retry 3 && \
+     kill -s INT "${oc_port_forward_pid}" && \
+     if [[ "${pod_counter}" -ne 0 ]]; then \
+       java -jar "${jacococli_file}" merge "${pod_jacoco_exec_file}" "${jacoco_exec_file}" \
+         --destfile "${jacoco_exec_file}";
+     fi && \
+     ((pod_counter++));
+   done && \
+   java -jar "${jacococli_file}" report "${jacoco_exec_file}" \
+     --classfiles app/target/classes \
+     --sourcefiles app/src/main/java \
+     --html "${jacoco_report_dir}"
+   ```
+
+   After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
+   directory (`${jacoco_report_dir}/index.html` file is report entry point).
 
 1. Remove hosts entry used to access application
 
