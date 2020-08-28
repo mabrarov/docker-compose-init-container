@@ -32,7 +32,7 @@ services:
     command: ['/helper/dockerize', '-wait', 'tcp://init:8080', '-timeout', '60s',
               '/tini', '-s', '-e', '130', '-e', '143', '--', '/usr/bin/java', '-jar', '/app.jar']
     environment:
-      JAVA_TOOL_OPTIONS: '-XX:+PerfDisableSharedMem -Djavax.net.ssl.trustStore=/config/truststore.jks ${JAVA_OPTIONS:- }'
+      JAVA_TOOL_OPTIONS: '-XX:+PerfDisableSharedMem -Djavax.net.ssl.trustStore=/config/truststore.jks ${JAVA_OPTIONS:-}'
       TRUST_STORE_PASSWORD: 'password_of_6_chars_min'
       SERVER_PORT: '8443'
       SERVER_SSL_ENABLED: 'true'
