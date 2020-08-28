@@ -22,7 +22,6 @@
         <module>app-image</module>
         <module>helper-image</module>
         <module>init-image</module>
-        <module>jacococli-image</module>
     </modules>
 
     <properties>

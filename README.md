@@ -120,11 +120,13 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
      "https://repo1.maven.org/maven2/org/jacoco/jacoco/${jacoco_version}/jacoco-${jacoco_version}.zip" && \
    unzip -o -j "${jacoco_dist_file}" -d "${jacoco_tmp_dir}" lib/jacococli.jar && \
    jacococli_file="${jacoco_tmp_dir}/jacococli.jar" && \
+   chmod o+r "${jacococli_file}" && \
    docker run --rm \
+     -v "${jacococli_file}:/$(basename "${jacococli_file}")" \
      -v "$(dirname "${jacoco_exec_file}"):/jacoco" \
      --network dcic_default \
-     abrarov/jacococli \
-     /jacococli.jar dump \
+     gcr.io/distroless/java-debian10 \
+     "/$(basename "${jacococli_file}")" dump \
      --address app \
      --port "${jacoco_port}" \
      --destfile "/jacoco/$(basename "${jacoco_exec_file}")" \
