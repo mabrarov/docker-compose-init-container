@@ -344,8 +344,8 @@ openshift_registry="172.30.1.1:5000"
      pod_jacoco_exec_file="$([[ "${pod_counter}" -eq 0 ]] && \
        echo "${jacoco_exec_file}" || \
        echo "${jacoco_exec_file}.${pod_counter}")" && \
-     oc_port_forward_pid="$(oc port-forward "${pod_name}" "${jacoco_port}:${jacoco_port}" > /dev/null & \
-       echo "${!}")" && \
+     { oc port-forward "${pod_name}" "${jacoco_port}:${jacoco_port}" > /dev/null & \
+       oc_port_forward_pid="${!}"; } && \
      sleep 2 && \
      java -jar "${jacococli_file}" dump \
        --address localhost --port "${jacoco_port}" \
