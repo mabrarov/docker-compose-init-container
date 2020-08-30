@@ -118,7 +118,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    jacoco_exec_file="${jacoco_tmp_dir}/jacoco.exec" && \
    curl -Ls -o "${jacoco_dist_file}" \
      "https://repo1.maven.org/maven2/org/jacoco/jacoco/${jacoco_version}/jacoco-${jacoco_version}.zip" && \
-   unzip -o -j "${jacoco_dist_file}" -d "${jacoco_tmp_dir}" lib/jacococli.jar && \
+   unzip -q -o -j "${jacoco_dist_file}" -d "${jacoco_tmp_dir}" lib/jacococli.jar && \
    jacococli_file="${jacoco_tmp_dir}/jacococli.jar" && \
    chmod o+r "${jacococli_file}" && \
    docker run --rm \
@@ -332,7 +332,7 @@ openshift_registry="172.30.1.1:5000"
    jacoco_exec_file="${jacoco_tmp_dir}/jacoco.exec" && \
    curl -Ls -o "${jacoco_dist_file}" \
      "https://repo1.maven.org/maven2/org/jacoco/jacoco/${jacoco_version}/jacoco-${jacoco_version}.zip" && \
-   unzip -o -j "${jacoco_dist_file}" -d "${jacoco_tmp_dir}" lib/jacococli.jar && \
+   unzip -q -o -j "${jacoco_dist_file}" -d "${jacoco_tmp_dir}" lib/jacococli.jar && \
    jacococli_file="${jacoco_tmp_dir}/jacococli.jar" && \
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
@@ -345,17 +345,18 @@ openshift_registry="172.30.1.1:5000"
        echo "${jacoco_exec_file}" || \
        echo "${jacoco_exec_file}.${pod_counter}")" && \
      { oc port-forward "${pod_name}" "${jacoco_port}:${jacoco_port}" > /dev/null & \
-       oc_port_forward_pid="${!}"; } && \
+       oc_port_forward_pid="${!}"; } 2>/dev/null && \
      sleep 2 && \
      java -jar "${jacococli_file}" dump \
        --address localhost --port "${jacoco_port}" \
        --destfile "${pod_jacoco_exec_file}" \
        --quiet --retry 3 && \
-     kill -s INT "${oc_port_forward_pid}" && \
+     { kill -s INT "${oc_port_forward_pid}" && \
+       wait; } 2>/dev/null && \
      if [[ "${pod_counter}" -ne 0 ]]; then \
        jacoco_exec_merge_file="${jacoco_exec_file}.tmp" && \
        java -jar "${jacococli_file}" merge "${pod_jacoco_exec_file}" "${jacoco_exec_file}" \
-         --destfile "${jacoco_exec_merge_file}" && \
+         --destfile "${jacoco_exec_merge_file}" --quiet && \
        mv -f "${jacoco_exec_merge_file}" "${jacoco_exec_file}"; \
      fi && \
      pod_counter=$((pod_counter+1)); \
