@@ -8,8 +8,9 @@ services:
   init:
     image: 'abrarov/docker-compose-init-container-initializer'
     user: 'root'
-    command: ['/helper/init.sh']
+    command: ['/helper/run.sh']
     environment:
+      INIT_COMMAND: '/run.sh'
       CA_BUNDLE_FILE: '/ca-cert.crt'
       TRUST_STORE_FILE: '/config/truststore.jks'
       TRUST_STORE_PASSWORD: 'password_of_6_chars_min'

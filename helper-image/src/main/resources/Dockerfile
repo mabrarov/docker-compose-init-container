@@ -1,13 +1,9 @@
-FROM gcr.io/distroless/static-debian10
+FROM scratch
 
 ADD rootfs.tar /
 
-# For run.sh
-RUN ["/bin/busybox", "sh", "-c", "set -e && for cmd in $(/bin/busybox --list); do /bin/busybox ln -s /bin/busybox \"/bin/${cmd}\"; done"]
-
-# We have to provide at least one of ENTRYPOINT or CMD and it's better to do that here
-# to reduce Docker Compose project
-CMD ["/run.sh"]
+# Call some statically linked application which exits with zero exit code
+CMD ["/helper/dockerize", "--version"]
 
 LABEL name="@docker.repository@" \
     version="@project.version@" \

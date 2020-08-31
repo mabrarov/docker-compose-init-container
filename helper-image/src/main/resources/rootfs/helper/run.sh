@@ -4,7 +4,10 @@ set -e
 
 # Implements work done by init container
 init() {
-  /run.sh
+  if [ "${INIT_COMMAND}" = "" ]; then
+    return
+  fi
+  "${INIT_COMMAND}"
 }
 
 # Runs simple echo server used by containers to wait until init container finishes its work
