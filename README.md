@@ -45,6 +45,7 @@ mvnw.cmd clean package -P docker
 1. IP address of Docker which Docker Compose connects is defined by `docker_address` environment variable
 1. Subdomain name of application FQDN is defined by `app_subdomain` environment variable
 1. Current directory is directory where this repository is cloned
+1. Name of Docker Compose project is defined by `compose_project` environment variable
 
 e.g.
 
@@ -52,7 +53,8 @@ e.g.
 docker_address="$([[ "${DOCKER_HOST}" = "" ]] && echo "127.0.0.1" \
   || echo "${DOCKER_HOST}" \
   | sed -r 's/^([a-zA-Z0-9_]+:\/\/)?(([0-9]+\.){3}[0-9]+)(:[0-9]+)?$/\2/;t;d')" && \
-app_subdomain="app"
+app_subdomain="app" && \
+compose_project="dcic"
 ```
 
 ### Docker Compose Testing Steps
@@ -62,7 +64,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 1. Create and start containers
 
    ```bash
-   docker-compose -p dcic -f docker-compose/docker-compose.yml up -d
+   docker-compose -p "${compose_project}" -f docker-compose/docker-compose.yml up -d
    ```
 
    If there is a need to deploy with [JaCoCo](https://www.jacoco.org) agent turned on, 
@@ -72,13 +74,14 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    ```bash
    jacoco_port="6300" && \
    export JAVA_OPTIONS="-javaagent:/jacoco.jar=output=tcpserver,address=0.0.0.0,port=${jacoco_port},includes=org.mabrarov.dockercomposeinitcontainer.*" && \
-   docker-compose -p dcic -f docker-compose/docker-compose.yml up -d
+   docker-compose -p "${compose_project}" -f docker-compose/docker-compose.yml up -d
    ```
 
 1. Wait till application starts
 
    ```bash
-   while ! docker-compose -p dcic -f docker-compose/docker-compose.yml logs app \
+   while ! docker-compose -p "${compose_project}" \
+     -f docker-compose/docker-compose.yml logs app \
      | grep -E '^.*\s+INFO\s+.*\[\s*main\]\s+(.*\.)?Application\s*:\s*Started Application\s*.*$' \
      > /dev/null ;
    do
@@ -124,7 +127,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    docker run --rm \
      -v "${jacococli_file}:/$(basename "${jacococli_file}")" \
      -v "$(dirname "${jacoco_exec_file}"):/jacoco" \
-     --network dcic_default \
+     --network "${compose_project}_default" \
      gcr.io/distroless/java-debian10 \
      "/$(basename "${jacococli_file}")" dump \
      --address app \
@@ -152,7 +155,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 1. Stop and remove containers
 
    ```bash
-   docker-compose -p dcic -f docker-compose/docker-compose.yml down -v
+   docker-compose -p "${compose_project}" -f docker-compose/docker-compose.yml down -v
    ```
 
 ## Testing with OpenShift
