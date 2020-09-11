@@ -17,14 +17,6 @@
             <fileMode>0555</fileMode>
         </fileSet>
         <fileSet>
-            <outputDirectory>bin</outputDirectory>
-            <directory>${project.build.directory}</directory>
-            <includes>
-                <include>busybox</include>
-            </includes>
-            <fileMode>0555</fileMode>
-        </fileSet>
-        <fileSet>
             <outputDirectory/>
             <directory>${project.basedir}/src/main/resources/rootfs</directory>
             <includes>

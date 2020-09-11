@@ -47,18 +47,6 @@
                             <sha512>${dockerize.sha512}</sha512>
                         </configuration>
                     </execution>
-                    <execution>
-                        <id>download-busybox</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>wget</goal>
-                        </goals>
-                        <configuration>
-                            <url>https://busybox.net/downloads/binaries/${busybox.version}-defconfig-multiarch-musl/busybox-x86_64</url>
-                            <outputFileName>busybox</outputFileName>
-                            <sha512>${busybox.sha512}</sha512>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>

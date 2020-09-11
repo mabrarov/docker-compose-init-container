@@ -4,3 +4,6 @@ target/
 # IntelliJ IDEA stuff
 .idea/
 *.iml
+
+# JaCoCo report
+/jacoco-report/
