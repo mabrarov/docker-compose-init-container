@@ -425,7 +425,7 @@ openshift_registry="172.30.1.1:5000"
 ```bash
 k8s_version="1.19.0" && \
 curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
-| sudo tee /usr/local/bin/kubectl > /dev/null && \
+  | sudo tee /usr/local/bin/kubectl > /dev/null && \
 sudo chmod +x /usr/local/bin/kubectl
 ```
 
@@ -438,8 +438,8 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
    ```bash
    minikube_version="1.12.3" && \
    curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
-   | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
-   | sudo tee /usr/local/bin/minikube > /dev/null && \
+     | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
+     | sudo tee /usr/local/bin/minikube > /dev/null && \
    sudo chmod +x /usr/local/bin/minikube
    ```
 
@@ -461,8 +461,8 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 
    ```bash
    k8s_address="$(ip address show \
-   | sed -r 's/^[[:space:]]*inet (192(\.[0-9]{1,3}){3})\/[0-9]+ brd (([0-9]{1,3}\.){3}[0-9]{1,3}) scope global .*$/\1/;t;d' \
-   | head -n 1)"
+     | sed -r 's/^[[:space:]]*inet (192(\.[0-9]{1,3}){3})\/[0-9]+ brd (([0-9]{1,3}\.){3}[0-9]{1,3}) scope global .*$/\1/;t;d' \
+     | head -n 1)"
    ```
 
    and use [http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/](http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
