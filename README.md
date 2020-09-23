@@ -423,7 +423,7 @@ openshift_registry="172.30.1.1:5000"
 ### kubectl Setup
 
 ```bash
-k8s_version="1.19.0" && \
+k8s_version="1.19.2" && \
 curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
   | sudo tee /usr/local/bin/kubectl > /dev/null && \
 sudo chmod +x /usr/local/bin/kubectl
@@ -434,7 +434,7 @@ sudo chmod +x /usr/local/bin/kubectl
 ```bash
 helm_version="3.3.3" && \
 curl -Ls "https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz" \
-  | sudo tar -xz --strip-components=1 -C /usr/bin "linux-amd64/helm"
+  | sudo tar -xz --strip-components=1 -C /usr/local/bin "linux-amd64/helm"
 ```
 
 ### Minikube Setup
@@ -444,7 +444,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Download minikube
 
    ```bash
-   minikube_version="1.12.3" && \
+   minikube_version="1.13.1" && \
    curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
      | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
      | sudo tee /usr/local/bin/minikube > /dev/null && \
@@ -463,7 +463,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
    kubectl proxy --address='0.0.0.0' --disable-filter=true --port=8080
    ```
 
-1. Check K8s dashboard using [http://localhost:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/](http://localhost:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
+1. Check K8s dashboard using [http://localhost:8080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/](http://localhost:8080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/)
 
    If accessing outside of host where Minikube runs then replace localhost with external address of host where Minikube runs, e.g.
 
@@ -473,4 +473,18 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
      | head -n 1)"
    ```
 
-   and use [http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/](http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
+   and use [http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/](http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/)
+
+### Minikube Removal
+
+1. Delete minikube instance
+
+   ```bash
+   minikube delete --purge=true
+   ```
+
+1. Optionally remove K8s configuration files
+
+   ```bash
+   rm -rf ~/.kube
+   ```
