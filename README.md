@@ -429,6 +429,14 @@ curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_versi
 sudo chmod +x /usr/local/bin/kubectl
 ```
 
+### Helm Setup
+
+```bash
+helm_version="3.3.3" && \
+curl -Ls "https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz" \
+  | sudo tar -xz --strip-components=1 -C /usr/bin "linux-amd64/helm"
+```
+
 ### Minikube Setup
 
 In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) to setup local K8s instance easily
