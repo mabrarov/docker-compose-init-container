@@ -15,6 +15,15 @@
             </includes>
             <fileMode>0555</fileMode>
         </fileSet>
+        <fileSet>
+            <outputDirectory/>
+            <directory>src/main/resources/rootfs</directory>
+            <includes>
+                <include>*xml</include>
+            </includes>
+            <fileMode>0444</fileMode>
+            <lineEnding>unix</lineEnding>
+        </fileSet>
     </fileSets>
     <dependencySets>
         <dependencySet>
