@@ -155,7 +155,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 1. Stop and remove containers
 
    ```bash
-   docker-compose -p "${compose_project}" -f docker-compose/docker-compose.yml down -v
+   docker-compose -p "${compose_project}" -f docker-compose/docker-compose.yml down -v -t 0
    ```
 
 ## Testing with OpenShift
