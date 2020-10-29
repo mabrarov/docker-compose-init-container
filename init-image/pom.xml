@@ -96,6 +96,7 @@
                                     <tag>latest</tag>
                                 </tags>
                                 <cleanup>${docker.cleanup}</cleanup>
+                                <filter>false</filter>
                             </build>
                         </image>
                     </images>
