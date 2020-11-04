@@ -2,7 +2,7 @@ FROM gcr.io/distroless/java-debian10
 
 ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 
-ADD rootfs.tar /
+ADD ["rootfs.tar", "/"]
 
 RUN ["/bin/busybox", "sh", "-c", "set -e && for cmd in $(/bin/busybox --list); do /bin/busybox ln -s /bin/busybox \"/bin/${cmd}\"; done"]
 

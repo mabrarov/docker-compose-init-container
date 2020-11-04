@@ -1,6 +1,6 @@
 FROM scratch
 
-ADD rootfs.tar /
+ADD ["rootfs.tar", "/"]
 
 # Call some statically linked application which exits with zero exit code
 CMD ["/helper/dockerize", "--version"]
