@@ -1,36 +1,48 @@
 version: '2.1'
 
+x-helper-dir: &helper-dir '/helper'
+x-helper-wrapper-script: &helper-wrapper-script '/helper/run.sh'
+x-helper-dockerize: &helper-dockerize '/helper/dockerize'
+
+x-config-dir: &config-dir '/config'
+x-keystore-file: &keystore-file '/config/keystore.p12'
+x-trust-store-file: &trust-store-file '/config/truststore.jks'
+
+x-https-keystore-password: &https-keystore-password 'pass'
+x-https-keystore-alias: &https-keystore-alias 'alias'
+x-trust-store-password: &trust-store-password 'password_of_6_chars_min'
+
 services:
   helper:
     image: 'abrarov/docker-compose-init-container-helper'
+    read_only: true
     volumes:
-      - '/helper'
+      - *helper-dir
   init:
     image: 'abrarov/docker-compose-init-container-initializer'
-    command:
-      - '/helper/run.sh'
+    command: *helper-wrapper-script
     environment:
       INIT_COMMAND: '/run.sh'
       CA_BUNDLE_FILE: '/ca-cert.crt'
-      TRUST_STORE_FILE: '/config/truststore.jks'
-      TRUST_STORE_PASSWORD: 'password_of_6_chars_min'
+      TRUST_STORE_FILE: *trust-store-file
+      TRUST_STORE_PASSWORD: *trust-store-password
       CA_CRT_FILE: '/ca-cert.crt'
       CRT_FILE: '/tls-cert.crt'
       KEY_FILE: '/tls-key.pem'
-      KEYSTORE_FILE: '/config/keystore.p12'
-      KEYSTORE_PASSWORD: 'pass'
-      KEY_ALIAS: 'alias'
-    volumes_from:
-      - 'helper:ro'
+      KEYSTORE_FILE: *keystore-file
+      KEYSTORE_PASSWORD: *https-keystore-password
+      KEY_ALIAS: *https-keystore-alias
     volumes:
-      - '/config'
+      - *config-dir
       - '../certificates/ca-cert.crt:/ca-cert.crt:ro'
       - '../certificates/tls-cert.crt:/tls-cert.crt:ro'
       - '../certificates/tls-key.pem:/tls-key.pem:ro'
+    volumes_from:
+      - 'helper:ro'
   app:
     image: 'abrarov/docker-compose-init-container-app'
     command:
-      - '/helper/dockerize'
+      - *helper-dockerize
       - '-wait'
       - 'tcp://init:8080'
       - '-timeout'
@@ -47,24 +59,26 @@ services:
     healthcheck:
       test:
         - 'CMD'
-        - '/helper/dockerize'
+        - *helper-dockerize
         - '-timeout'
         - '5s'
+        - '-skip-tls-verify'
         - '-wait'
-        - 'tcp://localhost:8443'
+        - 'https://localhost:8443'
       interval: '30s'
       timeout: '5s'
       retries: 3
     environment:
       TINI_SUBREAPER: '1'
-      JAVA_TOOL_OPTIONS: '-XX:+PerfDisableSharedMem -Djavax.net.ssl.trustStore=/config/truststore.jks ${JAVA_OPTIONS:-}'
-      TRUST_STORE_PASSWORD: 'password_of_6_chars_min'
+      JAVA_TOOL_OPTIONS: '-XX:+PerfDisableSharedMem ${JAVA_OPTIONS:-}'
+      TRUST_STORE_FILE: *trust-store-file
+      TRUST_STORE_PASSWORD: *trust-store-password
       SERVER_PORT: '8443'
       SERVER_SSL_ENABLED: 'true'
-      SERVER_SSL_KEY_STORE: '/config/keystore.p12'
-      SERVER_SSL_KEY_STORE_PASSWORD: 'pass'
+      SERVER_SSL_KEY_STORE: *keystore-file
+      SERVER_SSL_KEY_STORE_PASSWORD: *https-keystore-password
       SERVER_SSL_KEY_STORE_TYPE: 'PKCS12'
-      SERVER_SSL_KEY_ALIAS: 'alias'
+      SERVER_SSL_KEY_ALIAS: *https-keystore-alias
     read_only: true
     volumes:
       - '/tmp'

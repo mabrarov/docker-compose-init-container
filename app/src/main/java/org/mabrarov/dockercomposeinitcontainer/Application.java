@@ -10,8 +10,16 @@ import org.springframework.web.filter.CommonsRequestLoggingFilter;
 public class Application {
 
   public static void main(final String[] args) {
+    setJavaTrustStoreFile();
     setJavaTrustStorePassword();
     SpringApplication.run(Application.class, args);
+  }
+
+  private static void setJavaTrustStoreFile() {
+    val trustStoreFile = System.getenv("TRUST_STORE_FILE");
+    if (trustStoreFile != null) {
+      System.setProperty("javax.net.ssl.trustStore", trustStoreFile);
+    }
   }
 
   private static void setJavaTrustStorePassword() {
