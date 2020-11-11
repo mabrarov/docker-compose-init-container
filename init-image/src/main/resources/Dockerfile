@@ -21,6 +21,8 @@ ENV CA_STORE_JDK_FILE="/usr/lib/jvm/java-11-openjdk-amd64/lib/security/cacerts" 
 #ENV KEYSTORE_PASSWORD="keystore-password"
 #ENV KEY_ALIAS="key-alias"
 
+USER nonroot
+
 # Entprypoint of base image executes java which we don't need
 ENTRYPOINT []
 

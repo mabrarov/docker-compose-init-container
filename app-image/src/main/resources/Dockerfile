@@ -4,6 +4,8 @@ ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 
 ADD ["rootfs.tar", "/"]
 
+USER nonroot
+
 # Entprypoint of base image executes java which we don't need
 # because Docker Compose project overrides command to implement awaiting for init container
 ENTRYPOINT []
