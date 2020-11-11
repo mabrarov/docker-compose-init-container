@@ -7,7 +7,8 @@ services:
       - '/helper'
   init:
     image: 'abrarov/docker-compose-init-container-initializer'
-    command: ['/helper/run.sh']
+    command:
+      - '/helper/run.sh'
     environment:
       INIT_COMMAND: '/run.sh'
       CA_BUNDLE_FILE: '/ca-cert.crt'
@@ -28,9 +29,34 @@ services:
       - '../certificates/tls-key.pem:/tls-key.pem:ro'
   app:
     image: 'abrarov/docker-compose-init-container-app'
-    command: ['/helper/dockerize', '-wait', 'tcp://init:8080', '-timeout', '60s',
-              '/tini', '-s', '-e', '130', '-e', '143', '--', '/usr/bin/java', '-jar', '/app.jar']
+    command:
+      - '/helper/dockerize'
+      - '-wait'
+      - 'tcp://init:8080'
+      - '-timeout'
+      - '60s'
+      - '/tini'
+      - '-e'
+      - '130'
+      - '-e'
+      - '143'
+      - '--'
+      - '/usr/bin/java'
+      - '-jar'
+      - '/app.jar'
+    healthcheck:
+      test:
+        - 'CMD'
+        - '/helper/dockerize'
+        - '-timeout'
+        - '5s'
+        - '-wait'
+        - 'tcp://localhost:8443'
+      interval: '30s'
+      timeout: '5s'
+      retries: 3
     environment:
+      TINI_SUBREAPER: '1'
       JAVA_TOOL_OPTIONS: '-XX:+PerfDisableSharedMem -Djavax.net.ssl.trustStore=/config/truststore.jks ${JAVA_OPTIONS:-}'
       TRUST_STORE_PASSWORD: 'password_of_6_chars_min'
       SERVER_PORT: '8443'
