@@ -50,8 +50,9 @@ services:
         - '/helper/dockerize'
         - '-timeout'
         - '5s'
+        - '-skip-tls-verify'
         - '-wait'
-        - 'tcp://localhost:8443'
+        - 'https://localhost:8443'
       interval: '30s'
       timeout: '5s'
       retries: 3
