@@ -2,17 +2,11 @@
 
 set -e
 
-cat_ca_bundles() {
-  for ca_bundle_var in $(env | sed -r 's/^(CA_BUNDLE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' | sort); do
-    ca_bundle_file="$(printenv "${ca_bundle_var}")"
-    if [ "${ca_bundle_file}" = "" ]; then
-      continue
-    fi
-    cat "${ca_bundle_file}"
-  done
-}
-
 gen_trust_store() {
+  if [ "${TRUST_STORE_FILE}" = "" ]; then
+    return;
+  fi
+
   keytool="${JAVA_HOME}/bin/keytool"
 
   trust_store_dir="$(dirname "${TRUST_STORE_FILE}")"
@@ -52,24 +46,80 @@ gen_trust_store() {
       -deststorepass "${TRUST_STORE_PASSWORD}"
   done
 
-  echo "Splitting CA bundles"
-  cat_ca_bundles \
-    | awk 'BEGIN {c=0;} /-----BEGIN CERTIFICATE-----/{c++} { print > "/tmp/ca-cert-" sprintf("%03d", c) ".crt"}'
+  for ca_bundle_var in $(env | sed -r 's/^(CA_BUNDLE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' | sort); do
+    ca_bundle_file="$(printenv "${ca_bundle_var}")"
+    if [ "${ca_bundle_file}" = "" ]; then
+      continue
+    fi
+    ca_bundle_cert_dir="$(mktemp -d)"
+    echo "Splitting ${ca_bundle_file} CA bundle into certificate files in ${ca_bundle_cert_dir} directory"
+    cat ${ca_bundle_file} \
+      | awk 'BEGIN {c=0;} /-----BEGIN CERTIFICATE-----/{c++} { print > "'"${ca_bundle_cert_dir}/ca-cert-"'" sprintf("%03d", c) ".crt"}'
 
-  echo "Importing certificates from CA bundles"
-  for cert_file in $(find "/tmp" -mindepth 1 -maxdepth 1 -name "ca-cert-*.crt" -type f -print | sort); do
-    cert_alias="imported-$(basename "${cert_file}" | sed -r 's/^(.+)\.crt$/\1/')"
-    echo "Importing ${cert_file} CA certificate into ${TRUST_STORE_FILE} with ${cert_alias} alias"
-    "${keytool}" -import -noprompt \
-      -keystore "${TRUST_STORE_FILE}" \
+    echo "Importing certificates from ${ca_bundle_cert_dir} directory"
+    for cert_file in $(find "${ca_bundle_cert_dir}" -mindepth 1 -maxdepth 1 -name "ca-cert-*.crt" -type f -print | sort); do
+      cert_alias="imported-$(basename "${cert_file}" | sed -r 's/^(.+)\.crt$/\1/')"
+      echo "Importing ${cert_file} CA certificate into ${TRUST_STORE_FILE} with ${cert_alias} alias"
+      "${keytool}" -import -noprompt \
+        -keystore "${TRUST_STORE_FILE}" \
+        -storetype JKS \
+        -storepass "${TRUST_STORE_PASSWORD}" \
+        -file "${cert_file}" \
+        -alias "${cert_alias}"
+    done
+
+    rm -rf "${ca_bundle_cert_dir}"
+  done
+}
+
+gen_trust_bundle() {
+  if [ "${TRUST_BUNDLE_FILE}" = "" ]; then
+    return
+  fi
+
+  keytool="${JAVA_HOME}/bin/keytool"
+
+  trust_bundle_dir="$(dirname "${TRUST_BUNDLE_FILE}")"
+  if ! [ -d "${trust_bundle_dir}" ]; then
+    mkdir -p "${trust_bundle_dir}"
+  fi
+
+  if [ -f "${TRUST_BUNDLE_FILE}" ]; then
+    echo "Removing existing ${TRUST_BUNDLE_FILE}"
+    rm -f "${TRUST_BUNDLE_FILE}"
+  fi
+
+  for ca_store_file_var in $(env | sed -r 's/^(CA_STORE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' | sort); do
+    ca_store_password_var="$(echo "${ca_store_file_var}" | sed -r 's/^(CA_STORE[a-zA-Z0-9_]*)_FILE$/\1/')_PASSWORD"
+    ca_store_file="$(printenv "${ca_store_file_var}")"
+    if [ "${ca_store_file}" = "" ]; then
+      continue
+    fi
+    ca_store_password="$(printenv "${ca_store_password_var}")"
+
+    echo "Importing certificates from ${ca_store_file} keystore into ${TRUST_BUNDLE_FILE}"
+    "${keytool}" -list -rfc \
+      -keystore "${ca_store_file}" \
       -storetype JKS \
-      -storepass "${TRUST_STORE_PASSWORD}" \
-      -file "${cert_file}" \
-      -alias "${cert_alias}"
+      -storepass "${ca_store_password}" \
+      >> "${TRUST_BUNDLE_FILE}"
+  done
+
+  for ca_bundle_var in $(env | sed -r 's/^(CA_BUNDLE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' | sort); do
+    ca_bundle_file="$(printenv "${ca_bundle_var}")"
+    if [ "${ca_bundle_file}" = "" ]; then
+      continue
+    fi
+    echo "Copying certificates from ${ca_bundle_file} CA bundle into ${TRUST_BUNDLE_FILE}"
+    cat "${ca_bundle_file}" >> "${TRUST_BUNDLE_FILE}"
   done
 }
 
 gen_keystore() {
+  if [ "${KEYSTORE_FILE}" = "" ]; then
+    return
+  fi
+
   keystore_dir="$(dirname "${KEYSTORE_FILE}")"
   if ! [ -d "${keystore_dir}" ]; then
     mkdir -p "${keystore_dir}"
@@ -95,6 +145,7 @@ gen_keystore() {
 }
 
 main() {
+  gen_trust_bundle
   gen_trust_store
   gen_keystore
 }
