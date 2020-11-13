@@ -4,13 +4,17 @@ x-helper-dir: &helper-dir '/helper'
 x-helper-wrapper-script: &helper-wrapper-script '/helper/run.sh'
 x-helper-dockerize: &helper-dockerize '/helper/dockerize'
 
-x-config-dir: &config-dir '/config'
+x-producer-config-volume: &producer-config-volume 'config:/config:rw'
+x-consumer-config-volume: &consumer-config-volume 'config:/config:ro'
 x-keystore-file: &keystore-file '/config/keystore.p12'
 x-trust-store-file: &trust-store-file '/config/truststore.jks'
 
 x-https-keystore-password: &https-keystore-password 'pass'
 x-https-keystore-alias: &https-keystore-alias 'alias'
 x-trust-store-password: &trust-store-password 'password_of_6_chars_min'
+
+volumes:
+  config:
 
 services:
   helper:
@@ -32,8 +36,10 @@ services:
       KEYSTORE_FILE: *keystore-file
       KEYSTORE_PASSWORD: *https-keystore-password
       KEY_ALIAS: *https-keystore-alias
+    read_only: true
     volumes:
-      - *config-dir
+      - '/tmp'
+      - *producer-config-volume
       - '../certificates/ca-cert.crt:/ca-cert.crt:ro'
       - '../certificates/tls-cert.crt:/tls-cert.crt:ro'
       - '../certificates/tls-key.pem:/tls-key.pem:ro'
@@ -82,8 +88,8 @@ services:
     read_only: true
     volumes:
       - '/tmp'
+      - *consumer-config-volume
     volumes_from:
       - 'helper:ro'
-      - 'init:ro'
     ports:
       - '443:8443'
