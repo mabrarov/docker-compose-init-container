@@ -78,7 +78,7 @@ rm -f "${cert_chain_file}"
 
 native_path() {
   path="${1}"
-  echo "$(uname -s)" | grep '^MINGW.*$' &> /dev/null && mingw=1 || mingw=0
+  uname -s | grep '^MINGW.*$' &> /dev/null && mingw=1 || mingw=0
   if [[ "${mingw}" -eq 0 ]]; then
     echo "${path}"
     return
