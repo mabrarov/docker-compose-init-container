@@ -86,7 +86,7 @@ objects:
                   name: 'config-volume'
                   readOnly: true
                 - mountPath: '/tmp'
-                  name: 'tmp-volume'
+                  name: 'app-tmp-volume'
               readinessProbe:
                 httpGet:
                   path: '/actuator/health'
@@ -133,10 +133,16 @@ objects:
                 - mountPath: '${OPENSHIFT_CERTS_DIR}'
                   name: 'openshift-certs-volume'
                   readOnly: true
+                - mountPath: '/tmp'
+                  name: 'init-tmp-volume'
+              securityContext:
+                readOnlyRootFilesystem: true
           volumes:
             - name: 'config-volume'
               emptyDir: {}
-            - name: 'tmp-volume'
+            - name: 'app-tmp-volume'
+              emptyDir: {}
+            - name: 'init-tmp-volume'
               emptyDir: {}
             - name: 'openshift-certs-volume'
               secret:
