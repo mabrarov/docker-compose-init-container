@@ -47,6 +47,7 @@ gen_trust_store() {
       -deststorepass "${TRUST_STORE_PASSWORD}"
   done
 
+  ca_bundle_index=0
   env | sed -r 's/^(CA_BUNDLE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' \
     | sort | while IFS= read -r ca_bundle_var; do
     ca_bundle_file="$(printenv "${ca_bundle_var}")"
@@ -55,11 +56,11 @@ gen_trust_store() {
     fi
     ca_bundle_cert_dir="$(mktemp -d)"
     echo "Splitting ${ca_bundle_file} CA bundle into certificate files in ${ca_bundle_cert_dir} directory"
-    awk 'BEGIN {c=0;} /-----BEGIN CERTIFICATE-----/{c++} { print > "'"${ca_bundle_cert_dir}/ca-cert-"'" sprintf("%03d", c) ".crt"}' \
+    awk 'BEGIN {c=0;} /-----BEGIN CERTIFICATE-----/{c++} { print > "'"${ca_bundle_cert_dir}/ca-cert-"'" sprintf("%03d-%03d", '"${ca_bundle_index}"', c) ".crt"}' \
       "${ca_bundle_file}"
 
     echo "Importing certificates from ${ca_bundle_cert_dir} directory"
-    find "${ca_bundle_cert_dir}" -mindepth 1 -maxdepth 1 -name "ca-cert-*.crt" -type f -print \
+    find "${ca_bundle_cert_dir}" -mindepth 1 -maxdepth 1 -name "*.crt" -type f -print \
       | sort | while IFS= read -r cert_file; do
       cert_alias="imported-$(basename "${cert_file}" | sed -r 's/^(.+)\.crt$/\1/')"
       echo "Importing ${cert_file} CA certificate into ${TRUST_STORE_FILE} with ${cert_alias} alias"
@@ -72,6 +73,7 @@ gen_trust_store() {
     done
 
     rm -rf "${ca_bundle_cert_dir}"
+    ca_bundle_index="$((ca_bundle_index+1))"
   done
 }
 
