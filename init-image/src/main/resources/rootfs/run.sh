@@ -30,7 +30,8 @@ gen_trust_store() {
     -storetype JKS \
     -storepass "${TRUST_STORE_PASSWORD}"
 
-  for ca_store_file_var in $(env | sed -r 's/^(CA_STORE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' | sort); do
+  env | sed -r 's/^(CA_STORE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' \
+    | sort | while IFS= read -r ca_store_file_var; do
     ca_store_password_var="$(echo "${ca_store_file_var}" | sed -r 's/^(CA_STORE[a-zA-Z0-9_]*)_FILE$/\1/')_PASSWORD"
     ca_store_file="$(printenv "${ca_store_file_var}")"
     if [ "${ca_store_file}" = "" ]; then
@@ -46,18 +47,20 @@ gen_trust_store() {
       -deststorepass "${TRUST_STORE_PASSWORD}"
   done
 
-  for ca_bundle_var in $(env | sed -r 's/^(CA_BUNDLE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' | sort); do
+  env | sed -r 's/^(CA_BUNDLE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' \
+    | sort | while IFS= read -r ca_bundle_var; do
     ca_bundle_file="$(printenv "${ca_bundle_var}")"
     if [ "${ca_bundle_file}" = "" ]; then
       continue
     fi
     ca_bundle_cert_dir="$(mktemp -d)"
     echo "Splitting ${ca_bundle_file} CA bundle into certificate files in ${ca_bundle_cert_dir} directory"
-    cat ${ca_bundle_file} \
-      | awk 'BEGIN {c=0;} /-----BEGIN CERTIFICATE-----/{c++} { print > "'"${ca_bundle_cert_dir}/ca-cert-"'" sprintf("%03d", c) ".crt"}'
+    awk 'BEGIN {c=0;} /-----BEGIN CERTIFICATE-----/{c++} { print > "'"${ca_bundle_cert_dir}/ca-cert-"'" sprintf("%03d", c) ".crt"}' \
+      "${ca_bundle_file}"
 
     echo "Importing certificates from ${ca_bundle_cert_dir} directory"
-    for cert_file in $(find "${ca_bundle_cert_dir}" -mindepth 1 -maxdepth 1 -name "ca-cert-*.crt" -type f -print | sort); do
+    find "${ca_bundle_cert_dir}" -mindepth 1 -maxdepth 1 -name "ca-cert-*.crt" -type f -print \
+      | sort | while IFS= read -r cert_file; do
       cert_alias="imported-$(basename "${cert_file}" | sed -r 's/^(.+)\.crt$/\1/')"
       echo "Importing ${cert_file} CA certificate into ${TRUST_STORE_FILE} with ${cert_alias} alias"
       "${keytool}" -import -noprompt \
@@ -89,7 +92,8 @@ gen_trust_bundle() {
     rm -f "${TRUST_BUNDLE_FILE}"
   fi
 
-  for ca_store_file_var in $(env | sed -r 's/^(CA_STORE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' | sort); do
+  env | sed -r 's/^(CA_STORE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' \
+    | sort | while IFS= read -r ca_store_file_var; do
     ca_store_password_var="$(echo "${ca_store_file_var}" | sed -r 's/^(CA_STORE[a-zA-Z0-9_]*)_FILE$/\1/')_PASSWORD"
     ca_store_file="$(printenv "${ca_store_file_var}")"
     if [ "${ca_store_file}" = "" ]; then
@@ -105,7 +109,8 @@ gen_trust_bundle() {
       >> "${TRUST_BUNDLE_FILE}"
   done
 
-  for ca_bundle_var in $(env | sed -r 's/^(CA_BUNDLE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' | sort); do
+  env | sed -r 's/^(CA_BUNDLE[a-zA-Z0-9_]*_FILE)=.*$/\1/;t;d' \
+    | sort | while IFS= read -r ca_bundle_var; do
     ca_bundle_file="$(printenv "${ca_bundle_var}")"
     if [ "${ca_bundle_file}" = "" ]; then
       continue
@@ -125,13 +130,16 @@ gen_keystore() {
     mkdir -p "${keystore_dir}"
   fi
 
+  # shellcheck disable=SC2153
   crt_file="${CRT_FILE}"
+  tmp_crt_file=0
 
   if [ "${CA_CRT_FILE}" = "" ]; then
     echo "Generating ${KEYSTORE_FILE} keystore using ${KEY_FILE} key, ${CRT_FILE} certificate and ${KEY_ALIAS} alias"
   else
     echo "Generating ${KEYSTORE_FILE} keystore using ${KEY_FILE} key, ${CRT_FILE} certificate, ${CA_CRT_FILE} CA certificate and ${KEY_ALIAS} alias"
-    crt_file="/tmp/cert.crt"
+    crt_file="$(mktemp)"
+    tmp_crt_file=1
     cat "${CRT_FILE}" "${CA_CRT_FILE}" > "${crt_file}"
   fi
 
@@ -142,6 +150,10 @@ gen_keystore() {
     -name "${KEY_ALIAS}" \
     -out "${KEYSTORE_FILE}" \
     -password pass:"${KEYSTORE_PASSWORD}"
+
+  if [ "${tmp_crt_file}" -ne 0 ]; then
+    rm -f "${crt_file}"
+  fi
 }
 
 main() {
