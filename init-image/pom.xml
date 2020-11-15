@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <docker.repository>abrarov/docker-compose-init-container-initializer</docker.repository>
+        <docker.repository>${docker.image.registry}/docker-compose-init-container-initializer</docker.repository>
     </properties>
 
     <build>
