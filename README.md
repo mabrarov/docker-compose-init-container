@@ -1,5 +1,8 @@
 # Docker Compose Init Container
 
+[![License](https://img.shields.io/github/license/mabrarov/docker-compose-init-container)](https://github.com/mabrarov/docker-compose-init-container/tree/master/LICENSE)
+[![Travis CI build status](https://travis-ci.com/mabrarov/docker-compose-init-container.svg?branch=master)](https://travis-ci.com/github/mabrarov/docker-compose-init-container)
+
 Simulation of K8s / OpenShift init container within Docker Compose.
 
 **Note** that some support from docker images is required - they should not use "complex" entrypoints,

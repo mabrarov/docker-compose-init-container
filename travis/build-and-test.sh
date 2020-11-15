@@ -87,7 +87,7 @@ test_images() {
     curl -s --cacert "/ca-cert.crt" \
     "https://app.docker-compose-init-container.local:8443"
 
-  echo "Stopping and removing application"
+  echo -e "\nStopping and removing application"
   docker-compose \
     -p "${docker_compose_project_name}" \
     -f "${docker_compose_project_file}" \
