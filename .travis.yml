@@ -1,0 +1,36 @@
+language: 'java'
+
+cache:
+  directories:
+    - '${HOME}/.m2/repository'
+
+services:
+  - 'docker'
+
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION: '1.27.4'
+    - MAVEN_WRAPPER: '0'
+    - MAVEN_BUILD_PROFILES: 'docker'
+    - APP_START_TIMEOUT: '120'
+    - APP_STOP_TIMEOUT: '120'
+
+matrix:
+  include:
+    # OpenJDK 8
+    - dist: 'trusty'
+      jdk: 'openjdk8'
+    # OpenJDK 8 with Maven Wrapper
+    - dist: 'trusty'
+      jdk: 'openjdk8'
+      env:
+        - MAVEN_WRAPPER: '1'
+    # OpenJDK 11
+    - dist: 'bionic'
+      jdk: 'openjdk11'
+
+before_install: 'bash travis/install-docker-compose.sh'
+
+install: 'skip'
+
+script: 'bash travis/build-and-test.sh'

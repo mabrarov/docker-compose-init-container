@@ -93,3 +93,7 @@ services:
       - 'helper:ro'
     ports:
       - '443:8443'
+    networks:
+      default:
+        aliases:
+          - 'app.docker-compose-init-container.local'
