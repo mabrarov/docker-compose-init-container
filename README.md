@@ -92,19 +92,16 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    done
    ```
 
-1. Add hosts entry to access application
-
-   ```bash
-   echo "${docker_address} ${app_subdomain}.docker-compose-init-container.local" \
-     | sudo tee -a /etc/hosts
-   ```
-
 1. Check [https://${app_subdomain}.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
    e.g. with curl:
 
    ```bash
-   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
-     "https://${app_subdomain}.docker-compose-init-container.local"
+   docker run --rm \
+     --network "${compose_project}_default" \
+     --volume "$(pwd)/certificates/ca-cert.crt:/ca-cert.crt:ro" \
+     curlimages/curl \
+     curl -s --cacert "/ca-cert.crt" \
+     "https://${app_subdomain}.docker-compose-init-container.local:8443"
    ```
 
    Expected output is
@@ -148,12 +145,6 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
    After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
    directory (`${jacoco_report_dir}/index.html` file is report entry point).
-
-1. Remove hosts entry used to access application
-
-   ```bash
-   sudo sed -ir "/${app_subdomain}\\.docker-compose-init-container\\.local/d" /etc/hosts
-   ```
 
 1. Stop and remove containers
 
@@ -306,18 +297,15 @@ openshift_registry="172.30.1.1:5000"
    oc rollout status -n "${openshift_project}" "dc/${openshift_app}"
    ```
 
-1. Add hosts entry to access application
-
-   ```bash
-   echo "${openshift_address} ${openshift_app}.docker-compose-init-container.local" \
-     | sudo tee -a /etc/hosts
-   ```
-
 1. Check [https://${openshift_app}.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
    e.g. with curl:
 
    ```bash
-   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
+   docker run --rm \
+     --add-host "${openshift_app}.docker-compose-init-container.local:${openshift_address}" \
+     --volume "$(pwd)/certificates/ca-cert.crt:/ca-cert.crt:ro" \
+     curlimages/curl \
+     curl -s --cacert "/ca-cert.crt" \
      "https://${openshift_app}.docker-compose-init-container.local"
    ```
 
@@ -377,12 +365,6 @@ openshift_registry="172.30.1.1:5000"
 
    After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
    directory (`${jacoco_report_dir}/index.html` file is report entry point).
-
-1. Remove hosts entry used to access application
-
-   ```bash
-   sudo sed -ir "/${openshift_app}\\.docker-compose-init-container\\.local/d" /etc/hosts
-   ```
 
 1. Stop and remove OpenShift application, remove images from OpenShift registry and local Docker registry
 
