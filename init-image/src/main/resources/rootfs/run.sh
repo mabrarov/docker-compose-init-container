@@ -64,6 +64,7 @@ gen_trust_store() {
     #find "${ca_bundle_cert_dir}" -mindepth 1 -maxdepth 1 -name "*.crt" -type f -print \
     #  | sort | while IFS= read -r cert_file; do
     for cert_file in "${ca_bundle_cert_dir}/"*.crt; do
+      [ -f "${cert_file}" ] || continue
       cert_alias="imported-$(basename "${cert_file}" | sed -r 's/^(.+)\.crt$/\1/')"
       echo "Importing ${cert_file} CA certificate into ${TRUST_STORE_FILE} with ${cert_alias} alias"
       "${keytool}" -import -noprompt \
