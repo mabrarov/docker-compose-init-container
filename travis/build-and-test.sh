@@ -47,6 +47,82 @@ wait_for_healthy_container() {
   done
 }
 
+get_container_status() {
+  container_name="${1}"
+  docker inspect \
+    --type container \
+    --format='{{ .State.Status }}' \
+    "${container_name}"
+}
+
+get_container_exit_code() {
+  container_name="${1}"
+  docker inspect \
+    --type container \
+    --format='{{ .State.ExitCode }}' \
+    "${container_name}"
+}
+
+request_application() {
+  docker_compose_project_network="${1}"
+  app_host="${2}"
+  app_port="${3}"
+  echo "Requesting application"
+  docker run --rm \
+    --network "${docker_compose_project_network}" \
+    --volume "${TRAVIS_BUILD_DIR}/certificates/ca-cert.crt:/ca-cert.crt:ro" \
+    curlimages/curl \
+    curl -s --cacert "/ca-cert.crt" "https://${app_host}:${app_port}"
+  echo
+}
+
+asserted_exited_containers_zero_exit_code() {
+  docker_compose_project_name="${1}"
+  docker_compose_project_file="${2}"
+  local exited_status="exited"
+  for container_name in $(docker-compose \
+    -p "${docker_compose_project_name}" \
+    -f "${docker_compose_project_file}" \
+    ps -a \
+    | sed -r "s/^(${docker_compose_project_name}_[^[:space:]]*)[[:space:]]+.*\$/\\1/;t;d"); do
+      echo "Retrieving status of container ${container_name}"
+      container_status="$(get_container_status "${container_name}")"
+      echo "Status of ${container_name} container: ${container_status}"
+      if [[ "${container_status}" == "running" ]]; then
+        continue
+      fi
+      if [[ "${container_status}" != "${exited_status}" ]]; then
+        echo "Unexpected status of container ${container_name}, expected: ${exited_status}"
+        return 1
+      fi
+      echo "Retrieving exit code of container ${container_name}"
+      container_exit_code="$(get_container_exit_code "${container_name}")"
+      echo "Exit code of ${container_name} container: ${container_exit_code}"
+      if [[ "${container_exit_code}" -ne 0 ]]; then
+        echo "Unexpected exit code of ${container_name} container, expected: 0"
+        return 1
+      fi
+  done
+}
+
+assert_all_containers_zero_exit_code() {
+  docker_compose_project_name="${1}"
+  docker_compose_project_file="${2}"
+  for container_name in $(docker-compose \
+    -p "${docker_compose_project_name}" \
+    -f "${docker_compose_project_file}" \
+    ps -a \
+    | sed -r "s/^(${docker_compose_project_name}_[^[:space:]]*)[[:space:]]+.*\$/\\1/;t;d"); do
+      echo "Retrieving exit code of container ${container_name}"
+      container_exit_code="$(get_container_exit_code "${container_name}")"
+      echo "Exit code of ${container_name} container: ${container_exit_code}"
+      if [[ "${container_exit_code}" -ne 0 ]]; then
+        echo "Unexpected exit code of ${container_name} container, expected: 0"
+        return 1
+      fi
+  done
+}
+
 test_images() {
   mvn_expression_evaluate_cmd="$(maven_runner)$(maven_settings)$(maven_project_file) --batch-mode --non-recursive"
   mvn_expression_evaluate_cmd="${mvn_expression_evaluate_cmd:+${mvn_expression_evaluate_cmd} }org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate"
@@ -64,6 +140,8 @@ test_images() {
   docker_compose_project_name="dcic"
   docker_compose_project_file="${TRAVIS_BUILD_DIR}/docker-compose/docker-compose.yml"
   docker_compose_project_network="${docker_compose_project_name}_default"
+  app_host="app.docker-compose-init-container.local"
+  app_port="8443"
 
   echo "Creating and starting application using Docker Compose"
   docker-compose \
@@ -79,15 +157,47 @@ test_images() {
 
   wait_for_healthy_container "${app_container_name}" "${APP_START_TIMEOUT}"
 
-  echo "Requesting application"
-  docker run --rm \
-    --network "${docker_compose_project_network}" \
-    --volume "${TRAVIS_BUILD_DIR}/certificates/ca-cert.crt:/ca-cert.crt:ro" \
-    curlimages/curl \
-    curl -s --cacert "/ca-cert.crt" \
-    "https://app.docker-compose-init-container.local:8443"
+  asserted_exited_containers_zero_exit_code \
+    "${docker_compose_project_name}" \
+    "${docker_compose_project_file}"
 
-  echo -e "\nStopping and removing application"
+  request_application \
+    "${docker_compose_project_network}" \
+    "${app_host}" "${app_port}"
+
+  echo "Stopping application"
+  docker-compose \
+    -p "${docker_compose_project_name}" \
+    -f "${docker_compose_project_file}" \
+    stop -t "${APP_STOP_TIMEOUT}"
+
+  assert_all_containers_zero_exit_code \
+    "${docker_compose_project_name}" \
+    "${docker_compose_project_file}"
+
+  echo "Starting application"
+  docker-compose \
+    -p "${docker_compose_project_name}" \
+    -f "${docker_compose_project_file}" \
+    start
+
+  wait_for_healthy_container "${app_container_name}" "${APP_START_TIMEOUT}"
+
+  request_application \
+    "${docker_compose_project_network}" \
+    "${app_host}" "${app_port}"
+
+  echo "Stopping application"
+  docker-compose \
+    -p "${docker_compose_project_name}" \
+    -f "${docker_compose_project_file}" \
+    stop -t "${APP_STOP_TIMEOUT}"
+
+  assert_all_containers_zero_exit_code \
+    "${docker_compose_project_name}" \
+    "${docker_compose_project_file}"
+
+  echo "Removing application"
   docker-compose \
     -p "${docker_compose_project_name}" \
     -f "${docker_compose_project_file}" \

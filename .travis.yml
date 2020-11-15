@@ -13,6 +13,7 @@ env:
     - MAVEN_WRAPPER: '0'
     - MAVEN_BUILD_PROFILES: 'docker'
     - APP_START_TIMEOUT: '120'
+    - APP_STOP_TIMEOUT: '120'
 
 matrix:
   include:
