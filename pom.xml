@@ -18,10 +18,10 @@
     </scm>
 
     <modules>
-        <module>app</module>
         <module>app-image</module>
-        <module>helper-image</module>
         <module>init-image</module>
+        <module>helper-image</module>
+        <module>app</module>
     </modules>
 
     <properties>
@@ -40,7 +40,7 @@
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <docker-maven-plugin.version>0.34.1</docker-maven-plugin.version>
-        <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
+        <exec-maven-plugin.version>1.5.0</exec-maven-plugin.version>
         <tini.version>0.19.0</tini.version>
         <tini.sha512>8053cc21a3a9bdd6042a495349d1856ae8d3b3e7664c9654198de0087af031f5d41139ec85a2f5d7d2febd22ec3f280767ff23b9d5f63d490584e2b7ad3c218c</tini.sha512>
         <busybox.version>1.31.0</busybox.version>

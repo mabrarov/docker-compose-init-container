@@ -20,16 +20,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.mabrarov.docker-compose-init-container</groupId>
-            <artifactId>app</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.agent</artifactId>
             <classifier>runtime</classifier>
@@ -41,6 +31,19 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.mabrarov.docker-compose-init-container</groupId>
+                        <artifactId>app</artifactId>
+                        <version>${project.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>*</groupId>
+                                <artifactId>*</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <id>extract-app-layers</id>
@@ -49,6 +52,12 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
+                            <includePluginDependencies>true</includePluginDependencies>
+                            <includeProjectDependencies>false</includeProjectDependencies>
+                            <executableDependency>
+                                <groupId>org.mabrarov.docker-compose-init-container</groupId>
+                                <artifactId>app</artifactId>
+                            </executableDependency>
                             <mainClass>org.springframework.boot.loader.JarLauncher</mainClass>
                             <arguments>
                                 <argument>extract</argument>
