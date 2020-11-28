@@ -45,7 +45,6 @@ mvnw.cmd clean package -P docker
 1. Docker Compose is installed and has access to Docker
 1. Project is built (refer to "[Building](#building)" section) using the same Docker instance
    which Docker Compose connects
-1. IP address of Docker which Docker Compose connects is defined by `docker_address` environment variable
 1. Subdomain name of application FQDN is defined by `app_subdomain` environment variable
 1. Current directory is directory where this repository is cloned
 1. Name of Docker Compose project is defined by `compose_project` environment variable
@@ -53,9 +52,6 @@ mvnw.cmd clean package -P docker
 e.g.
 
 ```bash
-docker_address="$([[ "${DOCKER_HOST}" = "" ]] && echo "127.0.0.1" \
-  || echo "${DOCKER_HOST}" \
-  | sed -r 's/^([a-zA-Z0-9_]+:\/\/)?(([0-9]+\.){3}[0-9]+)(:[0-9]+)?$/\2/;t;d')" && \
 app_subdomain="app" && \
 compose_project="dcic"
 ```

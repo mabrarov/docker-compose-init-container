@@ -13,6 +13,9 @@
 
     <properties>
         <docker.repository>${docker.image.registry}/docker-compose-init-container-app</docker.repository>
+        <app-layers.dir>${project.build.directory}/app</app-layers.dir>
+        <!-- Avoid docker build cache invalidation due to new commits -->
+        <project.build.outputTimestamp>1970-01-01T00:00:00Z</project.build.outputTimestamp>
     </properties>
 
     <dependencies>
@@ -29,6 +32,37 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>extract-app-layers</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <executableDependency>
+                                <groupId>org.mabrarov.docker-compose-init-container</groupId>
+                                <artifactId>app</artifactId>
+                            </executableDependency>
+                            <mainClass>org.springframework.boot.loader.JarLauncher</mainClass>
+                            <arguments>
+                                <argument>extract</argument>
+                                <argument>--destination</argument>
+                                <argument>${app-layers.dir}</argument>
+                            </arguments>
+                            <systemProperties>
+                                <property>
+                                    <key>jarmode</key>
+                                    <value>layertools</value>
+                                </property>
+                            </systemProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>com.googlecode.maven-download-plugin</groupId>
                 <artifactId>download-maven-plugin</artifactId>
@@ -52,23 +86,98 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>build-rootfs</id>
-                        <phase>generate-resources</phase>
+                        <id>build-tini-tar</id>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>rootfs</finalName>
+                            <finalName>tini</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                             <attach>false</attach>
                             <descriptors>
-                                <descriptor>src/assembly/rootfs.xml</descriptor>
+                                <descriptor>src/assembly/tini.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-jacoco-tar</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>jacoco</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <descriptors>
+                                <descriptor>src/assembly/jacoco.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-dependencies-tar</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>dependencies</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <descriptors>
+                                <descriptor>src/assembly/dependencies.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-spring-boot-loader-tar</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>spring-boot-loader</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <descriptors>
+                                <descriptor>src/assembly/spring-boot-loader.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-snapshot-dependencies-tar</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>snapshot-dependencies</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <descriptors>
+                                <descriptor>src/assembly/snapshot-dependencies.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>build-application-tar</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>application</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <descriptors>
+                                <descriptor>src/assembly/application.xml</descriptor>
                             </descriptors>
                         </configuration>
                     </execution>
                     <execution>
                         <id>build-docker-context</id>
-                        <phase>generate-resources</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
