@@ -22,6 +22,12 @@
         <dependency>
             <groupId>org.mabrarov.docker-compose-init-container</groupId>
             <artifactId>app</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jacoco</groupId>
@@ -43,10 +49,6 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <executableDependency>
-                                <groupId>org.mabrarov.docker-compose-init-container</groupId>
-                                <artifactId>app</artifactId>
-                            </executableDependency>
                             <mainClass>org.springframework.boot.loader.JarLauncher</mainClass>
                             <arguments>
                                 <argument>extract</argument>
