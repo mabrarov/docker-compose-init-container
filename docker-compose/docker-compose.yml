@@ -53,15 +53,14 @@ services:
       - 'tcp://init:8080'
       - '-timeout'
       - '60s'
-      - '/tini'
+      - 'tini'
       - '-e'
       - '130'
       - '-e'
       - '143'
       - '--'
-      - '/usr/bin/java'
-      - '-jar'
-      - '/app.jar'
+      - 'java'
+      - 'org.springframework.boot.loader.JarLauncher'
     healthcheck:
       test:
         - 'CMD'

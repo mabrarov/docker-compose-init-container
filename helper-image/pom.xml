@@ -13,6 +13,8 @@
 
     <properties>
         <docker.repository>${docker.image.registry}/docker-compose-init-container-helper</docker.repository>
+        <!-- Avoid docker build cache invalidation due to new commits -->
+        <project.build.outputTimestamp>2020-11-28T09:51:06Z</project.build.outputTimestamp>
     </properties>
 
     <build>
