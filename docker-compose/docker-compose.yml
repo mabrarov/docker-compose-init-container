@@ -70,8 +70,8 @@ services:
         - '-skip-tls-verify'
         - '-wait'
         - 'https://localhost:8443'
-      interval: '30s'
-      timeout: '5s'
+      interval: '10s'
+      timeout: '1s'
       retries: 3
     environment:
       TINI_SUBREAPER: '1'

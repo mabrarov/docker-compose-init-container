@@ -92,11 +92,13 @@ objects:
                   path: '/actuator/health'
                   port: ${{SERVER_PORT}}
                   scheme: 'HTTPS'
+                initialDelaySeconds: 5
               livenessProbe:
                 httpGet:
                   path: '/actuator/health'
                   port: ${{SERVER_PORT}}
                   scheme: 'HTTPS'
+                initialDelaySeconds: 5
               securityContext:
                 readOnlyRootFilesystem: true
           initContainers:
