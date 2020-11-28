@@ -22,6 +22,12 @@
         <dependency>
             <groupId>org.mabrarov.docker-compose-init-container</groupId>
             <artifactId>app</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.jacoco</groupId>
