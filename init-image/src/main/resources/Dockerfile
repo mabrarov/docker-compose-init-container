@@ -4,7 +4,7 @@ ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 
 ADD ["rootfs.tar", "/"]
 
-RUN ["/bin/busybox", "sh", "-c", "set -e && for cmd in $(/bin/busybox --list); do /bin/busybox ln -s /bin/busybox \"/bin/${cmd}\"; done"]
+RUN ["busybox", "sh", "-c", "set -e && for cmd in $(busybox --list); do busybox ln -s /usr/bin/busybox \"/usr/bin/${cmd}\"; done && busybox ln -s /usr/bin/busybox /bin/sh"]
 
 ENV CA_STORE_JDK_FILE="/usr/lib/jvm/java-11-openjdk-amd64/lib/security/cacerts" \
     CA_STORE_JDK_PASSWORD="changeit"

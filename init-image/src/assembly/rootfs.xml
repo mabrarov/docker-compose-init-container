@@ -8,7 +8,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <outputDirectory>bin</outputDirectory>
+            <outputDirectory>usr/bin</outputDirectory>
             <directory>${project.build.directory}</directory>
             <includes>
                 <include>busybox</include>
