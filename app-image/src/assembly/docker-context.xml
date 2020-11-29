@@ -20,8 +20,6 @@
             <outputDirectory/>
             <directory>${project.build.directory}</directory>
             <includes>
-                <include>tini.tar</include>
-                <include>jacoco.tar</include>
                 <include>dependencies.tar</include>
                 <include>spring-boot-loader.tar</include>
                 <include>snapshot-dependencies.tar</include>

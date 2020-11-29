@@ -8,10 +8,29 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <outputDirectory/>
+            <outputDirectory>usr/bin</outputDirectory>
+            <directory>${project.build.directory}</directory>
+            <includes>
+                <include>tini</include>
+            </includes>
+            <fileMode>0555</fileMode>
+        </fileSet>
+        <fileSet>
+            <outputDirectory>${app-classes.output.dir}</outputDirectory>
             <directory>${app-layers.dir}/dependencies</directory>
             <fileMode>0444</fileMode>
             <directoryMode>0555</directoryMode>
         </fileSet>
     </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <outputDirectory/>
+            <includes>
+                <include>org.jacoco:org.jacoco.agent:jar:runtime</include>
+            </includes>
+            <outputFileNameMapping>jacoco.jar</outputFileNameMapping>
+            <useProjectArtifact>false</useProjectArtifact>
+            <fileMode>0444</fileMode>
+        </dependencySet>
+    </dependencySets>
 </assembly>

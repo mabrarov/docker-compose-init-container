@@ -2,12 +2,10 @@ FROM gcr.io/distroless/java-debian10
 
 ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 
-ADD ["tini.tar", "/usr/bin"]
-ADD ["jacoco.tar", "/"]
-ADD ["dependencies.tar", "/app"]
-ADD ["spring-boot-loader.tar", "/app"]
-ADD ["snapshot-dependencies.tar", "/app"]
-ADD ["application.tar", "/app"]
+ADD ["dependencies.tar", "/"]
+ADD ["spring-boot-loader.tar", "/"]
+ADD ["snapshot-dependencies.tar", "/"]
+ADD ["application.tar", "/"]
 
 USER nonroot
 
