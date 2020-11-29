@@ -34,6 +34,8 @@
             <groupId>org.jacoco</groupId>
             <artifactId>org.jacoco.agent</artifactId>
             <classifier>runtime</classifier>
+            <!-- Avoid adding in class path when extracting Spring Boot layers from application -->
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -50,6 +52,8 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
+                            <addOutputToClasspath>false</addOutputToClasspath>
+                            <addResourcesToClasspath>false</addResourcesToClasspath>
                             <mainClass>org.springframework.boot.loader.JarLauncher</mainClass>
                             <arguments>
                                 <argument>extract</argument>
