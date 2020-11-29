@@ -14,6 +14,7 @@
     <properties>
         <docker.repository>${docker.image.registry}/docker-compose-init-container-app</docker.repository>
         <app-layers.dir>${project.build.directory}/app</app-layers.dir>
+        <app-classes.output.dir>app</app-classes.output.dir>
         <!-- Avoid docker build cache invalidation due to new commits -->
         <project.build.outputTimestamp>1970-01-01T00:00:00Z</project.build.outputTimestamp>
     </properties>
@@ -87,36 +88,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
-                    <execution>
-                        <id>build-tini-tar</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>tini</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <attach>false</attach>
-                            <descriptors>
-                                <descriptor>src/assembly/tini.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>build-jacoco-tar</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>jacoco</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <attach>false</attach>
-                            <descriptors>
-                                <descriptor>src/assembly/jacoco.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>build-dependencies-tar</id>
                         <phase>process-resources</phase>

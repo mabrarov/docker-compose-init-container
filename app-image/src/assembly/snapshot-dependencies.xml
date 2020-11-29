@@ -8,7 +8,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <outputDirectory/>
+            <outputDirectory>${app-classes.output.dir}</outputDirectory>
             <directory>${app-layers.dir}/snapshot-dependencies</directory>
             <fileMode>0444</fileMode>
             <directoryMode>0555</directoryMode>
