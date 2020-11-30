@@ -12,6 +12,7 @@
             <directory>${project.build.directory}</directory>
             <includes>
                 <include>tini</include>
+                <include>dockerize</include>
             </includes>
             <fileMode>0555</fileMode>
         </fileSet>

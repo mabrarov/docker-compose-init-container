@@ -1,6 +1,8 @@
 FROM gcr.io/distroless/java-debian10
 
-ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64" \
+    CA_STORE_JDK_FILE="/usr/lib/jvm/java-11-openjdk-amd64/lib/security/cacerts" \
+    CA_STORE_JDK_PASSWORD="changeit"
 
 ADD ["dependencies.tar", "/"]
 ADD ["spring-boot-loader.tar", "/"]

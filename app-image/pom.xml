@@ -82,6 +82,19 @@
                             <sha512>${tini.sha512}</sha512>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>download-dockerize</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>wget</goal>
+                        </goals>
+                        <configuration>
+                            <url>https://github.com/powerman/dockerize/releases/download/v${dockerize.version}/dockerize-linux-x86_64</url>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <outputFileName>dockerize</outputFileName>
+                            <sha256>${dockerize.sha256}</sha256>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
