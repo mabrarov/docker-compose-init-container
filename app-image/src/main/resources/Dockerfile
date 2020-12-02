@@ -9,7 +9,7 @@ ADD ["application.tar", "/"]
 
 USER nonroot
 
-# Entry point of base image executes java which we don't need
+# Entry point of the base image executes java which we don't need
 # because Docker Compose project overrides command to implement awaiting for init container.
 # Docker Compose project can not override entry point.
 ENTRYPOINT []

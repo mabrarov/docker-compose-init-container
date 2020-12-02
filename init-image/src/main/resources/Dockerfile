@@ -24,7 +24,7 @@ ENV CA_STORE_JDK_FILE="/usr/lib/jvm/java-11-openjdk-amd64/lib/security/cacerts" 
 
 USER nonroot
 
-# Entry point of base image executes java which we don't need
+# Entry point of the base image executes java which we don't need
 ENTRYPOINT []
 
 # Work of init container
