@@ -1,5 +1,8 @@
 # Docker Compose Init Container
 
+[![License](https://img.shields.io/github/license/mabrarov/docker-compose-init-container)](https://github.com/mabrarov/docker-compose-init-container/tree/master/LICENSE)
+[![Travis CI build status](https://travis-ci.com/mabrarov/docker-compose-init-container.svg?branch=master)](https://travis-ci.com/github/mabrarov/docker-compose-init-container)
+
 Simulation of K8s / OpenShift init container within Docker Compose.
 
 **Note** that some support from docker images is required - they should not use "complex" entrypoints,
@@ -42,7 +45,6 @@ mvnw.cmd clean package -P docker
 1. Docker Compose is installed and has access to Docker
 1. Project is built (refer to "[Building](#building)" section) using the same Docker instance
    which Docker Compose connects
-1. IP address of Docker which Docker Compose connects is defined by `docker_address` environment variable
 1. Subdomain name of application FQDN is defined by `app_subdomain` environment variable
 1. Current directory is directory where this repository is cloned
 1. Name of Docker Compose project is defined by `compose_project` environment variable
@@ -50,9 +52,6 @@ mvnw.cmd clean package -P docker
 e.g.
 
 ```bash
-docker_address="$([[ "${DOCKER_HOST}" = "" ]] && echo "127.0.0.1" \
-  || echo "${DOCKER_HOST}" \
-  | sed -r 's/^([a-zA-Z0-9_]+:\/\/)?(([0-9]+\.){3}[0-9]+)(:[0-9]+)?$/\2/;t;d')" && \
 app_subdomain="app" && \
 compose_project="dcic"
 ```
@@ -89,19 +88,16 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    done
    ```
 
-1. Add hosts entry to access application
-
-   ```bash
-   echo "${docker_address} ${app_subdomain}.docker-compose-init-container.local" \
-     | sudo tee -a /etc/hosts
-   ```
-
 1. Check [https://${app_subdomain}.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
    e.g. with curl:
 
    ```bash
-   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
-     "https://${app_subdomain}.docker-compose-init-container.local"
+   docker run --rm \
+     --network "${compose_project}_default" \
+     --volume "$(pwd)/certificates/ca-cert.crt:/ca-cert.crt:ro" \
+     curlimages/curl \
+     curl -s --cacert "/ca-cert.crt" \
+     "https://${app_subdomain}.docker-compose-init-container.local:8443"
    ```
 
    Expected output is
@@ -145,12 +141,6 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
    After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
    directory (`${jacoco_report_dir}/index.html` file is report entry point).
-
-1. Remove hosts entry used to access application
-
-   ```bash
-   sudo sed -ir "/${app_subdomain}\\.docker-compose-init-container\\.local/d" /etc/hosts
-   ```
 
 1. Stop and remove containers
 
@@ -303,18 +293,15 @@ openshift_registry="172.30.1.1:5000"
    oc rollout status -n "${openshift_project}" "dc/${openshift_app}"
    ```
 
-1. Add hosts entry to access application
-
-   ```bash
-   echo "${openshift_address} ${openshift_app}.docker-compose-init-container.local" \
-     | sudo tee -a /etc/hosts
-   ```
-
 1. Check [https://${openshift_app}.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
    e.g. with curl:
 
    ```bash
-   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
+   docker run --rm \
+     --add-host "${openshift_app}.docker-compose-init-container.local:${openshift_address}" \
+     --volume "$(pwd)/certificates/ca-cert.crt:/ca-cert.crt:ro" \
+     curlimages/curl \
+     curl -s --cacert "/ca-cert.crt" \
      "https://${openshift_app}.docker-compose-init-container.local"
    ```
 
@@ -374,12 +361,6 @@ openshift_registry="172.30.1.1:5000"
 
    After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
    directory (`${jacoco_report_dir}/index.html` file is report entry point).
-
-1. Remove hosts entry used to access application
-
-   ```bash
-   sudo sed -ir "/${openshift_app}\\.docker-compose-init-container\\.local/d" /etc/hosts
-   ```
 
 1. Stop and remove OpenShift application, remove images from OpenShift registry and local Docker registry
 

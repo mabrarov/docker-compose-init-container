@@ -78,7 +78,7 @@ rm -f "${cert_chain_file}"
 
 native_path() {
   path="${1}"
-  echo "$(uname -s)" | grep '^MINGW.*$' &> /dev/null && mingw=1 || mingw=0
+  uname -s | grep '^MINGW.*$' &> /dev/null && mingw=1 || mingw=0
   if [[ "${mingw}" -eq 0 ]]; then
     echo "${path}"
     return
@@ -143,7 +143,7 @@ echo "commonName = ${friendly_name}"
   -extensions v3_req \
   -out "$(native_path "${cert_file}")"
 
-# Create certificate chan consisting of generated certificate...
+# Create certificate chain consisting of generated certificate...
 "${openssl_bin}" x509 -inform PEM -in "$(native_path "${cert_file}")" > "${cert_chain_file}"
 # ... and of CA certificate.
 "${openssl_bin}" x509 -inform PEM -in "$(native_path "${ca_cert_file}")" >> "${cert_chain_file}"

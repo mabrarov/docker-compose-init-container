@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.3.3.RELEASE</version>
+        <version>2.4.0</version>
     </parent>
 
     <groupId>org.mabrarov.docker-compose-init-container</groupId>
@@ -33,18 +33,27 @@
         <project.build.outputTimestamp>${git.commit.time}</project.build.outputTimestamp>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <git-commit-id-plugin.version>4.0.3</git-commit-id-plugin.version>
+        <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
+        <download-maven-plugin.version>1.6.0</download-maven-plugin.version>
+        <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
+        <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
+        <docker-maven-plugin.version>0.34.1</docker-maven-plugin.version>
+        <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
         <tini.version>0.19.0</tini.version>
         <tini.sha512>8053cc21a3a9bdd6042a495349d1856ae8d3b3e7664c9654198de0087af031f5d41139ec85a2f5d7d2febd22ec3f280767ff23b9d5f63d490584e2b7ad3c218c</tini.sha512>
         <busybox.version>1.31.0</busybox.version>
         <busybox.sha512>89dafd4be9d51135ec8ad78a9ac24c29f47673a9fb3920dac9df81c7b6b850ad8e7219a0ded755c2b106a736804c9de3174302a2fba6130196919777cb516a4f</busybox.sha512>
         <httpecho.version>0.2.3</httpecho.version>
         <httpecho.sha512>a34fb083c95afb1e09725b2d6204c1a77548aaa3bd341cbaf65548586a496ed5284af6f2d0cfaec63b171992b143dd832e9395f634a3683c95315820e90cbf92</httpecho.sha512>
-        <dockerize.version>0.6.1</dockerize.version>
-        <dockerize.sha512>182e90d35bc9dd05fd567512fc0b35f612de80898324a29e2db182edf4eb0bca6e0b0cab6891f7e5b469383cdd70584543181737318439cecc6f310292b442af</dockerize.sha512>
+        <dockerize.version>0.12.0</dockerize.version>
+        <dockerize.sha256>5c241e7ec35a205cd53250585282462636ebb894072a4b34283dc3d9b7c9be29</dockerize.sha256>
         <jacoco.version>0.8.5</jacoco.version>
         <docker.verbose>true</docker.verbose>
         <docker.skip>true</docker.skip>
         <docker.cleanup>none</docker.cleanup>
+        <docker.image.registry>abrarov</docker.image.registry>
     </properties>
 
     <dependencyManagement>
@@ -75,7 +84,7 @@
                 <plugin>
                     <groupId>pl.project13.maven</groupId>
                     <artifactId>git-commit-id-plugin</artifactId>
-                    <version>4.0.2</version>
+                    <version>${git-commit-id-plugin.version}</version>
                     <configuration>
                         <verbose>false</verbose>
                         <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
@@ -94,17 +103,17 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>${maven-dependency-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>com.googlecode.maven-download-plugin</groupId>
                     <artifactId>download-maven-plugin</artifactId>
-                    <version>1.6.0</version>
+                    <version>${download-maven-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>${maven-resources-plugin.version}</version>
                     <configuration>
                         <delimiters>
                             <delimiter>${resource.delimiter}</delimiter>
@@ -115,12 +124,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>${maven-jar-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.3.0</version>
+                    <version>${maven-assembly-plugin.version}</version>
                     <configuration>
                         <delimiters>
                             <delimiter>${resource.delimiter}</delimiter>
@@ -134,7 +143,12 @@
                 <plugin>
                     <groupId>io.fabric8</groupId>
                     <artifactId>docker-maven-plugin</artifactId>
-                    <version>0.33.0</version>
+                    <version>${docker-maven-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

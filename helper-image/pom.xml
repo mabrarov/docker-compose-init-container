@@ -12,7 +12,9 @@
     <packaging>pom</packaging>
 
     <properties>
-        <docker.repository>abrarov/docker-compose-init-container-helper</docker.repository>
+        <docker.repository>${docker.image.registry}/docker-compose-init-container-helper</docker.repository>
+        <!-- Avoid docker build cache invalidation due to new commits -->
+        <project.build.outputTimestamp>1970-01-01T00:00:00Z</project.build.outputTimestamp>
     </properties>
 
     <build>
@@ -41,10 +43,10 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
-                            <url>https://github.com/jwilder/dockerize/releases/download/v${dockerize.version}/dockerize-linux-amd64-v${dockerize.version}.tar.gz</url>
-                            <unpack>true</unpack>
+                            <url>https://github.com/powerman/dockerize/releases/download/v${dockerize.version}/dockerize-linux-x86_64</url>
                             <outputDirectory>${project.build.directory}</outputDirectory>
-                            <sha512>${dockerize.sha512}</sha512>
+                            <outputFileName>dockerize</outputFileName>
+                            <sha256>${dockerize.sha256}</sha256>
                         </configuration>
                     </execution>
                 </executions>

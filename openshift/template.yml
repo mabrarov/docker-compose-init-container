@@ -55,7 +55,9 @@ objects:
               image: '${REGISTRY}/${NAMESPACE}/${APP}'
               env:
                 - name: 'JAVA_TOOL_OPTIONS'
-                  value: '-XX:+PerfDisableSharedMem -Djavax.net.ssl.trustStore=${CONFIG_DIR}/truststore.jks ${JAVA_OPTIONS}'
+                  value: '-XX:+PerfDisableSharedMem ${JAVA_OPTIONS}'
+                - name: 'TRUST_STORE_FILE'
+                  value: '${CONFIG_DIR}/truststore.jks'
                 - name: 'TRUST_STORE_PASSWORD'
                   valueFrom:
                     secretKeyRef:
@@ -84,17 +86,19 @@ objects:
                   name: 'config-volume'
                   readOnly: true
                 - mountPath: '/tmp'
-                  name: 'tmp-volume'
+                  name: 'app-tmp-volume'
               readinessProbe:
                 httpGet:
                   path: '/actuator/health'
                   port: ${{SERVER_PORT}}
                   scheme: 'HTTPS'
+                initialDelaySeconds: 5
               livenessProbe:
                 httpGet:
                   path: '/actuator/health'
                   port: ${{SERVER_PORT}}
                   scheme: 'HTTPS'
+                initialDelaySeconds: 5
               securityContext:
                 readOnlyRootFilesystem: true
           initContainers:
@@ -131,10 +135,16 @@ objects:
                 - mountPath: '${OPENSHIFT_CERTS_DIR}'
                   name: 'openshift-certs-volume'
                   readOnly: true
+                - mountPath: '/tmp'
+                  name: 'init-tmp-volume'
+              securityContext:
+                readOnlyRootFilesystem: true
           volumes:
             - name: 'config-volume'
               emptyDir: {}
-            - name: 'tmp-volume'
+            - name: 'app-tmp-volume'
+              emptyDir: {}
+            - name: 'init-tmp-volume'
               emptyDir: {}
             - name: 'openshift-certs-volume'
               secret:
