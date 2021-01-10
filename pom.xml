@@ -22,6 +22,7 @@
         <module>app-image</module>
         <module>helper-image</module>
         <module>init-image</module>
+        <module>jdk-image</module>
     </modules>
 
     <properties>
@@ -41,6 +42,10 @@
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <docker-maven-plugin.version>0.34.1</docker-maven-plugin.version>
         <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
+        <jdk.version>8u275</jdk.version>
+        <jdk.build>01</jdk.build>
+        <jdk.sha256>a044da8bf198ad756b2bbb83f3d48ddeeffb934b9a9974d9b9bb6d0034413a83</jdk.sha256>
+        <jdk.dir>jdk${jdk.version}-b${jdk.build}-jre</jdk.dir>
         <tini.version>0.19.0</tini.version>
         <tini.sha512>8053cc21a3a9bdd6042a495349d1856ae8d3b3e7664c9654198de0087af031f5d41139ec85a2f5d7d2febd22ec3f280767ff23b9d5f63d490584e2b7ad3c218c</tini.sha512>
         <busybox.version>1.31.0</busybox.version>
@@ -54,6 +59,7 @@
         <docker.skip>true</docker.skip>
         <docker.cleanup>none</docker.cleanup>
         <docker.image.registry>abrarov</docker.image.registry>
+        <jdk.image.repository>${docker.image.registry}/docker-compose-init-container-jdk</jdk.image.repository>
     </properties>
 
     <dependencyManagement>
@@ -74,6 +80,12 @@
                 <artifactId>jacoco</artifactId>
                 <version>${jacoco.version}</version>
                 <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.mabrarov.docker-compose-init-container</groupId>
+                <artifactId>jdk-image</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
             </dependency>
         </dependencies>
     </dependencyManagement>

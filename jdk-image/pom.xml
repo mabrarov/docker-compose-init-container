@@ -8,23 +8,14 @@
         <version>0.0.1</version>
     </parent>
 
-    <artifactId>init-image</artifactId>
+    <artifactId>jdk-image</artifactId>
     <packaging>pom</packaging>
 
     <properties>
-        <docker.repository>${docker.image.registry}/docker-compose-init-container-initializer</docker.repository>
+        <docker.repository>${jdk.image.repository}</docker.repository>
         <!-- Avoid docker build cache invalidation due to new commits -->
         <project.build.outputTimestamp>1970-01-01T00:00:00Z</project.build.outputTimestamp>
     </properties>
-
-    <dependencies>
-        <!-- Enforce build order -->
-        <dependency>
-            <groupId>org.mabrarov.docker-compose-init-container</groupId>
-            <artifactId>jdk-image</artifactId>
-            <type>pom</type>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
@@ -33,15 +24,15 @@
                 <artifactId>download-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>download-busybox</id>
+                        <id>download-jdk</id>
                         <phase>generate-resources</phase>
                         <goals>
                             <goal>wget</goal>
                         </goals>
                         <configuration>
-                            <url>https://busybox.net/downloads/binaries/${busybox.version}-defconfig-multiarch-musl/busybox-x86_64</url>
-                            <outputFileName>busybox</outputFileName>
-                            <sha512>${busybox.sha512}</sha512>
+                            <url>https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk${jdk.version}-b${jdk.build}/OpenJDK8U-jre_x64_linux_hotspot_${jdk.version}b${jdk.build}.tar.gz</url>
+                            <outputFileName>jdk.tar.gz</outputFileName>
+                            <sha256>${jdk.sha256}</sha256>
                         </configuration>
                     </execution>
                 </executions>
@@ -50,21 +41,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
-                    <execution>
-                        <id>build-rootfs</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <finalName>rootfs</finalName>
-                            <appendAssemblyId>false</appendAssemblyId>
-                            <attach>false</attach>
-                            <descriptors>
-                                <descriptor>src/assembly/rootfs.xml</descriptor>
-                            </descriptors>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>build-docker-context</id>
                         <phase>generate-resources</phase>

@@ -1,12 +1,10 @@
-FROM gcr.io/distroless/java-debian10
-
-ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+FROM @jdk.image.repository@:@project.version@
 
 ADD ["rootfs.tar", "/"]
 
 RUN ["busybox", "sh", "-c", "set -e && for cmd in $(busybox --list); do busybox ln -s /usr/bin/busybox \"/usr/bin/${cmd}\"; done && busybox ln -s /usr/bin/busybox /bin/sh"]
 
-ENV CA_STORE_JDK_FILE="/usr/lib/jvm/java-11-openjdk-amd64/lib/security/cacerts" \
+ENV CA_STORE_JDK_FILE="${JAVA_HOME}/lib/security/cacerts" \
     CA_STORE_JDK_PASSWORD="changeit"
 
 #ENV CA_STORE*_FILE="ca-certificate-trust-store-sun-jks.jks"
