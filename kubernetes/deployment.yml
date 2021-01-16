@@ -1,0 +1,209 @@
+
+  - apiVersion: 'v1'
+    kind: 'Secret'
+    metadata:
+      name: 'app-ingress-tls'
+    type: 'kubernetes.io/tls'
+    data:
+      tls.crt: |
+        -----BEGIN CERTIFICATE-----
+        MIIFyzCCA7OgAwIBAgIJAIr2X7rM1FRYMA0GCSqGSIb3DQEBDQUAMFwxCzAJBgNV
+        BAYTAlJVMQ8wDQYDVQQIEwZNb3Njb3cxFzAVBgNVBAoTDlByaXZhdGUgUGVyc29u
+        MSMwIQYDVQQDExpUZXN0IENlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMDA3MDYx
+        NTQzMjFaFw0zMDA3MDQxNTQzMjFaMFwxCzAJBgNVBAYTAlJVMQ8wDQYDVQQIEwZN
+        b3Njb3cxDzANBgNVBAcTBk1vc2NvdzEXMBUGA1UEChMOUHJpdmF0ZSBQZXJzb24x
+        EjAQBgNVBAMTCWxvY2FsaG9zdDCCAiIwDQYJKoZIhvcNAQEBBQADggIPADCCAgoC
+        ggIBAOQNxYYMq35QSsOJILwHwhN/ckvqntKfwRefd9zlktQ54uFV8Fnw71rCiNK2
+        Ks8UW29mmcvu33YCWvHFwHoTuP0MzyO4aHeRIN+Y0lW3eeNV0WivP84+huZYkaYA
+        EGzfSzOB2ewBTNZiVZ+tUfgP2tmwlE/85ht5D46xuIFlgrqXYY361nrazYXrTDpi
+        WV48nrdZWCUJD2E1b+EHAuKGj3hCx53a9i+O4WCsTJwC8I8jX4SlXbhs/v90uoNs
+        PvmEgdJNV3/7J1uGGA8TNjtzsaM8rZLHO8fCN39gNoH9CH99gQsa+iZ+J5EF7kJy
+        m5XeflRJf0//hnT3tqcrdwuSfr+mIIf/9SJKeXM7UDa7tutX3ZzX5jsegqkmSlbO
+        ZTqpOyrj0BvqY6IP0Qs7k2/KyV3uTavM0yM0sJt8jlcsFnPPJFyoPfkeSG+9db+A
+        pSM4mQEpHL8vyUO6nsLfTWOw2kOUPE8cPftRXMpYuyv0GxVPx7lnblMcmxmLiLYN
+        g0PWkmKEKT/IThoEVC0m8fdxLp9tUvLJQTvhJ9IwhU8vUUazJCn35QkWGD9yEL4c
+        9y2TwbF6+C+3jc0ZuPASBJFbltd6xdf9l09epzE6eQoC+/X+uiWOMpp5z3orCGhN
+        S62/+GMzn4EpUPUwWafniLQ3qDggy6YfIYuPUw1B2cUuh4yBAgMBAAGjgY8wgYww
+        CQYDVR0TBAIwADALBgNVHQ8EBAMCBPAwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsG
+        AQUFBwMCMFMGA1UdEQRMMEqCCWxvY2FsaG9zdIIlKi5kb2NrZXItY29tcG9zZS1p
+        bml0LWNvbnRhaW5lci5sb2NhbIcEfwAAAYcQAAAAAAAAAAAAAAAAAAAAATANBgkq
+        hkiG9w0BAQ0FAAOCAgEAG4Yd/+utl1OIGL87xNpGd2k9isYOjVn73+0/AabYhrKv
+        L/AH6u7yevVH72pxZsj3Y3E/Jcg24XuIUMhfaLyshjFExVkB/tzvM+sdktL4XLv3
+        BnWtzCooJRv73vE1hqD4xn4Tr0q109CBJ9i/RO8Por4Sf7fh1SJxnLUGfWt84Qyn
+        sAfQA1+d9B/in0EL6h4uwgD0AKUXUC3vAR/CG446mn2ZgZ119mYReNAYJXbz+jDQ
+        HYIPhXTSIr5kOZfamil7OWJ1jMwD6lz95AGepATCTyOsK8iyTcXuquHB+yQ80YqA
+        ch+0uXkqd8lILzfWC2N7v/wkn2D9/WOOsCamfeJF0nIxcUmVkwuoHKUjk005S6oV
+        v1AhWSdoHA7oLAweqFdQ8uXeV8hPU4A0eCFe6nqLWRKuSJ6G6MBzyvEkmDwYsaof
+        CrSPGBIj319kDtBhsGSql7SLunkNiBS9OZpSqbnrXdM3iKXnFA3WYGAg7Q7fNmQc
+        KoPlB1B9be3bdSwQ8RsybBKXgF9EWVOXnDazA7OwKJm181G5kCp+bv6Roa2NK3OV
+        LAYD555QXyqqKvWEi3UbwSf/wGWnXYHvzL/FZvNlVlTNCm6Cg1a0BrnGExj3VWEn
+        bUzv+YBvn5MsIQ3AxlbyIK6RGP8IbuTKhTPbzU3lbTEI/twnvD4mGK7GsYxEyCU=
+        -----END CERTIFICATE-----
+      tls.key: |
+        -----BEGIN RSA PRIVATE KEY-----
+        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
+        -----END RSA PRIVATE KEY-----
+  - apiVersion: 'v1'
+    kind: 'Secret'
+    metadata:
+      name: 'app'
+    type: 'Opaque'
+    stringData:
+      TRUST_STORE_PASSWORD: 'password_of_6_chars_min'
+      TLS_KEYSTORE_PASSWORD: 'pass'
+  - apiVersion: 'v1'
+    kind: 'Deployment'
+    metadata:
+      name: 'app'
+    spec:
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: 'app'
+        spec:
+          containers:
+            - name: 'app'
+              image: 'abrarov/docker-compose-init-container-app'
+              env:
+                - name: 'JAVA_TOOL_OPTIONS'
+                  value: '-XX:+PerfDisableSharedMem'
+                - name: 'TRUST_STORE_FILE'
+                  value: '/config/truststore.jks'
+                - name: 'TRUST_STORE_PASSWORD'
+                  valueFrom:
+                    secretKeyRef:
+                      name: 'app'
+                      key: 'TRUST_STORE_PASSWORD'
+                - name: 'SERVER_PORT'
+                  value: '8080'
+              ports:
+                - containerPort: 8080
+                  protocol: 'TCP'
+              volumeMounts:
+                - mountPath: '/config'
+                  name: 'config-volume'
+                  readOnly: true
+                - mountPath: '/tmp'
+                  name: 'app-tmp-volume'
+              readinessProbe:
+                httpGet:
+                  path: '/actuator/health'
+                  port: 8080
+                  scheme: 'HTTP'
+                initialDelaySeconds: 5
+              livenessProbe:
+                httpGet:
+                  path: '/actuator/health'
+                  port: 8080
+                  scheme: 'HTTP'
+                initialDelaySeconds: 5
+              securityContext:
+                readOnlyRootFilesystem: true
+          initContainers:
+            - name: 'init'
+              image: 'abrarov/docker-compose-init-container-initializer'
+              env:
+                - name: 'TRUST_STORE_FILE'
+                  value: '/config/truststore.jks'
+                - name: 'TRUST_STORE_PASSWORD'
+                  valueFrom:
+                    secretKeyRef:
+                      name: 'app'
+                      key: 'TRUST_STORE_PASSWORD'
+              volumeMounts:
+                - mountPath: '/config'
+                  name: 'config-volume'
+                  readOnly: true
+                - mountPath: '/tmp'
+                  name: 'init-tmp-volume'
+              securityContext:
+                readOnlyRootFilesystem: true
+          volumes:
+            - name: 'config-volume'
+              emptyDir: {}
+            - name: 'app-tmp-volume'
+              emptyDir: {}
+            - name: 'init-tmp-volume'
+              emptyDir: {}
+  - apiVersion: 'v1'
+    kind: 'Service'
+    metadata:
+      name: 'app'
+    spec:
+      ports:
+        - name: 'http'
+          port: 8080
+          targetPort: 8080
+          protocol: 'TCP'
+      selector:
+        app: 'app'
+      type: 'ClusterIP'
+  - apiVersion: 'networking.k8s.io/v1'
+    kind: 'Ingress'
+    metadata:
+      name: 'app'
+    spec:
+      tls:
+        - hosts:
+            - 'app.docker-compose-init-container.local'
+          secretName: 'app-ingress-tls'
+      rules:
+        - host: 'app.docker-compose-init-container.local'
+          http:
+            paths:
+              - path: '/'
+                pathType: 'Prefix'
+                backend:
+                  service:
+                    name: 'app'
+                    port:
+                      number: 8080
