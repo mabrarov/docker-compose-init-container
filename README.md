@@ -435,7 +435,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Create & start K8s instance
 
    ```bash
-   minikube start --driver=docker --addons=dashboard,registry
+   minikube start --driver=docker --addons=ingress,dashboard,registry
    ```
 
 1. Start proxy if need to access outside host where Minikube runs
@@ -495,6 +495,33 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
    ```bash
    kubectl apply -f kubernetes/deployment.yml && \
    kubectl rollout status deployment/app
+   ```
+
+1. Add hosts entry to access application
+
+   ```bash
+   echo "$(kubectl get ingress app -o jsonpath="{.status.loadBalancer.ingress[0].ip}") app.docker-compose-init-container.local" \
+     | sudo tee -a /etc/hosts
+   ```
+
+1. Check [https://app.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
+   e.g. with curl:
+
+   ```bash
+   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
+     "https://app.docker-compose-init-container.local"
+   ```
+
+   Expected output is
+
+   ```text
+   Hello, World!
+   ```
+
+1. Remove hosts entry used to access application
+
+   ```bash
+   sudo sed -ir "/app\\.docker-compose-init-container\\.local/d" /etc/hosts
    ```
 
 ### Minikube Removal
