@@ -435,7 +435,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Create & start K8s instance
 
    ```bash
-   minikube start --driver=docker --addons=dashboard
+   minikube start --driver=docker --addons=dashboard,registry
    ```
 
 1. Start proxy if need to access outside host where Minikube runs
@@ -455,6 +455,47 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
    ```
 
    and use [http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/](http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/)
+
+### Minikube Testing Steps
+
+1. Configure Docker insecure registry for Minikube registry - add subnet of Minikube registry into
+   insecure-registries list of Docker daemon configuration, e.g. into /etc/docker/daemon.json file.
+
+   Minikube registry IP address can be retrieved using this command
+
+   ```bash
+   $ minikube ip
+   192.168.49.2
+   ```
+
+   The daemon.json file should look like this
+
+   ```json
+   {
+     "insecure-registries": ["192.168.49.2/16"]
+   }
+   ```
+
+1. Restart Docker daemon to apply changes
+
+1. Push built docker images into Minikube registry
+
+   ```bash
+   minikube_registry="$(minikube ip):5000" && \
+   docker tag abrarov/docker-compose-init-container-app \
+     "${minikube_registry}/app" && \
+   docker tag abrarov/docker-compose-init-container-initializer \
+     "${minikube_registry}/app-initializer" && \
+   docker push "${minikube_registry}/app" && \
+   docker push "${minikube_registry}/app-initializer"
+   ```
+
+1. Apply K8s deployment which automatically triggers rollout and wait for completion of rollout
+
+   ```bash
+   kubectl apply -f kubernetes/deployment.yml && \
+   kubectl rollout status deployment/app
+   ```
 
 ### Minikube Removal
 
