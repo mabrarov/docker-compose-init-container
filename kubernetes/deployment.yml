@@ -1,4 +1,6 @@
-
+apiVersion: 'v1'
+kind: 'List'
+items:
   - apiVersion: 'v1'
     kind: 'Secret'
     metadata:
@@ -6,7 +8,6 @@
     type: 'kubernetes.io/tls'
     data:
       tls.crt: |
-        -----BEGIN CERTIFICATE-----
         MIIFyzCCA7OgAwIBAgIJAIr2X7rM1FRYMA0GCSqGSIb3DQEBDQUAMFwxCzAJBgNV
         BAYTAlJVMQ8wDQYDVQQIEwZNb3Njb3cxFzAVBgNVBAoTDlByaXZhdGUgUGVyc29u
         MSMwIQYDVQQDExpUZXN0IENlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0yMDA3MDYx
@@ -38,9 +39,7 @@
         KoPlB1B9be3bdSwQ8RsybBKXgF9EWVOXnDazA7OwKJm181G5kCp+bv6Roa2NK3OV
         LAYD555QXyqqKvWEi3UbwSf/wGWnXYHvzL/FZvNlVlTNCm6Cg1a0BrnGExj3VWEn
         bUzv+YBvn5MsIQ3AxlbyIK6RGP8IbuTKhTPbzU3lbTEI/twnvD4mGK7GsYxEyCU=
-        -----END CERTIFICATE-----
       tls.key: |
-        -----BEGIN RSA PRIVATE KEY-----
         MIIJKgIBAAKCAgEA5A3FhgyrflBKw4kgvAfCE39yS+qe0p/BF5933OWS1Dni4VXw
         WfDvWsKI0rYqzxRbb2aZy+7fdgJa8cXAehO4/QzPI7hod5Eg35jSVbd541XRaK8/
         zj6G5liRpgAQbN9LM4HZ7AFM1mJVn61R+A/a2bCUT/zmG3kPjrG4gWWCupdhjfrW
@@ -90,7 +89,6 @@
         1jXSPdO3Ol9lH29/Q/i42pgdkYVNb2DCwIbCrZ+mh7hK2wuTqNzkXzZ3imGXpDKT
         /kXvCfqdpFqFENutyC9kObRry217YmUUEMqiXPmCg9J9fY2fJTdjaHwbPSHLLQNg
         Xofs+TIz11hHEhp/uTzAE9Sko1E50uG+1c6nN42wtZ8x15haPYhYesHGBmOWzQ==
-        -----END RSA PRIVATE KEY-----
   - apiVersion: 'v1'
     kind: 'Secret'
     metadata:
@@ -99,12 +97,15 @@
     stringData:
       TRUST_STORE_PASSWORD: 'password_of_6_chars_min'
       TLS_KEYSTORE_PASSWORD: 'pass'
-  - apiVersion: 'v1'
+  - apiVersion: 'apps/v1'
     kind: 'Deployment'
     metadata:
       name: 'app'
     spec:
       replicas: 1
+      selector:
+        matchLabels:
+          app: 'app'
       template:
         metadata:
           labels:
@@ -112,7 +113,8 @@
         spec:
           containers:
             - name: 'app'
-              image: 'abrarov/docker-compose-init-container-app'
+              image: 'localhost:5000/app'
+              imagePullPolicy: 'IfNotPresent'
               env:
                 - name: 'JAVA_TOOL_OPTIONS'
                   value: '-XX:+PerfDisableSharedMem'
@@ -150,7 +152,8 @@
                 readOnlyRootFilesystem: true
           initContainers:
             - name: 'init'
-              image: 'abrarov/docker-compose-init-container-initializer'
+              image: 'localhost:5000/app-initializer'
+              imagePullPolicy: 'IfNotPresent'
               env:
                 - name: 'TRUST_STORE_FILE'
                   value: '/config/truststore.jks'
@@ -162,7 +165,6 @@
               volumeMounts:
                 - mountPath: '/config'
                   name: 'config-volume'
-                  readOnly: true
                 - mountPath: '/tmp'
                   name: 'init-tmp-volume'
               securityContext:
