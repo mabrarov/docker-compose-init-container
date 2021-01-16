@@ -110,7 +110,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    (note that project has to be _built_ and _not cleaned_ at the time of execution of this command)
 
    ```bash
-   jacoco_version="0.8.5" && \
+   jacoco_version="0.8.6" && \
    jacoco_report_dir="$(pwd)/jacoco-report" && \
    jacoco_tmp_dir="$(mktemp -d)" && \
    jacoco_dist_file="${jacoco_tmp_dir}/jacoco-${jacoco_version}.zip" && \
@@ -150,7 +150,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
 ## Testing with OpenShift
 
-All commands were tested using Bash on Cent OS 7.7.
+All commands were tested using Bash on CentOS 7.7.
 Commands for other OS and shells - like determining public IP address of host - may differ.
 
 [oc Client Tools](https://www.okd.io/download.html) can be used to
@@ -315,7 +315,7 @@ openshift_registry="172.30.1.1:5000"
    (note that project has to be _built_ and _not cleaned_ at the time of execution of this command)
 
    ```bash
-   jacoco_version="0.8.5" && \
+   jacoco_version="0.8.6" && \
    jacoco_report_dir="$(pwd)/jacoco-report" && \
    jacoco_tmp_dir="$(mktemp -d)" && \
    jacoco_dist_file="${jacoco_tmp_dir}/jacoco-${jacoco_version}.zip" && \
@@ -401,6 +401,8 @@ openshift_registry="172.30.1.1:5000"
 
 ## Testing with Kubernetes
 
+All commands were tested using Bash on Ubuntu Server 18.04.
+
 ### kubectl Setup
 
 ```bash
@@ -422,10 +424,10 @@ curl -Ls "https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz" \
 
 In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kubernetes.io/docs/tasks/tools/install-minikube/) to setup local K8s instance easily
 
-1. Download minikube
+1. Download Minikube executable (minikube)
 
    ```bash
-   minikube_version="1.16.0" && \
+   minikube_version="1.17.0" && \
    curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
      | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
      | sudo tee /usr/local/bin/minikube > /dev/null && \
@@ -435,12 +437,42 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Create & start K8s instance
 
    ```bash
-   minikube start --driver=docker --addons=ingress,dashboard,registry
+   minikube start --driver=docker --addons=ingress,registry,dashboard
+   ```
+
+1. Configure Docker insecure registry for Minikube registry - add subnet of Minikube registry into
+   insecure-registries list of Docker daemon configuration, e.g. into /etc/docker/daemon.json file.
+
+   Minikube registry IP address can be retrieved using this command
+
+   ```bash
+   minikube ip
+   ```
+
+   If command returns `192.168.49.2`, then the daemon.json file should look like this
+
+   ```json
+   {
+     "insecure-registries": ["192.168.49.2/16"]
+   }
+   ```
+
+1. Stop Minikube
+
+   ```bash
+   minikube stop
+   ```
+
+1. Restart Docker daemon to apply changes
+1. Start Minikube back
+
+   ```bash
+   minikube start
    ```
 
 1. Start proxy if need to access outside host where Minikube runs
 
-   ```text
+   ```bash
    kubectl proxy --address='0.0.0.0' --disable-filter=true --port=8080
    ```
 
@@ -456,27 +488,21 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 
    and use [http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/](http://${k8s_address}:8080/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/)
 
+### Minikube Testing Assumptions
+
+1. Name of K8s namespace for deployment is defined by `k8s_namespace` environment variable
+1. Name of K8s application is defined by `k8s_app` environment variable
+1. Name of Helm release is defined by `helm_release` environment variable
+
+e.g.
+
+```bash
+k8s_namespace="default" \
+k8s_app="app" && \
+helm_release="dcic"
+```
+
 ### Minikube Testing Steps
-
-1. Configure Docker insecure registry for Minikube registry - add subnet of Minikube registry into
-   insecure-registries list of Docker daemon configuration, e.g. into /etc/docker/daemon.json file.
-
-   Minikube registry IP address can be retrieved using this command
-
-   ```bash
-   $ minikube ip
-   192.168.49.2
-   ```
-
-   The daemon.json file should look like this
-
-   ```json
-   {
-     "insecure-registries": ["192.168.49.2/16"]
-   }
-   ```
-
-1. Restart Docker daemon to apply changes
 
 1. Push built docker images into Minikube registry
 
@@ -490,26 +516,61 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
    docker push "${minikube_registry}/app-initializer"
    ```
 
-1. Apply K8s deployment which automatically triggers rollout and wait for completion of rollout
+1. Deploy Helm chart which automatically triggers rollout and wait for completion of rollout
 
    ```bash
-   kubectl apply -f kubernetes/deployment.yml && \
-   kubectl rollout status deployment/app
+   helm install "${helm_release}" kubernetes/app \
+     -n "${k8s_namespace}" \
+     --set nameOverride="${k8s_app}" \
+     --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
+     --set ingress.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
+     --set ingress.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
+     --set ingress.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
+     --wait
+   ```
+
+   If there is a need to deploy with JaCoCo agent turned on, then use this command instead
+
+   ```bash
+   jacoco_port="6300" && \
+   helm install "${helm_release}" kubernetes/app \
+     -n "${k8s_namespace}" \
+     --set nameOverride="${k8s_app}" \
+     --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
+     --set ingress.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
+     --set ingress.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
+     --set ingress.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
+     --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
+     --wait
+   ```
+
+1. Test K8s service and pod
+
+   ```bash
+   helm test "${helm_release}" -n "${k8s_namespace}" --logs
+   ```
+
+   Expected output ends with
+
+   ```text
+   Hello, World!
    ```
 
 1. Add hosts entry to access application
 
    ```bash
-   echo "$(kubectl get ingress app -o jsonpath="{.status.loadBalancer.ingress[0].ip}") app.docker-compose-init-container.local" \
+   ingress_ip="$(kubectl get ingress \
+     -l "app.kubernetes.io/instance=${helm_release}" \
+     -o jsonpath="{.items[0].status.loadBalancer.ingress[0].ip}")" && \
+   echo "${ingress_ip} ${k8s_app}.docker-compose-init-container.local" \
      | sudo tee -a /etc/hosts
    ```
 
-1. Check [https://app.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
-   e.g. with curl:
+1. Check `https://${k8s_app}.docker-compose-init-container.local`, e.g. with curl:
 
    ```bash
    curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
-     "https://app.docker-compose-init-container.local"
+     "https://${k8s_app}.docker-compose-init-container.local"
    ```
 
    Expected output is
@@ -521,7 +582,68 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Remove hosts entry used to access application
 
    ```bash
-   sudo sed -ir "/app\\.docker-compose-init-container\\.local/d" /etc/hosts
+   sudo sed -ir "/${k8s_app}\\.docker-compose-init-container\\.local/d" \
+     /etc/hosts
+   ```
+
+1. If deployed with JaCoCo agent turned on then check coverage using this command
+   (note that project has to be _built_ and _not cleaned_ at the time of execution of this command)
+
+   ```bash
+   jacoco_version="0.8.6" && \
+   jacoco_report_dir="$(pwd)/jacoco-report" && \
+   jacoco_tmp_dir="$(mktemp -d)" && \
+   jacoco_dist_file="${jacoco_tmp_dir}/jacoco-${jacoco_version}.zip" && \
+   jacoco_exec_file="${jacoco_tmp_dir}/jacoco.exec" && \
+   curl -Ls -o "${jacoco_dist_file}" \
+     "https://repo1.maven.org/maven2/org/jacoco/jacoco/${jacoco_version}/jacoco-${jacoco_version}.zip" && \
+   unzip -q -o -j "${jacoco_dist_file}" -d "${jacoco_tmp_dir}" lib/jacococli.jar && \
+   jacococli_file="${jacoco_tmp_dir}/jacococli.jar" && \
+   pod_counter=0 && \
+   for pod_name in $(kubectl get pods -n "${k8s_namespace}" \
+     --no-headers \
+     --output="custom-columns=NAME:.metadata.name" \
+     --selector="app.kubernetes.io/name=${k8s_app},app.kubernetes.io/instance=${helm_release}"); do \
+     kubectl get pod "${pod_name}" -o jsonpath="{.spec['containers'][*].name}" \
+       | grep -F -m 1 app > /dev/null || continue && \
+     pod_jacoco_exec_file="$([[ "${pod_counter}" -eq 0 ]] && \
+       echo "${jacoco_exec_file}" || \
+       echo "${jacoco_exec_file}.${pod_counter}")" && \
+     { kubectl port-forward "${pod_name}" "${jacoco_port}:${jacoco_port}" > /dev/null & \
+       kubectl_port_forward_pid="${!}"; } 2>/dev/null && \
+     sleep 2 && \
+     java -jar "${jacococli_file}" dump \
+       --address localhost --port "${jacoco_port}" \
+       --destfile "${pod_jacoco_exec_file}" \
+       --quiet --retry 3 && \
+     { kill -s INT "${kubectl_port_forward_pid}" && \
+       wait; } 2>/dev/null && \
+     if [[ "${pod_counter}" -ne 0 ]]; then \
+       jacoco_exec_merge_file="${jacoco_exec_file}.tmp" && \
+       java -jar "${jacococli_file}" merge "${pod_jacoco_exec_file}" "${jacoco_exec_file}" \
+         --destfile "${jacoco_exec_merge_file}" --quiet && \
+       mv -f "${jacoco_exec_merge_file}" "${jacoco_exec_file}"; \
+     fi && \
+     pod_counter=$((pod_counter+1)); \
+   done && \
+   mkdir -p "${jacoco_report_dir}" && \
+   java -jar "${jacococli_file}" report "${jacoco_exec_file}" \
+     --classfiles app/target/classes \
+     --sourcefiles app/src/main/java \
+     --html "${jacoco_report_dir}" && \
+   rm -rf "${jacoco_tmp_dir}"
+   ```
+
+   After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
+   directory (`${jacoco_report_dir}/index.html` file is report entry point).
+
+1. Stop and remove K8s application, remove temporary images from local Docker registry
+
+   ```bash
+   helm uninstall "${helm_release}" -n "${k8s_namespace}" && \
+   minikube_registry="$(minikube ip):5000" && \
+   docker rmi "${minikube_registry}/app" && \
+   docker rmi "${minikube_registry}/app-initializer"
    ```
 
 ### Minikube Removal
