@@ -404,7 +404,7 @@ openshift_registry="172.30.1.1:5000"
 ### kubectl Setup
 
 ```bash
-k8s_version="1.19.2" && \
+k8s_version="1.20.2" && \
 curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
   | sudo tee /usr/local/bin/kubectl > /dev/null && \
 sudo chmod +x /usr/local/bin/kubectl
@@ -413,7 +413,7 @@ sudo chmod +x /usr/local/bin/kubectl
 ### Helm Setup
 
 ```bash
-helm_version="3.3.3" && \
+helm_version="3.5.0" && \
 curl -Ls "https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz" \
   | sudo tar -xz --strip-components=1 -C /usr/local/bin "linux-amd64/helm"
 ```
@@ -425,7 +425,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Download minikube
 
    ```bash
-   minikube_version="1.13.1" && \
+   minikube_version="1.16.0" && \
    curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
      | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
      | sudo tee /usr/local/bin/minikube > /dev/null && \
