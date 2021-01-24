@@ -257,7 +257,8 @@ openshift_registry="172.30.1.1:5000"
    docker push "${openshift_registry}/${openshift_project}/app-initializer"
    ```
 
-1. Deploy Helm chart which automatically triggers rollout and wait for completion of rollout
+1. Deploy application using [openshift/app](openshift/app) Helm chart and wait for
+   completion of rollout
 
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
@@ -546,7 +547,8 @@ helm_release="dcic"
    docker push "${minikube_registry}/app-initializer"
    ```
 
-1. Deploy Helm chart which automatically triggers rollout and wait for completion of rollout
+1. Deploy application using [kubernetes/app](kubernetes/app) Helm chart and wait
+   for completion of rollout
 
    ```bash
    helm install "${helm_release}" kubernetes/app \
