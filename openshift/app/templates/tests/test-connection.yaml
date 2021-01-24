@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: {{ include "app.testPodName" . | quote }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": "test"
+spec:
+  containers:
+    - name: "curl"
+      image: "curlimages/curl"
+      command: [ "curl" ]
+      args:
+        - "-s"
+        - "--cacert"
+        - {{ include "app.serviceCaCertifciateMountPath" . | quote }}
+        - "{{ include "app.portScheme" . | lower }}://{{ include "app.serviceName" . }}.{{ .Release.Namespace }}.svc:{{ .Values.service.port }}"
+  restartPolicy: Never

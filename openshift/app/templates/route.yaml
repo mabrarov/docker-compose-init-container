@@ -1,0 +1,24 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "app.routeName" . | quote }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  host: {{ .Values.route.host | quote }}
+  path: {{ .Values.route.path | quote }}
+  port:
+    targetPort: {{ include "app.servicePortName" . | quote }}
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: reencrypt
+    caCertificate: |-
+      {{- .Values.route.tls.caCertificate | nindent 6 }}
+    certificate: |-
+      {{- .Values.route.tls.certificate | nindent 6 }}
+    key: |-
+      {{- .Values.route.tls.key | nindent 6 }}
+  to:
+    kind: Service
+    name: {{ include "app.serviceName" . }}
+  wildcardPolicy: None

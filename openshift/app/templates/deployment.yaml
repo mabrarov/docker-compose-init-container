@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "app.deploymentName" . | quote }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "app.labels" . | nindent 8 }}
+        {{- include "app.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Values.container.main.name | quote }}
+          {{- if .Values.container.main.image.repository }}
+          image: "{{ .Values.container.main.image.repository }}:{{ .Values.container.main.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "{{ .Values.container.main.image.registry }}/{{ .Release.Namespace }}/{{ .Values.container.main.image.name }}:{{ .Values.container.main.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
+          imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+          env:
+            - name: "JAVA_TOOL_OPTIONS"
+              value: {{ include "app.finalJvmOptions" . | quote }}
+            - name: "TRUST_STORE_FILE"
+              value: "{{ .Values.app.configDir }}/truststore.jks"
+            - name: "TRUST_STORE_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "app.secretName" . | quote }}
+                  key: "trustStorePassword"
+            - name: "SERVER_PORT"
+              value: {{ .Values.app.port | quote }}
+            - name: "SERVER_SSL_ENABLED"
+              value: "true"
+            - name: "SERVER_SSL_KEY_STORE"
+              value: "{{ .Values.app.configDir }}/keystore.p12"
+            - name: "SERVER_SSL_KEY_STORE_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "app.secretName" . | quote }}
+                  key: "tlsKeyStorePassword"
+            - name: "SERVER_SSL_KEY_STORE_TYPE"
+              value: "PKCS12"
+            - name: "SERVER_SSL_KEY_ALIAS"
+              value: {{ .Values.app.tls.keyAlias | quote }}
+          ports:
+            - name: {{ include "app.containerPortName" . | quote }}
+              containerPort: {{ .Values.app.port }}
+          livenessProbe:
+            httpGet:
+              path: "/actuator/health"
+              port: {{ include "app.containerPortName" . | quote }}
+              scheme: {{ include "app.portScheme" . | upper | quote }}
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: "/actuator/health"
+              port: {{ include "app.containerPortName" . | quote }}
+              scheme: {{ include "app.portScheme" . | upper | quote }}
+            initialDelaySeconds: 5
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - mountPath: "{{ .Values.app.configDir }}"
+              name: "config-volume"
+              readOnly: true
+            - mountPath: "/tmp"
+              name: "app-tmp-volume"
+      initContainers:
+        - name: {{ .Values.container.init.name | quote }}
+          {{- if .Values.container.main.image.repository }}
+          image: "{{ .Values.container.init.image.repository }}:{{ .Values.container.init.image.tag | default .Chart.AppVersion }}"
+          {{- else }}
+          image: "{{ .Values.container.init.image.registry }}/{{ .Release.Namespace }}/{{ .Values.container.init.image.name }}:{{ .Values.container.init.image.tag | default .Chart.AppVersion }}"
+          {{- end }}
+          imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+          env:
+            - name: "CA_BUNDLE_FILE"
+              value: {{ include "app.serviceCaCertifciateMountPath" . | quote }}
+            - name: "TRUST_STORE_FILE"
+              value: "{{ .Values.app.configDir }}/truststore.jks"
+            - name: "TRUST_STORE_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "app.secretName" . | quote }}
+                  key: "trustStorePassword"
+            - name: "CA_CRT_FILE"
+              value: {{ include "app.serviceCaCertifciateMountPath" . | quote }}
+            - name: "CRT_FILE"
+              value: "{{ include "app.serviceTlsSecretMountPath" . }}/tls.crt"
+            - name: "KEY_FILE"
+              value: "{{ include "app.serviceTlsSecretMountPath" . }}/tls.key"
+            - name: "KEYSTORE_FILE"
+              value: "{{ .Values.app.configDir }}/keystore.p12"
+            - name: "KEYSTORE_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "app.secretName" . | quote }}
+                  key: "tlsKeyStorePassword"
+            - name: "KEY_ALIAS"
+              value: {{ .Values.app.tls.keyAlias | quote }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          volumeMounts:
+            - mountPath: {{ .Values.app.configDir | quote }}
+              name: "config-volume"
+            - mountPath: "/tmp"
+              name: "init-tmp-volume"
+            - mountPath: {{ include "app.serviceTlsSecretMountPath" . | quote }}
+              name: "service-tls-volume"
+              readOnly: true
+      volumes:
+        - name: "config-volume"
+          emptyDir: {}
+        - name: "app-tmp-volume"
+          emptyDir: {}
+        - name: "init-tmp-volume"
+          emptyDir: {}
+        - name: "service-tls-volume"
+          secret:
+            secretName: {{ include "app.serviceTlsSecretName" . | quote }}
