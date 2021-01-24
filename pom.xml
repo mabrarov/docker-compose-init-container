@@ -47,8 +47,8 @@
         <busybox.sha512>89dafd4be9d51135ec8ad78a9ac24c29f47673a9fb3920dac9df81c7b6b850ad8e7219a0ded755c2b106a736804c9de3174302a2fba6130196919777cb516a4f</busybox.sha512>
         <httpecho.version>0.2.3</httpecho.version>
         <httpecho.sha512>a34fb083c95afb1e09725b2d6204c1a77548aaa3bd341cbaf65548586a496ed5284af6f2d0cfaec63b171992b143dd832e9395f634a3683c95315820e90cbf92</httpecho.sha512>
-        <dockerize.version>0.12.0</dockerize.version>
-        <dockerize.sha256>5c241e7ec35a205cd53250585282462636ebb894072a4b34283dc3d9b7c9be29</dockerize.sha256>
+        <dockerize.version>0.13.1</dockerize.version>
+        <dockerize.sha256>9840b58357bb582236148123cd59684c828883f7c24b1c624a1b43d1cbf7baff</dockerize.sha256>
         <jacoco.version>0.8.6</jacoco.version>
         <docker.verbose>true</docker.verbose>
         <docker.skip>true</docker.skip>
