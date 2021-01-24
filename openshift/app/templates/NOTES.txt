@@ -1,0 +1,1 @@
+1. Application URL: https://{{ .Values.route.host }}{{ .Values.route.path }}

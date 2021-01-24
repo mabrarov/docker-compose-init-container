@@ -224,6 +224,7 @@ In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to 
 1. Name of OpenShift project for deployment is defined by `openshift_project` environment 
    variable
 1. Name of OpenShift application is defined by `openshift_app` environment variable
+1. Name of Helm release is defined by `helm_release` environment variable
 1. OpenShift registry is defined by `openshift_registry` environment variable
 1. Project is built (refer to "[Building](#building)" section)
 1. Current directory is directory where this repository is cloned
@@ -238,6 +239,7 @@ openshift_user="developer" && \
 openshift_password="developer" && \
 openshift_project="myproject" && \
 openshift_app="app" && \
+helm_release="dcic" && \
 openshift_registry="172.30.1.1:5000"
 ```
 
@@ -247,61 +249,84 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    docker tag abrarov/docker-compose-init-container-app \
-     "${openshift_registry}/${openshift_project}/${openshift_app}" && \
+     "${openshift_registry}/${openshift_project}/app" && \
    docker tag abrarov/docker-compose-init-container-initializer \
-     "${openshift_registry}/${openshift_project}/${openshift_app}-initializer" && \
+     "${openshift_registry}/${openshift_project}/app-initializer" && \
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
    docker login -p "$(oc whoami -t)" -u unused "${openshift_registry}" && \
-   docker push "${openshift_registry}/${openshift_project}/${openshift_app}" && \
-   docker push "${openshift_registry}/${openshift_project}/${openshift_app}-initializer"
+   docker push "${openshift_registry}/${openshift_project}/app" && \
+   docker push "${openshift_registry}/${openshift_project}/app-initializer"
    ```
 
-1. Apply OpenShift deployment which automatically triggers rollout and wait for completion of rollout
+1. Deploy Helm chart which automatically triggers rollout and wait for completion of rollout
 
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
-   oc process -n "${openshift_project}" -o yaml -f openshift/template.yml \
-     "NAMESPACE=${openshift_project}" \
-     "APP=${openshift_app}" \
-     "REGISTRY=${openshift_registry}" \
-     "ROUTE_CA_CERT_FILE=$(cat certificates/ca-cert.crt)" \
-     "ROUTE_CERT_FILE=$(cat certificates/tls-cert.crt)" \
-     "ROUTE_KEY_FILE=$(cat certificates/tls-key.pem)" \
-     | oc apply -n "${openshift_project}" -f - && \
-   oc rollout status -n "${openshift_project}" "dc/${openshift_app}"
+   helm install "${helm_release}" openshift/app \
+     --kube-apiserver "https://${openshift_address}:8443" \
+     -n "${openshift_project}" \
+     --set nameOverride="${openshift_app}" \
+     --set container.main.image.registry="${openshift_registry}" \
+     --set container.init.image.registry="${openshift_registry}" \
+     --set route.host="${openshift_app}.docker-compose-init-container.local" \
+     --set route.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
+     --set route.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
+     --set route.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
+     --wait
    ```
 
    If there is a need to deploy with [JaCoCo](https://www.jacoco.org) agent turned on, 
-   then use this command instead (adds `JAVA_OPTIONS` OpenShift template parameter comparing to 
+   then use this command instead (overrides `app.extraJvmOptions` Helm chart value comparing to
    previous command)
 
    ```bash
    jacoco_port="6300" && \
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
-   oc process -n "${openshift_project}" -o yaml -f openshift/template.yml \
-     "NAMESPACE=${openshift_project}" \
-     "APP=${openshift_app}" \
-     "REGISTRY=${openshift_registry}" \
-     "ROUTE_CA_CERT_FILE=$(cat certificates/ca-cert.crt)" \
-     "ROUTE_CERT_FILE=$(cat certificates/tls-cert.crt)" \
-     "ROUTE_KEY_FILE=$(cat certificates/tls-key.pem)" \
-     "JAVA_OPTIONS=-javaagent:/jacoco.jar=output=tcpserver,address=0.0.0.0,port=${jacoco_port},includes=org.mabrarov.dockercomposeinitcontainer.*" \
-     | oc apply -n "${openshift_project}" -f - && \
-   oc rollout status -n "${openshift_project}" "dc/${openshift_app}"
+   helm install "${helm_release}" openshift/app \
+     --kube-apiserver "https://${openshift_address}:8443" \
+     -n "${openshift_project}" \
+     --set nameOverride="${openshift_app}" \
+     --set container.main.image.registry="${openshift_registry}" \
+     --set container.init.image.registry="${openshift_registry}" \
+     --set route.host="${openshift_app}.docker-compose-init-container.local" \
+     --set route.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
+     --set route.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
+     --set route.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
+     --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
+     --wait
    ```
 
-1. Check [https://${openshift_app}.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
-   e.g. with curl:
+1. Test OpenShift service and pod
 
    ```bash
-   docker run --rm \
-     --add-host "${openshift_app}.docker-compose-init-container.local:${openshift_address}" \
-     --volume "$(pwd)/certificates/ca-cert.crt:/ca-cert.crt:ro" \
-     curlimages/curl \
-     curl -s --cacert "/ca-cert.crt" \
+   oc login -u "${openshift_user}" -p "${openshift_password}" \
+     --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
+   helm test "${helm_release}" \
+     --kube-apiserver "https://${openshift_address}:8443" \
+     -n "${openshift_project}" \
+     --logs
+   ```
+
+   Expected output ends with
+
+   ```text
+   Hello, World!
+   ```
+
+1. Add hosts entry to access application
+
+   ```bash
+   echo "${openshift_address} ${openshift_app}.docker-compose-init-container.local" \
+     | sudo tee -a /etc/hosts
+   ```
+
+1. Check `https://${openshift_app}.docker-compose-init-container.local`, e.g. with curl:
+
+   ```bash
+   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
      "https://${openshift_app}.docker-compose-init-container.local"
    ```
 
@@ -309,6 +334,12 @@ openshift_registry="172.30.1.1:5000"
 
    ```text
    Hello, World!
+   ```
+
+1. Remove hosts entry used to access application
+
+   ```bash
+   sudo sed -ir "/${openshift_app}\\.docker-compose-init-container\\.local/d" /etc/hosts
    ```
 
 1. If deployed with JaCoCo agent turned on then check coverage using this command
@@ -330,7 +361,9 @@ openshift_registry="172.30.1.1:5000"
    for pod_name in $(oc get pods -n "${openshift_project}" \
      --no-headers \
      --output="custom-columns=NAME:.metadata.name" \
-     --selector="app=${openshift_app}"); do
+     --selector="app.kubernetes.io/name=${openshift_app},app.kubernetes.io/instance=${helm_release}"); do \
+     oc get pod "${pod_name}" -o jsonpath="{.spec['containers'][*].name}" \
+       | grep -F -m 1 app > /dev/null || continue && \
      pod_jacoco_exec_file="$([[ "${pod_counter}" -eq 0 ]] && \
        echo "${jacoco_exec_file}" || \
        echo "${jacoco_exec_file}.${pod_counter}")" && \
@@ -362,19 +395,18 @@ openshift_registry="172.30.1.1:5000"
    After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
    directory (`${jacoco_report_dir}/index.html` file is report entry point).
 
-1. Stop and remove OpenShift application, remove images from OpenShift registry and local Docker registry
+1. Stop and remove OpenShift application, remove images from OpenShift registry and from local Docker registry
 
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
-   oc delete route "${openshift_app}" && \
-   oc delete service "${openshift_app}" && \
-   oc delete dc "${openshift_app}" && \
-   oc delete secret "${openshift_app}" && \
+   helm uninstall "${helm_release}" \
+     --kube-apiserver "https://${openshift_address}:8443" \
+     -n "${openshift_project}" && \
    oc delete imagestream "${openshift_app}" && \
    oc delete imagestream "${openshift_app}-initializer" && \
-   docker rmi "${openshift_registry}/${openshift_project}/${openshift_app}" && \
-   docker rmi "${openshift_registry}/${openshift_project}/${openshift_app}-initializer"
+   docker rmi "${openshift_registry}/${openshift_project}/app" && \
+   docker rmi "${openshift_registry}/${openshift_project}/app-initializer"
    ```
 
 ### OKD Removal
