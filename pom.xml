@@ -10,7 +10,7 @@
 
     <groupId>org.mabrarov.docker-compose-init-container</groupId>
     <artifactId>docker-compose-init-container</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <scm>
@@ -49,7 +49,7 @@
         <httpecho.sha512>a34fb083c95afb1e09725b2d6204c1a77548aaa3bd341cbaf65548586a496ed5284af6f2d0cfaec63b171992b143dd832e9395f634a3683c95315820e90cbf92</httpecho.sha512>
         <dockerize.version>0.12.0</dockerize.version>
         <dockerize.sha256>5c241e7ec35a205cd53250585282462636ebb894072a4b34283dc3d9b7c9be29</dockerize.sha256>
-        <jacoco.version>0.8.5</jacoco.version>
+        <jacoco.version>0.8.6</jacoco.version>
         <docker.verbose>true</docker.verbose>
         <docker.skip>true</docker.skip>
         <docker.cleanup>none</docker.cleanup>

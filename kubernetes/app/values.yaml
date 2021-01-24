@@ -1,0 +1,43 @@
+nameOverride: ""
+fullnameOverride: ""
+
+container:
+  main:
+    name: "app"
+    image:
+      repository: "localhost:5000/app"
+      tag: "latest"
+  init:
+    name: "init"
+    image:
+      repository: "localhost:5000/app-initializer"
+      tag: "latest"
+
+replicas: 1
+imagePullPolicy: "IfNotPresent"
+imagePullSecrets: []
+
+securityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: "ClusterIP"
+  port: 8080
+
+ingress:
+  host:
+  path: "/"
+  tls:
+    caCertificate:
+    certificate:
+    key:
+
+app:
+  trustStorePassword: "password_of_6_chars_min"
+  port: 8080
+  configDir: "/config"
+  defaultJvmOptions:
+    - "-XX:+PerfDisableSharedMem"
+  extraJvmOptions: []
