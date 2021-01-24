@@ -82,14 +82,12 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    while ! docker-compose -p "${compose_project}" \
      -f docker-compose/docker-compose.yml logs app \
      | grep -E '^.*\s+INFO\s+.*\[\s*main\]\s+(.*\.)?Application\s*:\s*Started Application\s*.*$' \
-     > /dev/null ;
-   do
-     sleep 5s;
+     > /dev/null ; do \
+     sleep 5s; \
    done
    ```
 
-1. Check [https://${app_subdomain}.docker-compose-init-container.local](https://app.docker-compose-init-container.local) URL,
-   e.g. with curl:
+1. Check `https://${app_subdomain}.docker-compose-init-container.local` URL, e.g. with curl:
 
    ```bash
    docker run --rm \
