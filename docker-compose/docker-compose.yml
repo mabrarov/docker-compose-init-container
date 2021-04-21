@@ -70,6 +70,8 @@ services:
         - '-skip-tls-verify'
         - '-wait'
         - 'https://localhost:8443'
+        - '-exit-code'
+        - '1'
       interval: '10s'
       timeout: '1s'
       retries: 3
