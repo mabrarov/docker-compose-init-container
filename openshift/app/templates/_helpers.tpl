@@ -122,14 +122,14 @@ Path to mount volume with OpenShit service TLS secret.
 {{- end }}
 
 {{/*
-Path where OpenShit sevice signer CA certificate is mounted.
+Path where OpenShit service signer CA certificate is mounted.
 */}}
 {{- define "app.serviceCaCertifciateMountPath" -}}
 /var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt
 {{- end }}
 
 {{/*
-Space sperated JVM options/
+Space separated JVM options/
 */}}
 {{- define "app.finalJvmOptions" -}}
 {{- $first := true }}
