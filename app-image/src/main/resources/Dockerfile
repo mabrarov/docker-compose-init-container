@@ -1,4 +1,4 @@
-FROM gcr.io/distroless/java-debian10
+FROM gcr.io/distroless/java-debian11
 
 ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 

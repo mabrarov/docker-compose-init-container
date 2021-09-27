@@ -315,17 +315,11 @@ openshift_registry="172.30.1.1:5000"
    Hello, World!
    ```
 
-1. Add hosts entry to access application
-
-   ```bash
-   echo "${openshift_address} ${openshift_app}.docker-compose-init-container.local" \
-     | sudo tee -a /etc/hosts
-   ```
-
 1. Check `https://${openshift_app}.docker-compose-init-container.local`, e.g. with curl:
 
    ```bash
    curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
+      --resolve "${openshift_app}.docker-compose-init-container.local:443:${openshift_address}" \
      "https://${openshift_app}.docker-compose-init-container.local"
    ```
 
@@ -333,12 +327,6 @@ openshift_registry="172.30.1.1:5000"
 
    ```text
    Hello, World!
-   ```
-
-1. Remove hosts entry used to access application
-
-   ```bash
-   sudo sed -ir "/${openshift_app}\\.docker-compose-init-container\\.local/d" /etc/hosts
    ```
 
 1. If deployed with JaCoCo agent turned on then check coverage using this command
@@ -437,7 +425,7 @@ All commands were tested using Bash on Ubuntu Server 18.04.
 ### kubectl Setup
 
 ```bash
-k8s_version="1.20.2" && \
+k8s_version="1.22.2" && \
 curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
   | sudo tee /usr/local/bin/kubectl > /dev/null && \
 sudo chmod +x /usr/local/bin/kubectl
@@ -446,7 +434,7 @@ sudo chmod +x /usr/local/bin/kubectl
 ### Helm Setup
 
 ```bash
-helm_version="3.5.0" && \
+helm_version="3.7.0" && \
 curl -Ls "https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz" \
   | sudo tar -xz --strip-components=1 -C /usr/local/bin "linux-amd64/helm"
 ```
@@ -458,7 +446,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Download Minikube executable (minikube)
 
    ```bash
-   minikube_version="1.17.0" && \
+   minikube_version="1.23.2" && \
    curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
      | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
      | sudo tee /usr/local/bin/minikube > /dev/null && \
@@ -588,20 +576,14 @@ helm_release="dcic"
    Hello, World!
    ```
 
-1. Add hosts entry to access application
+1. Check `https://${k8s_app}.docker-compose-init-container.local`, e.g. with curl:
 
    ```bash
    ingress_ip="$(kubectl get ingress \
      -l "app.kubernetes.io/instance=${helm_release}" \
      -o jsonpath="{.items[0].status.loadBalancer.ingress[0].ip}")" && \
-   echo "${ingress_ip} ${k8s_app}.docker-compose-init-container.local" \
-     | sudo tee -a /etc/hosts
-   ```
-
-1. Check `https://${k8s_app}.docker-compose-init-container.local`, e.g. with curl:
-
-   ```bash
    curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
+      --resolve "${k8s_app}.docker-compose-init-container.local:443:${ingress_ip}" \
      "https://${k8s_app}.docker-compose-init-container.local"
    ```
 
@@ -609,13 +591,6 @@ helm_release="dcic"
 
    ```text
    Hello, World!
-   ```
-
-1. Remove hosts entry used to access application
-
-   ```bash
-   sudo sed -ir "/${k8s_app}\\.docker-compose-init-container\\.local/d" \
-     /etc/hosts
    ```
 
 1. If deployed with JaCoCo agent turned on then check coverage using this command
