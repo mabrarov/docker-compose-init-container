@@ -2,8 +2,10 @@
 target/
 
 # IntelliJ IDEA stuff
-.idea/
+/.idea/
 *.iml
 
 # JaCoCo report
 /jacoco-report/
+
+/.mvn/wrapper/*.jar
