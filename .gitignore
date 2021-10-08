@@ -7,3 +7,5 @@ target/
 
 # JaCoCo report
 /jacoco-report/
+
+.mvn/wrapper/*.jar
