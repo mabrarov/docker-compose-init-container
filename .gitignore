@@ -8,4 +8,5 @@ target/
 # JaCoCo report
 /jacoco-report/
 
+# Maven Wrapper
 /.mvn/wrapper/*.jar
