@@ -516,7 +516,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 e.g.
 
 ```bash
-k8s_namespace="default" \
+k8s_namespace="default" && \
 k8s_app="app" && \
 helm_release="dcic"
 ```
