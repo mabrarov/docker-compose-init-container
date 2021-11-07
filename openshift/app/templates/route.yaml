@@ -1,5 +1,5 @@
-apiVersion: route.openshift.io/v1
-kind: Route
+apiVersion: "route.openshift.io/v1"
+kind: "Route"
 metadata:
   name: {{ include "app.routeName" . | quote }}
   labels:
@@ -10,8 +10,8 @@ spec:
   port:
     targetPort: {{ include "app.servicePortName" . | quote }}
   tls:
-    insecureEdgeTerminationPolicy: Redirect
-    termination: reencrypt
+    insecureEdgeTerminationPolicy: "Redirect"
+    termination: "reencrypt"
     caCertificate: |-
       {{- .Values.route.tls.caCertificate | nindent 6 }}
     certificate: |-
@@ -19,6 +19,6 @@ spec:
     key: |-
       {{- .Values.route.tls.key | nindent 6 }}
   to:
-    kind: Service
-    name: {{ include "app.serviceName" . }}
-  wildcardPolicy: None
+    kind: "Service"
+    name: {{ include "app.serviceName" . | quote }}
+  wildcardPolicy: "None"

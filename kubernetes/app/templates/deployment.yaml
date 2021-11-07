@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: "apps/v1"
+kind: "Deployment"
 metadata:
   name: {{ include "app.deploymentName" . | quote }}
   labels:
@@ -20,7 +20,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Values.container.main.name | quote }}
-          image: "{{ .Values.container.main.image.repository }}:{{ .Values.container.main.image.tag | default .Chart.AppVersion }}"
+          image: {{ (printf "%s:%s" .Values.container.main.image.repository (.Values.container.main.image.tag | default .Chart.AppVersion)) | quote }}
           imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
           env:
             - name: "JAVA_TOOL_OPTIONS"
@@ -59,7 +59,7 @@ spec:
               name: "app-tmp-volume"
       initContainers:
         - name: {{ .Values.container.init.name | quote }}
-          image: "{{ .Values.container.init.image.repository }}:{{ .Values.container.init.image.tag | default .Chart.AppVersion }}"
+          image: {{ (printf "%s:%s" .Values.container.init.image.repository (.Values.container.init.image.tag | default .Chart.AppVersion)) | quote }}
           imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
           env:
             - name: "TRUST_STORE_FILE"

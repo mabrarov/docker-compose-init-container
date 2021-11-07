@@ -16,6 +16,11 @@ container:
       registry:
       name: "app-initializer"
       tag: "latest"
+  test:
+    name: "test"
+    image:
+      repository: "curlimages/curl"
+      tag: "latest"
 
 replicas: 1
 imagePullPolicy: "IfNotPresent"
