@@ -149,6 +149,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 ## Testing with OpenShift
 
 All commands were tested using Bash on CentOS 7.7.
+Curl is required for testing outside OpenShift.
 Commands for other OS and shells - like determining public IP address of host - may differ.
 
 [oc Client Tools](https://www.okd.io/download.html) can be used to
@@ -421,6 +422,7 @@ openshift_registry="172.30.1.1:5000"
 ## Testing with Kubernetes
 
 All commands were tested using Bash on Ubuntu Server 18.04.
+Curl is required for testing outside Kubernetes.
 
 ### kubectl Setup
 
