@@ -579,9 +579,7 @@ helm_release="dcic"
 1. Check `https://${k8s_app}.docker-compose-init-container.local`, e.g. with curl:
 
    ```bash
-   ingress_ip="$(kubectl get ingress \
-     -l "app.kubernetes.io/instance=${helm_release}" \
-     -o jsonpath="{.items[0].status.loadBalancer.ingress[0].ip}")" && \
+   ingress_ip="$(minikube ip)" && \
    curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
       --resolve "${k8s_app}.docker-compose-init-container.local:443:${ingress_ip}" \
      "https://${k8s_app}.docker-compose-init-container.local"
