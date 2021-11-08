@@ -264,7 +264,7 @@ openshift_registry="172.30.1.1:5000"
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
-   helm install "${helm_release}" openshift/app \
+   helm upgrade "${helm_release}" openshift/app \
      --kube-apiserver "https://${openshift_address}:8443" \
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
@@ -274,7 +274,7 @@ openshift_registry="172.30.1.1:5000"
      --set route.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
      --set route.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
      --set route.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
-     --wait
+     --install --wait
    ```
 
    If there is a need to deploy with [JaCoCo](https://www.jacoco.org) agent turned on, 
@@ -283,9 +283,9 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    jacoco_port="6300" && \
-   oc login -u "${openshift_user}" -p "${openshift_password}" \
+   oc upgrade -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
-   helm install "${helm_release}" openshift/app \
+   helm upgrade "${helm_release}" openshift/app \
      --kube-apiserver "https://${openshift_address}:8443" \
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
@@ -296,7 +296,7 @@ openshift_registry="172.30.1.1:5000"
      --set route.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
      --set route.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
      --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
-     --wait
+     --install --wait
    ```
 
 1. Test OpenShift service and pod
@@ -539,21 +539,21 @@ helm_release="dcic"
    for completion of rollout
 
    ```bash
-   helm install "${helm_release}" kubernetes/app \
+   helm upgrade "${helm_release}" kubernetes/app \
      -n "${k8s_namespace}" \
      --set nameOverride="${k8s_app}" \
      --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
      --set ingress.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
      --set ingress.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
      --set ingress.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
-     --wait
+     --install --wait
    ```
 
    If there is a need to deploy with JaCoCo agent turned on, then use this command instead
 
    ```bash
    jacoco_port="6300" && \
-   helm install "${helm_release}" kubernetes/app \
+   helm upgrade "${helm_release}" kubernetes/app \
      -n "${k8s_namespace}" \
      --set nameOverride="${k8s_app}" \
      --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
@@ -561,7 +561,7 @@ helm_release="dcic"
      --set ingress.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
      --set ingress.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
      --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
-     --wait
+     --install --wait
    ```
 
 1. Test K8s service and pod
