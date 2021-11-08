@@ -529,10 +529,8 @@ helm_release="dcic"
 
    ```bash
    minikube_registry="$(minikube ip):5000" && \
-   docker tag abrarov/docker-compose-init-container-app \
-     "${minikube_registry}/app" && \
-   docker tag abrarov/docker-compose-init-container-initializer \
-     "${minikube_registry}/app-initializer" && \
+   docker tag abrarov/docker-compose-init-container-app "${minikube_registry}/app" && \
+   docker tag abrarov/docker-compose-init-container-initializer "${minikube_registry}/app-initializer" && \
    docker push "${minikube_registry}/app" && \
    docker push "${minikube_registry}/app-initializer"
    ```

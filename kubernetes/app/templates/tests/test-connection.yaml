@@ -13,11 +13,11 @@ spec:
   {{- end }}
   containers:
     - name: {{ .Values.container.test.name | quote }}
-      image: {{ (print "%s:%s" .Values.container.test.image.repository (.Values.container.test.image.tag | default .Chart.AppVersion)) | quote }}
+      image: {{ (printf "%s:%s" .Values.container.test.image.repository (.Values.container.test.image.tag | default .Chart.AppVersion)) | quote }}
       imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
       command:
       - "curl"
       args:
         - "-s"
-        - {{ (printf "%s://%s.%s.svc:%s" (include "app.portScheme" . | lower) (include "app.serviceName" .) .Release.Namespace .Values.service.port) | quote }}
+        - {{ (printf "%s://%s.%s.svc:%d" (include "app.portScheme" . | lower) (include "app.serviceName" .) .Release.Namespace (.Values.service.port | int)) | quote }}
   restartPolicy: "Never"

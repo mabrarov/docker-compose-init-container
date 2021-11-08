@@ -13,7 +13,6 @@ spec:
     metadata:
       labels:
         {{- include "app.labels" . | nindent 8 }}
-        {{- include "app.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
