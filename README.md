@@ -299,6 +299,24 @@ openshift_registry="172.30.1.1:5000"
      --install --wait
    ```
 
+   Expected output looks like:
+
+   ```text
+   Login successful.
+
+   You have one project on this server: "myproject"
+
+   Using project "myproject".
+   Release "dcic" does not exist. Installing it now.
+   NAME: dcic
+   LAST DEPLOYED: Tue Nov  9 03:59:42 2021
+   NAMESPACE: myproject
+   STATUS: deployed
+   REVISION: 1
+   NOTES:
+   1. Application URL: https://app.docker-compose-init-container.local/
+   ```
+
 1. Test OpenShift service and pod
 
    ```bash
@@ -562,6 +580,19 @@ helm_release="dcic"
      --set ingress.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
      --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
      --install --wait
+   ```
+
+   Expected output looks like:
+
+   ```text
+   Release "dcic" does not exist. Installing it now.
+   NAME: dcic
+   LAST DEPLOYED: Tue Nov  9 00:22:17 2021
+   NAMESPACE: default
+   STATUS: deployed
+   REVISION: 1
+   NOTES:
+   1. Application URL: https://app.docker-compose-init-container.local/
    ```
 
 1. Test K8s service and pod
