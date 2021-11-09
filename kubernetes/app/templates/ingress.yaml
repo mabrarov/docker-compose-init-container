@@ -1,13 +1,13 @@
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1
+apiVersion: "networking.k8s.io/v1"
 {{- else -}}
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: "networking.k8s.io/v1beta1"
 {{- else -}}
-apiVersion: extensions/v1beta1
+apiVersion: "extensions/v1beta1"
 {{- end }}
 {{- end }}
-kind: Ingress
+kind: "Ingress"
 metadata:
   name: {{ include "app.ingressName" . | quote }}
   labels:
@@ -16,15 +16,15 @@ spec:
   tls:
     - hosts:
         - {{ .Values.ingress.host | quote }}
-      secretName: {{ include "app.tlsSecretName" . }}
+      secretName: {{ include "app.tlsSecretName" . | quote }}
   rules:
     - host: {{ .Values.ingress.host | quote }}
       http:
         paths:
           - path: {{ .Values.ingress.path | quote }}
-            pathType: Prefix
+            pathType: "Prefix"
             backend:
               service:
-                name: {{ include "app.serviceName" . }}
+                name: {{ include "app.serviceName" . | quote }}
                 port:
                   name: {{ include "app.servicePortName" . | quote }}

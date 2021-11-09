@@ -12,6 +12,11 @@ container:
     image:
       repository: "localhost:5000/app-initializer"
       tag: "latest"
+  test:
+    name: "test"
+    image:
+      repository: "curlimages/curl"
+      tag: "latest"
 
 replicas: 1
 imagePullPolicy: "IfNotPresent"

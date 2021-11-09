@@ -149,6 +149,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 ## Testing with OpenShift
 
 All commands were tested using Bash on CentOS 7.7.
+Curl is required for testing outside OpenShift.
 Commands for other OS and shells - like determining public IP address of host - may differ.
 
 [oc Client Tools](https://www.okd.io/download.html) can be used to
@@ -263,7 +264,7 @@ openshift_registry="172.30.1.1:5000"
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
-   helm install "${helm_release}" openshift/app \
+   helm upgrade "${helm_release}" openshift/app \
      --kube-apiserver "https://${openshift_address}:8443" \
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
@@ -273,7 +274,7 @@ openshift_registry="172.30.1.1:5000"
      --set route.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
      --set route.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
      --set route.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
-     --wait
+     --install --wait
    ```
 
    If there is a need to deploy with [JaCoCo](https://www.jacoco.org) agent turned on, 
@@ -282,9 +283,9 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    jacoco_port="6300" && \
-   oc login -u "${openshift_user}" -p "${openshift_password}" \
+   oc upgrade -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
-   helm install "${helm_release}" openshift/app \
+   helm upgrade "${helm_release}" openshift/app \
      --kube-apiserver "https://${openshift_address}:8443" \
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
@@ -295,7 +296,25 @@ openshift_registry="172.30.1.1:5000"
      --set route.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
      --set route.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
      --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
-     --wait
+     --install --wait
+   ```
+
+   Expected output looks like:
+
+   ```text
+   Login successful.
+
+   You have one project on this server: "myproject"
+
+   Using project "myproject".
+   Release "dcic" does not exist. Installing it now.
+   NAME: dcic
+   LAST DEPLOYED: Tue Nov  9 03:59:42 2021
+   NAMESPACE: myproject
+   STATUS: deployed
+   REVISION: 1
+   NOTES:
+   1. Application URL: https://app.docker-compose-init-container.local/
    ```
 
 1. Test OpenShift service and pod
@@ -421,11 +440,12 @@ openshift_registry="172.30.1.1:5000"
 ## Testing with Kubernetes
 
 All commands were tested using Bash on Ubuntu Server 18.04.
+Curl is required for testing outside Kubernetes.
 
 ### kubectl Setup
 
 ```bash
-k8s_version="1.22.2" && \
+k8s_version="1.22.3" && \
 curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
   | sudo tee /usr/local/bin/kubectl > /dev/null && \
 sudo chmod +x /usr/local/bin/kubectl
@@ -434,7 +454,7 @@ sudo chmod +x /usr/local/bin/kubectl
 ### Helm Setup
 
 ```bash
-helm_version="3.7.0" && \
+helm_version="3.7.1" && \
 curl -Ls "https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz" \
   | sudo tar -xz --strip-components=1 -C /usr/local/bin "linux-amd64/helm"
 ```
@@ -446,7 +466,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Download Minikube executable (minikube)
 
    ```bash
-   minikube_version="1.23.2" && \
+   minikube_version="1.24.0" && \
    curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
      | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
      | sudo tee /usr/local/bin/minikube > /dev/null && \
@@ -516,7 +536,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 e.g.
 
 ```bash
-k8s_namespace="default" \
+k8s_namespace="default" && \
 k8s_app="app" && \
 helm_release="dcic"
 ```
@@ -527,10 +547,8 @@ helm_release="dcic"
 
    ```bash
    minikube_registry="$(minikube ip):5000" && \
-   docker tag abrarov/docker-compose-init-container-app \
-     "${minikube_registry}/app" && \
-   docker tag abrarov/docker-compose-init-container-initializer \
-     "${minikube_registry}/app-initializer" && \
+   docker tag abrarov/docker-compose-init-container-app "${minikube_registry}/app" && \
+   docker tag abrarov/docker-compose-init-container-initializer "${minikube_registry}/app-initializer" && \
    docker push "${minikube_registry}/app" && \
    docker push "${minikube_registry}/app-initializer"
    ```
@@ -539,21 +557,21 @@ helm_release="dcic"
    for completion of rollout
 
    ```bash
-   helm install "${helm_release}" kubernetes/app \
+   helm upgrade "${helm_release}" kubernetes/app \
      -n "${k8s_namespace}" \
      --set nameOverride="${k8s_app}" \
      --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
      --set ingress.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
      --set ingress.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
      --set ingress.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
-     --wait
+     --install --wait
    ```
 
    If there is a need to deploy with JaCoCo agent turned on, then use this command instead
 
    ```bash
    jacoco_port="6300" && \
-   helm install "${helm_release}" kubernetes/app \
+   helm upgrade "${helm_release}" kubernetes/app \
      -n "${k8s_namespace}" \
      --set nameOverride="${k8s_app}" \
      --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
@@ -561,7 +579,20 @@ helm_release="dcic"
      --set ingress.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
      --set ingress.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
      --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
-     --wait
+     --install --wait
+   ```
+
+   Expected output looks like:
+
+   ```text
+   Release "dcic" does not exist. Installing it now.
+   NAME: dcic
+   LAST DEPLOYED: Tue Nov  9 00:22:17 2021
+   NAMESPACE: default
+   STATUS: deployed
+   REVISION: 1
+   NOTES:
+   1. Application URL: https://app.docker-compose-init-container.local/
    ```
 
 1. Test K8s service and pod
@@ -579,9 +610,7 @@ helm_release="dcic"
 1. Check `https://${k8s_app}.docker-compose-init-container.local`, e.g. with curl:
 
    ```bash
-   ingress_ip="$(kubectl get ingress \
-     -l "app.kubernetes.io/instance=${helm_release}" \
-     -o jsonpath="{.items[0].status.loadBalancer.ingress[0].ip}")" && \
+   ingress_ip="$(minikube ip)" && \
    curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
       --resolve "${k8s_app}.docker-compose-init-container.local:443:${ingress_ip}" \
      "https://${k8s_app}.docker-compose-init-container.local"

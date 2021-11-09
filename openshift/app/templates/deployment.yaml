@@ -1,5 +1,5 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: "apps/v1"
+kind: "Deployment"
 metadata:
   name: {{ include "app.deploymentName" . | quote }}
   labels:
@@ -13,7 +13,6 @@ spec:
     metadata:
       labels:
         {{- include "app.labels" . | nindent 8 }}
-        {{- include "app.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -22,9 +21,9 @@ spec:
       containers:
         - name: {{ .Values.container.main.name | quote }}
           {{- if .Values.container.main.image.repository }}
-          image: "{{ .Values.container.main.image.repository }}:{{ .Values.container.main.image.tag | default .Chart.AppVersion }}"
+          image: {{ (printf "%s:%s" .Values.container.main.image.repository (.Values.container.main.image.tag | default .Chart.AppVersion)) | quote }}
           {{- else }}
-          image: "{{ .Values.container.main.image.registry }}/{{ .Release.Namespace }}/{{ .Values.container.main.image.name }}:{{ .Values.container.main.image.tag | default .Chart.AppVersion }}"
+          image: {{ (printf "%s/%s/%s:%s" .Values.container.main.image.registry .Release.Namespace .Values.container.main.image.name (.Values.container.main.image.tag | default .Chart.AppVersion)) | quote }}
           {{- end }}
           imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
           env:
@@ -78,9 +77,9 @@ spec:
       initContainers:
         - name: {{ .Values.container.init.name | quote }}
           {{- if .Values.container.main.image.repository }}
-          image: "{{ .Values.container.init.image.repository }}:{{ .Values.container.init.image.tag | default .Chart.AppVersion }}"
+          image: {{ (printf "%s:%s" .Values.container.init.image.repository (.Values.container.init.image.tag | default .Chart.AppVersion)) | quote }}
           {{- else }}
-          image: "{{ .Values.container.init.image.registry }}/{{ .Release.Namespace }}/{{ .Values.container.init.image.name }}:{{ .Values.container.init.image.tag | default .Chart.AppVersion }}"
+          image: {{ (printf "%s/%s/%s:%s" .Values.container.init.image.registry .Release.Namespace .Values.container.init.image.name (.Values.container.init.image.tag | default .Chart.AppVersion)) | quote }}
           {{- end }}
           imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
           env:
