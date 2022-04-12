@@ -165,6 +165,98 @@ curl -Ls "https://github.com/openshift/origin/releases/download/v${openshift_ver
   | sudo tar -xz --strip-components=1 -C /usr/bin "openshift-origin-client-tools-v${openshift_version}-${openshift_build}-linux-64bit/oc"
 ```
 
+### Helm-secrets Plugin Setup
+
+1. Install [Age](https://github.com/FiloSottile/age)
+
+   ```bash
+   age_version='1.0.0' && \
+   age_platform='linux-amd64' && \
+   curl -Ls "https://github.com/FiloSottile/age/releases/download/v${age_version}/age-v${age_version}-${age_platform}.tar.gz" \
+     | sudo tar -xz --strip-components=1 -C /usr/local/bin "age/age*"
+   ```
+
+1. Install [Mozilla SOPS](https://github.com/mozilla/sops)
+
+   ```bash
+   sops_version='3.7.2' && \
+   sops_platform='linux.amd64' && \
+   sops_binary='/usr/local/bin/sops' && \
+   curl -Ls "https://github.com/mozilla/sops/releases/download/v${sops_version}/sops-v${sops_version}.${sops_platform}" \
+     | sudo tee "${sops_binary}" >/dev/null && \
+   sudo chmod +x "${sops_binary}"
+   ```
+
+1. Install [helm-secrets plugin](https://github.com/jkroepke/helm-secrets)
+
+   ```bash
+   helm plugin install https://github.com/jkroepke/helm-secrets --version v3.12.0
+   ```
+
+### Generate Age Key
+
+```bash
+age-keygen -o age-key.txt
+```
+
+### Create Encrypted Helm Values File
+
+```bash
+plain_secrets_yaml_file="$(mktemp --suffix '.yaml')" && \
+{ cat << EOF > "${plain_secrets_yaml_file}"
+app:
+  tls:
+    keyStorePassword: "TLS key store password"
+  trustStorePassword: "Trusted CA certificate store password"
+EOF
+} && \
+age_public_key="$(sed -r 's/# public key: (.+)/\1/;t;d' age-key.txt)" && \
+sops --encrypt --age "${age_public_key}" "${plain_secrets_yaml_file}" >secrets.enc.yaml && \
+rm -f "${plain_secrets_yaml_file}"
+```
+
+### Test Decryption of Encrypted Helm Values File with Helm-secrets Plugin
+
+```bash
+openshift_app='app' && \
+helm_release='dcic' && \
+openshift_registry='172.30.1.1:5000' && \
+SOPS_AGE_KEY_FILE='age-key.txt' \
+helm template "${helm_release}" openshift/app \
+  --set nameOverride="${openshift_app}" \
+  --set container.main.image.registry="${openshift_registry}" \
+  --set container.init.image.registry="${openshift_registry}" \
+  --set route.host="${openshift_app}.docker-compose-init-container.local" \
+  --set route.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
+  --set route.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
+  --set route.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
+  --values 'secrets://secrets.enc.yaml'
+```
+
+Expected output contains (starts from):
+
+```yaml
+---
+# Source: app/templates/app-secret.yaml
+apiVersion: "v1"
+kind: "Secret"
+metadata:
+  name: "dcic-app"
+  labels:
+    app: "app"
+    helm.sh/chart: "app-1.0.0"
+    app.kubernetes.io/name: "app"
+    app.kubernetes.io/instance: "dcic"
+    app.kubernetes.io/version: "1.0.0"
+    app.kubernetes.io/managed-by: "Helm"
+type: "Opaque"
+stringData:
+  tlsKeyStorePassword: "TLS key store password"
+  trustStorePassword: "Trusted CA certificate store password"
+```
+
+Where values of `.stringData.tlsKeyStorePassword` and `.stringData.trustStorePassword` fields are taken from secrets.enc.yaml file.
+
 ### OKD Setup
 
 In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to setup local OpenShift instance easily
