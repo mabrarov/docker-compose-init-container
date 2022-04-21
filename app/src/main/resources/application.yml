@@ -1,2 +1,12 @@
 spring.mvc.servlet.load-on-startup: 1
 logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: 'DEBUG'
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  health:
+    readinessstate:
+      enabled: true
+    livenessstate:
+      enabled: true

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.mabrarov.docker-compose-init-container</groupId>
         <artifactId>docker-compose-init-container</artifactId>
-        <version>1.0.1</version>
+        <version>1.0.2</version>
     </parent>
 
     <artifactId>app</artifactId>

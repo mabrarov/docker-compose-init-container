@@ -39,13 +39,13 @@ spec:
               containerPort: {{ .Values.app.port }}
           livenessProbe:
             httpGet:
-              path: "/actuator/health"
+              path: "/actuator/health/liveness"
               port: {{ include "app.containerPortName" . | quote }}
               scheme: {{ include "app.portScheme" . | upper | quote }}
             initialDelaySeconds: 5
           readinessProbe:
             httpGet:
-              path: "/actuator/health"
+              path: "/actuator/health/readiness"
               port: {{ include "app.containerPortName" . | quote }}
               scheme: {{ include "app.portScheme" . | upper | quote }}
             initialDelaySeconds: 5
