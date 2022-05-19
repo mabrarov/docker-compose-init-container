@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <docker.repository>${docker.image.registry}/docker-compose-init-container-app</docker.repository>
+        <docker.repository>${docker.image.repository.base}docker-compose-init-container-app</docker.repository>
         <app-layers.dir>${project.build.directory}/app</app-layers.dir>
         <app-classes.output.dir>app</app-classes.output.dir>
         <!-- Avoid docker build cache invalidation due to new commits -->

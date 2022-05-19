@@ -268,12 +268,14 @@ openshift_registry="172.30.1.1:5000"
      --kube-apiserver "https://${openshift_address}:8443" \
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
-     --set container.main.image.registry="${openshift_registry}" \
-     --set container.init.image.registry="${openshift_registry}" \
+     --set image.registry="${openshift_registry}" \
+     --set image.name="${openshift_project}/app" \
+     --set init.image.registry="${openshift_registry}" \
+     --set init.image.name="${openshift_project}/app-initializer" \
      --set route.host="${openshift_app}.docker-compose-init-container.local" \
-     --set route.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
-     --set route.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
-     --set route.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
+     --set-file route.tls.caCertificate="$(pwd)/certificates/ca-cert.crt" \
+     --set-file route.tls.certificate="$(pwd)/certificates/tls-cert.crt" \
+     --set-file route.tls.key="$(pwd)/certificates/tls-key.pem" \
      --install --wait
    ```
 
@@ -283,18 +285,20 @@ openshift_registry="172.30.1.1:5000"
 
    ```bash
    jacoco_port="6300" && \
-   oc upgrade -u "${openshift_user}" -p "${openshift_password}" \
+   oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
    helm upgrade "${helm_release}" openshift/app \
      --kube-apiserver "https://${openshift_address}:8443" \
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
-     --set container.main.image.registry="${openshift_registry}" \
-     --set container.init.image.registry="${openshift_registry}" \
+     --set image.registry="${openshift_registry}" \
+     --set image.name="${openshift_project}/app" \
+     --set init.image.registry="${openshift_registry}" \
+     --set init.image.name="${openshift_project}/app-initializer" \
      --set route.host="${openshift_app}.docker-compose-init-container.local" \
-     --set route.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
-     --set route.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
-     --set route.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
+     --set-file route.tls.caCertificate="$(pwd)/certificates/ca-cert.crt" \
+     --set-file route.tls.certificate="$(pwd)/certificates/tls-cert.crt" \
+     --set-file route.tls.key="$(pwd)/certificates/tls-key.pem" \
      --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
      --install --wait
    ```
@@ -445,7 +449,7 @@ Curl is required for testing outside Kubernetes.
 ### kubectl Setup
 
 ```bash
-k8s_version="1.22.3" && \
+k8s_version="1.24.0" && \
 curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
   | sudo tee /usr/local/bin/kubectl > /dev/null && \
 sudo chmod +x /usr/local/bin/kubectl
@@ -454,7 +458,7 @@ sudo chmod +x /usr/local/bin/kubectl
 ### Helm Setup
 
 ```bash
-helm_version="3.7.1" && \
+helm_version="3.9.0" && \
 curl -Ls "https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz" \
   | sudo tar -xz --strip-components=1 -C /usr/local/bin "linux-amd64/helm"
 ```
@@ -466,7 +470,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Download Minikube executable (minikube)
 
    ```bash
-   minikube_version="1.24.0" && \
+   minikube_version="1.25.2" && \
    curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
      | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
      | sudo tee /usr/local/bin/minikube > /dev/null && \
@@ -560,10 +564,14 @@ helm_release="dcic"
    helm upgrade "${helm_release}" kubernetes/app \
      -n "${k8s_namespace}" \
      --set nameOverride="${k8s_app}" \
+     --set image.registry='localhost:5000' \
+     --set image.name='app' \
+     --set init.image.registry='localhost:5000' \
+     --set init.image.name='app-initializer' \
      --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
-     --set ingress.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
-     --set ingress.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
-     --set ingress.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
+     --set-file ingress.tls.caCertificate="$(pwd)/certificates/ca-cert.crt" \
+     --set-file ingress.tls.certificate="$(pwd)/certificates/tls-cert.crt" \
+     --set-file ingress.tls.key="$(pwd)/certificates/tls-key.pem" \
      --install --wait
    ```
 
@@ -574,10 +582,14 @@ helm_release="dcic"
    helm upgrade "${helm_release}" kubernetes/app \
      -n "${k8s_namespace}" \
      --set nameOverride="${k8s_app}" \
+     --set image.registry='localhost:5000' \
+     --set image.name='app' \
+     --set init.image.registry='localhost:5000' \
+     --set init.image.name='app-initializer' \
      --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
-     --set ingress.tls.caCertificate="$(cat "$(pwd)/certificates/ca-cert.crt")" \
-     --set ingress.tls.certificate="$(cat "$(pwd)/certificates/tls-cert.crt")" \
-     --set ingress.tls.key="$(cat "$(pwd)/certificates/tls-key.pem")" \
+     --set-file ingress.tls.caCertificate="$(pwd)/certificates/ca-cert.crt" \
+     --set-file ingress.tls.certificate="$(pwd)/certificates/tls-cert.crt" \
+     --set-file ingress.tls.key="$(pwd)/certificates/tls-key.pem" \
      --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
      --install --wait
    ```

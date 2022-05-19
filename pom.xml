@@ -53,7 +53,7 @@
         <docker.verbose>true</docker.verbose>
         <docker.skip>true</docker.skip>
         <docker.cleanup>none</docker.cleanup>
-        <docker.image.registry>abrarov</docker.image.registry>
+        <docker.image.repository.base>abrarov/</docker.image.repository.base>
     </properties>
 
     <dependencyManagement>

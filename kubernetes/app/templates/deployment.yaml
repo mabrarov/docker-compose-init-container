@@ -14,14 +14,14 @@ spec:
       labels:
         {{- include "app.labels" . | nindent 8 }}
     spec:
-      {{- with .Values.imagePullSecrets }}
+      {{- if .Values.image.pull.secret }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        - name: {{ include "app.imagePullSecretName" . | quote }}
       {{- end }}
       containers:
-        - name: {{ .Values.container.main.name | quote }}
-          image: {{ (printf "%s:%s" .Values.container.main.image.repository (.Values.container.main.image.tag | default .Chart.AppVersion)) | quote }}
-          imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        - name: {{ .Values.containerName | quote }}
+          image: {{ include "app.mainContainer.image.fullName" . | quote }}
+          imagePullPolicy: {{ .Values.image.pull.policy | quote }}
           env:
             - name: "JAVA_TOOL_OPTIONS"
               value: {{ include "app.finalJvmOptions" . | quote }}
@@ -42,15 +42,22 @@ spec:
               path: "/actuator/health/liveness"
               port: {{ include "app.containerPortName" . | quote }}
               scheme: {{ include "app.portScheme" . | upper | quote }}
-            initialDelaySeconds: 5
+            initialDelaySeconds: {{ .Values.liveness.initialDelay }}
           readinessProbe:
             httpGet:
               path: "/actuator/health/readiness"
               port: {{ include "app.containerPortName" . | quote }}
               scheme: {{ include "app.portScheme" . | upper | quote }}
-            initialDelaySeconds: 5
+            initialDelaySeconds: {{ .Values.readiness.initialDelay }}
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
+            runAsNonRoot: {{ .Values.securityContext.readOnlyRootFilesystem }}
+            {{- if .Values.securityContext.runAsUser }}
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            {{- end }}
+            {{- if .Values.securityContext.runAsGroup }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            {{- end }}
           volumeMounts:
             - mountPath: "{{ .Values.app.configDir }}"
               name: "config-volume"
@@ -58,9 +65,9 @@ spec:
             - mountPath: "/tmp"
               name: "app-tmp-volume"
       initContainers:
-        - name: {{ .Values.container.init.name | quote }}
-          image: {{ (printf "%s:%s" .Values.container.init.image.repository (.Values.container.init.image.tag | default .Chart.AppVersion)) | quote }}
-          imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+        - name: {{ .Values.init.containerName | quote }}
+          image: {{ include "app.initContainer.image.fullName" . | quote }}
+          imagePullPolicy: {{ .Values.init.image.pull.policy | quote }}
           env:
             - name: "TRUST_STORE_FILE"
               value: "{{ .Values.app.configDir }}/truststore.jks"
@@ -70,7 +77,14 @@ spec:
                   name: {{ include "app.secretName" . | quote }}
                   key: "trustStorePassword"
           securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
+            readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
+            runAsNonRoot: {{ .Values.securityContext.readOnlyRootFilesystem }}
+            {{- if .Values.securityContext.runAsUser }}
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            {{- end }}
+            {{- if .Values.securityContext.runAsGroup }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+            {{- end }}
           volumeMounts:
             - mountPath: {{ .Values.app.configDir | quote }}
               name: "config-volume"

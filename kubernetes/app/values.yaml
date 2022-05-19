@@ -1,26 +1,22 @@
 nameOverride: ""
 fullnameOverride: ""
 
-container:
-  main:
-    name: "app"
-    image:
-      repository: "localhost:5000/app"
-      tag: "latest"
-  init:
-    name: "init"
-    image:
-      repository: "localhost:5000/app-initializer"
-      tag: "latest"
-  test:
-    name: "test"
-    image:
-      repository: "curlimages/curl"
-      tag: "latest"
+containerName: "app"
+
+image:
+  registry: "docker.io"
+  name: "abrarov/docker-compose-init-container-app"
+  tag: "latest"
+  pull:
+    policy: "IfNotPresent"
+
+liveness:
+  initialDelay: 5
+
+readiness:
+  initialDelay: 5
 
 replicas: 1
-imagePullPolicy: "IfNotPresent"
-imagePullSecrets: []
 
 securityContext:
   readOnlyRootFilesystem: true
@@ -28,16 +24,15 @@ securityContext:
   runAsUser: 1000
 
 service:
-  type: "ClusterIP"
   port: 8080
 
 ingress:
-  host:
+  host: ""
   path: "/"
   tls:
-    caCertificate:
-    certificate:
-    key:
+    caCertificate: ""
+    certificate: ""
+    key: ""
 
 app:
   trustStorePassword: "password_of_6_chars_min"
@@ -46,3 +41,21 @@ app:
   defaultJvmOptions:
     - "-XX:+PerfDisableSharedMem"
   extraJvmOptions: []
+
+init:
+  containerName: "init"
+  image:
+    registry: "docker.io"
+    name: "abrarov/docker-compose-init-container-initializer"
+    tag: "latest"
+    pull:
+      policy: "IfNotPresent"
+
+test:
+  containerName: "test"
+  image:
+    registry: "docker.io"
+    name: "curlimages/curl"
+    tag: "latest"
+    pull:
+      policy: "IfNotPresent"
