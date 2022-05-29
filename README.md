@@ -52,8 +52,8 @@ mvnw.cmd clean package -P docker
 e.g.
 
 ```bash
-app_subdomain="app" && \
-compose_project="dcic"
+app_subdomain='app' && \
+compose_project='dcic'
 ```
 
 ### Docker Compose Testing Steps
@@ -71,18 +71,16 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    by Docker Compose project)
 
    ```bash
-   jacoco_port="6300" && \
-   export JAVA_OPTIONS="-javaagent:/jacoco.jar=output=tcpserver,address=0.0.0.0,port=${jacoco_port},includes=org.mabrarov.dockercomposeinitcontainer.*" && \
+   jacoco_port='6300' && \
+   JAVA_OPTIONS="-javaagent:/jacoco.jar=output=tcpserver,address=0.0.0.0,port=${jacoco_port},includes=org.mabrarov.dockercomposeinitcontainer.*" \
    docker-compose -p "${compose_project}" -f docker-compose/docker-compose.yml up -d
    ```
 
 1. Wait till application starts
 
    ```bash
-   while ! docker-compose -p "${compose_project}" \
-     -f docker-compose/docker-compose.yml logs app \
-     | grep -E '^.*\s+INFO\s+.*\[\s*main\]\s+(.*\.)?Application\s*:\s*Started Application\s*.*$' \
-     > /dev/null ; do \
+   while [[ "$(docker inspect --format '{{ .State.Health.Status }}' \
+      "${compose_project}_app_1")" != 'healthy' ]]; do \
      sleep 5s; \
    done
    ```
@@ -108,7 +106,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    (note that project has to be _built_ and _not cleaned_ at the time of execution of this command)
 
    ```bash
-   jacoco_version="0.8.6" && \
+   jacoco_version='0.8.8' && \
    jacoco_report_dir="$(pwd)/jacoco-report" && \
    jacoco_tmp_dir="$(mktemp -d)" && \
    jacoco_dist_file="${jacoco_tmp_dir}/jacoco-${jacoco_version}.zip" && \
@@ -122,7 +120,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
      -v "${jacococli_file}:/$(basename "${jacococli_file}")" \
      -v "$(dirname "${jacoco_exec_file}"):/jacoco" \
      --network "${compose_project}_default" \
-     gcr.io/distroless/java-debian10 \
+     gcr.io/distroless/java-debian11 \
      "/$(basename "${jacococli_file}")" dump \
      --address app \
      --port "${jacoco_port}" \
@@ -133,7 +131,7 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
      --classfiles app/target/classes \
      --sourcefiles app/src/main/java \
      --html "${jacoco_report_dir}" && \
-   sudo rm -f "${jacoco_exec_file}" && \
+   rm -f "${jacoco_exec_file}" && \
    rm -rf "${jacoco_tmp_dir}"
    ```
 
@@ -160,7 +158,7 @@ Commands for other OS and shells - like determining public IP address of host - 
 Setup of oc commandline tool from oc Client Tools can be done using following command
 
 ```bash
-openshift_version="3.11.0" && openshift_build="0cbc58b" && \
+openshift_version='3.11.0' && openshift_build='0cbc58b' && \
 curl -Ls "https://github.com/openshift/origin/releases/download/v${openshift_version}/openshift-origin-client-tools-v${openshift_version}-${openshift_build}-linux-64bit.tar.gz" \
   | sudo tar -xz --strip-components=1 -C /usr/bin "openshift-origin-client-tools-v${openshift_version}-${openshift_build}-linux-64bit/oc"
 ```
@@ -195,7 +193,7 @@ In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to 
 1. Create & start OKD instance
 
    ```bash
-   openshift_version="3.11.0" && \
+   openshift_version='3.11.0' && \
    openshift_short_version="$(echo ${openshift_version} \
      | sed -r 's/^([0-9]+\.[0-9]+)\.[0-9]+$/\1/')" && \
    docker pull "docker.io/openshift/origin-control-plane:v${openshift_short_version}" && \
@@ -234,12 +232,12 @@ e.g.
 openshift_address="$(ip address show \
   | sed -r 's/^[[:space:]]*inet (192(\.[0-9]{1,3}){3})\/[0-9]+ brd (([0-9]{1,3}\.){3}[0-9]{1,3}) scope global .*$/\1/;t;d' \
   | head -n 1)" && \
-openshift_user="developer" && \
-openshift_password="developer" && \
-openshift_project="myproject" && \
-openshift_app="app" && \
-helm_release="dcic" && \
-openshift_registry="172.30.1.1:5000"
+openshift_user='developer' && \
+openshift_password='developer' && \
+openshift_project='myproject' && \
+openshift_app='app' && \
+helm_release='dcic' && \
+openshift_registry='172.30.1.1:5000'
 ```
 
 ### OpenShift Testing Steps
@@ -284,7 +282,7 @@ openshift_registry="172.30.1.1:5000"
    previous command)
 
    ```bash
-   jacoco_port="6300" && \
+   jacoco_port='6300' && \
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
    helm upgrade "${helm_release}" openshift/app \
@@ -356,7 +354,7 @@ openshift_registry="172.30.1.1:5000"
    (note that project has to be _built_ and _not cleaned_ at the time of execution of this command)
 
    ```bash
-   jacoco_version="0.8.6" && \
+   jacoco_version='0.8.8' && \
    jacoco_report_dir="$(pwd)/jacoco-report" && \
    jacoco_tmp_dir="$(mktemp -d)" && \
    jacoco_dist_file="${jacoco_tmp_dir}/jacoco-${jacoco_version}.zip" && \
@@ -413,8 +411,8 @@ openshift_registry="172.30.1.1:5000"
    helm uninstall "${helm_release}" \
      --kube-apiserver "https://${openshift_address}:8443" \
      -n "${openshift_project}" && \
-   oc delete imagestream "${openshift_app}" && \
-   oc delete imagestream "${openshift_app}-initializer" && \
+   oc delete imagestream 'app' && \
+   oc delete imagestream 'app-initializer' && \
    docker rmi "${openshift_registry}/${openshift_project}/app" && \
    docker rmi "${openshift_registry}/${openshift_project}/app-initializer"
    ```
@@ -449,7 +447,7 @@ Curl is required for testing outside Kubernetes.
 ### kubectl Setup
 
 ```bash
-k8s_version="1.24.0" && \
+k8s_version='1.24.0' && \
 curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
   | sudo tee /usr/local/bin/kubectl > /dev/null && \
 sudo chmod +x /usr/local/bin/kubectl
@@ -458,7 +456,7 @@ sudo chmod +x /usr/local/bin/kubectl
 ### Helm Setup
 
 ```bash
-helm_version="3.9.0" && \
+helm_version='3.9.0' && \
 curl -Ls "https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz" \
   | sudo tar -xz --strip-components=1 -C /usr/local/bin "linux-amd64/helm"
 ```
@@ -470,7 +468,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Download Minikube executable (minikube)
 
    ```bash
-   minikube_version="1.25.2" && \
+   minikube_version='1.25.2' && \
    curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
      | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
      | sudo tee /usr/local/bin/minikube > /dev/null && \
@@ -540,9 +538,9 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 e.g.
 
 ```bash
-k8s_namespace="default" && \
-k8s_app="app" && \
-helm_release="dcic"
+k8s_namespace='default' && \
+k8s_app='app' && \
+helm_release='dcic'
 ```
 
 ### Minikube Testing Steps
@@ -578,7 +576,7 @@ helm_release="dcic"
    If there is a need to deploy with JaCoCo agent turned on, then use this command instead
 
    ```bash
-   jacoco_port="6300" && \
+   jacoco_port='6300' && \
    helm upgrade "${helm_release}" kubernetes/app \
      -n "${k8s_namespace}" \
      --set nameOverride="${k8s_app}" \
@@ -638,7 +636,7 @@ helm_release="dcic"
    (note that project has to be _built_ and _not cleaned_ at the time of execution of this command)
 
    ```bash
-   jacoco_version="0.8.6" && \
+   jacoco_version='0.8.8' && \
    jacoco_report_dir="$(pwd)/jacoco-report" && \
    jacoco_tmp_dir="$(mktemp -d)" && \
    jacoco_dist_file="${jacoco_tmp_dir}/jacoco-${jacoco_version}.zip" && \
