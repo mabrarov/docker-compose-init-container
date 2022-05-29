@@ -65,6 +65,13 @@ Name of service.
 {{- end }}
 
 {{/*
+Name of image pull secret.
+*/}}
+{{- define "app.imagePullSecretName" -}}
+{{ include "app.fullname" . }}-pull
+{{- end }}
+
+{{/*
 Name of ingress.
 */}}
 {{- define "app.ingressName" -}}
@@ -114,6 +121,55 @@ http
 {{- end }}
 
 {{/*
+Application pod main container image tag.
+*/}}
+{{- define "app.mainContainer.image.tag" -}}
+{{ .Values.image.tag | default .Chart.AppVersion }}
+{{- end }}
+
+{{/*
+Application pod main container image full name.
+*/}}
+{{- define "app.mainContainer.image.fullName" -}}
+{{ printf "%s/%s:%s" .Values.image.registry .Values.image.name (include "app.mainContainer.image.tag" . ) }}
+{{- end }}
+
+{{/*
+Application pod init container image tag.
+*/}}
+{{- define "app.initContainer.image.tag" -}}
+{{ .Values.init.image.tag | default .Chart.AppVersion }}
+{{- end }}
+
+{{/*
+Application pod init container image full name.
+*/}}
+{{- define "app.initContainer.image.fullName" -}}
+{{ printf "%s/%s:%s" .Values.init.image.registry .Values.init.image.name (include "app.initContainer.image.tag" . ) }}
+{{- end }}
+
+{{/*
+Test pod init container image tag.
+*/}}
+{{- define "app.testContainer.image.tag" -}}
+{{ .Values.test.image.tag | default "latest" }}
+{{- end }}
+
+{{/*
+Test pod init container image full name.
+*/}}
+{{- define "app.testContainer.image.fullName" -}}
+{{ printf "%s/%s:%s" .Values.test.image.registry .Values.test.image.name (include "app.testContainer.image.tag" . ) }}
+{{- end }}
+
+{{/*
+Name of test image pull secret.
+*/}}
+{{- define "app.testImagePullSecretName" -}}
+{{ include "app.fullname" . }}-test-pull
+{{- end }}
+
+{{/*
 Space separated JVM options/
 */}}
 {{- define "app.finalJvmOptions" -}}
@@ -122,4 +178,16 @@ Space separated JVM options/
 {{- if $first }}{{- $first = false }}{{- else }} {{ end -}}{{ . }}{{- end }}
 {{- range .Values.app.extraJvmOptions }}
 {{- if $first }}{{- $first = false }}{{- else }} {{ end -}}{{ . }}{{- end }}
+{{- end }}
+
+{{/*
+Docker authentication config for image registry.
+{{ include "app.dockerRegistryAuthenticationConfig" (dict "imageRegistry" .Values.image.registry "credentials" .Values.image.pull.secret) }}
+*/}}
+{{- define "app.dockerRegistryAuthenticationConfig" -}}
+{{- $registry := .imageRegistry }}
+{{- $username := .credentials.username }}
+{{- $password := .credentials.password }}
+{{- $email := .credentials.email }}
+{{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" $registry $username $password $email (printf "%s:%s" $username $password | b64enc) | b64enc }}
 {{- end }}

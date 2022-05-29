@@ -5,14 +5,14 @@
     <parent>
         <groupId>org.mabrarov.docker-compose-init-container</groupId>
         <artifactId>docker-compose-init-container</artifactId>
-        <version>1.0.2</version>
+        <version>1.0.3</version>
     </parent>
 
     <artifactId>init-image</artifactId>
     <packaging>pom</packaging>
 
     <properties>
-        <docker.repository>${docker.image.registry}/docker-compose-init-container-initializer</docker.repository>
+        <docker.repository>${docker.image.repository.base}docker-compose-init-container-initializer</docker.repository>
         <!-- Avoid docker build cache invalidation due to new commits -->
         <project.build.outputTimestamp>1970-01-01T00:00:00Z</project.build.outputTimestamp>
     </properties>

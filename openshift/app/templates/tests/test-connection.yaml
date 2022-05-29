@@ -7,14 +7,14 @@ metadata:
   annotations:
     "helm.sh/hook": "test"
 spec:
-  {{- with .Values.imagePullSecrets }}
+  {{- if .Values.test.image.pull.secret }}
   imagePullSecrets:
-    {{- toYaml . | nindent 4 }}
+    - name: {{ include "app.testImagePullSecretName" . | quote }}
   {{- end }}
   containers:
-    - name: {{ .Values.container.test.name | quote }}
-      image: {{ (printf "%s:%s" .Values.container.test.image.repository (.Values.container.test.image.tag | default .Chart.AppVersion)) | quote }}
-      imagePullPolicy: {{ .Values.imagePullPolicy | quote }}
+    - name: {{ .Values.test.containerName | quote }}
+      image: {{ include "app.testContainer.image.fullName" . | quote }}
+      imagePullPolicy: {{ .Values.test.image.pull.policy | quote }}
       command:
       - "curl"
       args:

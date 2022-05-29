@@ -1,0 +1,370 @@
+{
+  "$schema": "https://json-schema.org/schema#",
+  "type": "object",
+  "required": [
+    "containerName",
+    "image",
+    "liveness",
+    "readiness",
+    "replicas",
+    "securityContext",
+    "service",
+    "route",
+    "app"
+  ],
+  "properties": {
+    "nameOverride": {
+      "type": "string"
+    },
+    "fullnameOverride": {
+      "type": "string"
+    },
+    "containerName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "image": {
+      "type": "object",
+      "required": [
+        "registry",
+        "name",
+        "pull"
+      ],
+      "properties": {
+        "registry": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": "string"
+        },
+        "pull": {
+          "type": "object",
+          "required": [
+            "policy"
+          ],
+          "properties": {
+            "policy": {
+              "type": "string",
+              "pattern": "^(Always|Never|IfNotPresent)$"
+            },
+            "secret": {
+              "description": "docker authentication credentials for image registry",
+              "type": "object",
+              "required": [
+                "username",
+                "password",
+                "email"
+              ],
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "email": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "liveness": {
+      "type": "object",
+      "required": [
+        "initialDelay"
+      ],
+      "properties": {
+        "initialDelay": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "readiness": {
+      "type": "object",
+      "required": [
+        "initialDelay"
+      ],
+      "properties": {
+        "initialDelay": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "replicas": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "securityContext": {
+      "type": "object",
+      "required": [
+        "readOnlyRootFilesystem",
+        "runAsNonRoot"
+      ],
+      "properties": {
+        "readOnlyRootFilesystem": {
+          "type": "boolean"
+        },
+        "runAsNonRoot": {
+          "type": "boolean"
+        },
+        "runAsUser": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "runAsGroup": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "service": {
+      "description": "service configuration",
+      "type": "object",
+      "required": [
+        "port"
+      ],
+      "properties": {
+        "port": {
+          "description": "service port",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      }
+    },
+    "route": {
+      "description": "route configuration",
+      "type": "object",
+      "required": [
+        "path",
+        "tls"
+      ],
+      "properties": {
+        "host": {
+          "description": "ingress hostname",
+          "type": "string"
+        },
+        "path": {
+          "description": "ingress URL path",
+          "type": "string",
+          "minLength": 1
+        },
+        "tls": {
+          "type": "object",
+          "required": [
+            "certificate",
+            "key"
+          ],
+          "properties": {
+            "caCertificate": {
+              "description": "certificate of certificate authority signed ingress TLS certificate",
+              "type": "string"
+            },
+            "certificate": {
+              "description": "ingress TLS certificate, should match ingress TLS private key",
+              "type": "string"
+            },
+            "key": {
+              "description": "ingress TLS private key, should match ingress TLS certificate",
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "app": {
+      "description": "application configuration",
+      "type": "object",
+      "required": [
+        "tls",
+        "trustStorePassword",
+        "port",
+        "configDir",
+        "defaultJvmOptions",
+        "extraJvmOptions"
+      ],
+      "properties": {
+        "tls": {
+          "description": "configuration of generated keystore with TLS certificate and private key",
+          "type": "object",
+          "required": [
+            "keyStorePassword",
+            "keyAlias"
+          ],
+          "properties": {
+            "keyStorePassword": {
+              "description": "password for generated keystore with TLS certificate and private key",
+              "type": "string",
+              "minLength": 1
+            },
+            "keyAlias": {
+              "description": "alias of private key in generated keystore with TLS certificate and private key",
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "trustStorePassword": {
+          "description": "password for generated keystore with trusted CA certificates",
+          "type": "string",
+          "minLength": 6
+        },
+        "port": {
+          "description": "application port",
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "configDir": {
+          "description": "directory to place generated application configuration files",
+          "type": "string",
+          "minLength": 1
+        },
+        "defaultJvmOptions": {
+          "description": "base JVM options",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "extraJvmOptions": {
+          "description": "additional JVM options",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "init": {
+      "description": "configuration of test pod container",
+      "type": "object",
+      "required": [
+        "containerName",
+        "image"
+      ],
+      "properties": {
+        "containerName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "image": {
+          "type": "object",
+          "required": [
+            "registry",
+            "name",
+            "pull"
+          ],
+          "properties": {
+            "registry": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string"
+            },
+            "pull": {
+              "type": "object",
+              "required": [
+                "policy"
+              ],
+              "properties": {
+                "policy": {
+                  "type": "string",
+                  "pattern": "^(Always|Never|IfNotPresent)$"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "test": {
+      "description": "configuration of test pod container",
+      "type": "object",
+      "required": [
+        "containerName",
+        "image"
+      ],
+      "properties": {
+        "containerName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "image": {
+          "type": "object",
+          "required": [
+            "registry",
+            "name",
+            "pull"
+          ],
+          "properties": {
+            "registry": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string"
+            },
+            "pull": {
+              "type": "object",
+              "required": [
+                "policy"
+              ],
+              "properties": {
+                "policy": {
+                  "type": "string",
+                  "pattern": "^(Always|Never|IfNotPresent)$"
+                },
+                "secret": {
+                  "description": "docker authentication credentials for image registry",
+                  "type": "object",
+                  "required": [
+                    "username",
+                    "password",
+                    "email"
+                  ],
+                  "properties": {
+                    "username": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "password": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "email": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
