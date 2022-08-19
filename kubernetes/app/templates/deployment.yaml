@@ -4,15 +4,18 @@ metadata:
   name: {{ include "app.deploymentName" . | quote }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
+    {{- include "app.componentLabels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      {{- include "app.selectorLabels" . | nindent 6 }}
+      {{- include "app.matchLabels" . | nindent 6 }}
+      {{- include "app.componentLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
         {{- include "app.labels" . | nindent 8 }}
+        {{- include "app.componentLabels" . | nindent 8 }}
     spec:
       {{- if .Values.image.pull.secret }}
       imagePullSecrets:
@@ -20,7 +23,7 @@ spec:
       {{- end }}
       containers:
         - name: {{ .Values.containerName | quote }}
-          image: {{ include "app.mainContainer.image.fullName" . | quote }}
+          image: {{ include "app.mainContainer.imageFullName" . | quote }}
           imagePullPolicy: {{ .Values.image.pull.policy | quote }}
           env:
             - name: "JAVA_TOOL_OPTIONS"
@@ -66,7 +69,7 @@ spec:
               name: "app-tmp-volume"
       initContainers:
         - name: {{ .Values.init.containerName | quote }}
-          image: {{ include "app.initContainer.image.fullName" . | quote }}
+          image: {{ include "app.initContainer.imageFullName" . | quote }}
           imagePullPolicy: {{ .Values.init.image.pull.policy | quote }}
           env:
             - name: "TRUST_STORE_FILE"

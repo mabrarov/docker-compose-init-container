@@ -31,12 +31,20 @@ Create chart name and version as used by the chart label.
 {{- end }}
 
 {{/*
+Selector labels
+*/}}
+{{- define "app.matchLabels" -}}
+app.kubernetes.io/name: {{ include "app.name" . | quote }}
+app.kubernetes.io/instance: {{ .Release.Name | quote }}
+{{- end }}
+
+{{/*
 Common labels
 */}}
 {{- define "app.labels" -}}
 app: {{ include "app.name" . | quote }}
 helm.sh/chart: {{ include "app.chart" . | quote }}
-{{ include "app.selectorLabels" . }}
+{{ include "app.matchLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -44,11 +52,10 @@ app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
 {{- end }}
 
 {{/*
-Selector labels
+Component labels
 */}}
-{{- define "app.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "app.name" . | quote }}
-app.kubernetes.io/instance: {{ .Release.Name | quote }}
+{{- define "app.componentLabels" -}}
+app.kubernetes.io/component: {{ include "app.name" . | quote }}
 {{- end }}
 
 {{/*
@@ -96,8 +103,8 @@ Name of application secret.
 {{/*
 Name of test pod.
 */}}
-{{- define "app.testPodName" -}}
-{{ include "app.fullname" . }}-test-connection
+{{- define "app.test.podName" -}}
+{{ include "app.fullname" . }}-test
 {{- end }}
 
 {{/*
@@ -122,51 +129,58 @@ https
 {{- end }}
 
 {{/*
-Application pod main container image tag.
+Application main container image tag.
 */}}
-{{- define "app.mainContainer.image.tag" -}}
+{{- define "app.mainContainer.imageTag" -}}
 {{ .Values.image.tag | default .Chart.AppVersion }}
 {{- end }}
 
 {{/*
-Application pod main container image full name.
+Application main container image full name.
 */}}
-{{- define "app.mainContainer.image.fullName" -}}
-{{ printf "%s/%s:%s" .Values.image.registry .Values.image.name (include "app.mainContainer.image.tag" . ) }}
+{{- define "app.mainContainer.imageFullName" -}}
+{{ printf "%s/%s:%s" .Values.image.registry .Values.image.name (include "app.mainContainer.imageTag" . ) }}
 {{- end }}
 
 {{/*
-Application pod init container image tag.
+Application init container image tag.
 */}}
-{{- define "app.initContainer.image.tag" -}}
+{{- define "app.initContainer.imageTag" -}}
 {{ .Values.init.image.tag | default .Chart.AppVersion }}
 {{- end }}
 
 {{/*
-Application pod init container image full name.
+Application init container image full name.
 */}}
-{{- define "app.initContainer.image.fullName" -}}
-{{ printf "%s/%s:%s" .Values.init.image.registry .Values.init.image.name (include "app.initContainer.image.tag" . ) }}
+{{- define "app.initContainer.imageFullName" -}}
+{{ printf "%s/%s:%s" .Values.init.image.registry .Values.init.image.name (include "app.initContainer.imageTag" . ) }}
 {{- end }}
 
 {{/*
-Test pod init container image tag.
+Test component labels
 */}}
-{{- define "app.testContainer.image.tag" -}}
+{{- define "app.test.componentLabels" -}}
+app.kubernetes.io/component: "test"
+{{- end }}
+
+{{/*
+Test container image tag.
+*/}}
+{{- define "app.test.imageTag" -}}
 {{ .Values.test.image.tag | default "latest" }}
 {{- end }}
 
 {{/*
-Test pod init container image full name.
+Test container image full name.
 */}}
-{{- define "app.testContainer.image.fullName" -}}
-{{ printf "%s/%s:%s" .Values.test.image.registry .Values.test.image.name (include "app.testContainer.image.tag" . ) }}
+{{- define "app.test.imageFullName" -}}
+{{ printf "%s/%s:%s" .Values.test.image.registry .Values.test.image.name (include "app.test.imageTag" . ) }}
 {{- end }}
 
 {{/*
 Name of test image pull secret.
 */}}
-{{- define "app.testImagePullSecretName" -}}
+{{- define "app.test.imagePullSecretName" -}}
 {{ include "app.fullname" . }}-test-pull
 {{- end }}
 
@@ -185,7 +199,7 @@ Path where OpenShit service signer CA certificate is mounted.
 {{- end }}
 
 {{/*
-Space separated JVM options/
+Space separated JVM options
 */}}
 {{- define "app.finalJvmOptions" -}}
 {{- $first := true }}

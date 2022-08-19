@@ -1,19 +1,20 @@
 apiVersion: "v1"
 kind: "Pod"
 metadata:
-  name: {{ include "app.testPodName" . | quote }}
+  name: {{ include "app.test.podName" . | quote }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
+    {{- include "app.test.componentLabels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": "test"
 spec:
   {{- if .Values.test.image.pull.secret }}
   imagePullSecrets:
-    - name: {{ include "app.testImagePullSecretName" . | quote }}
+    - name: {{ include "app.test.imagePullSecretName" . | quote }}
   {{- end }}
   containers:
     - name: {{ .Values.test.containerName | quote }}
-      image: {{ include "app.testContainer.image.fullName" . | quote }}
+      image: {{ include "app.test.imageFullName" . | quote }}
       imagePullPolicy: {{ .Values.test.image.pull.policy | quote }}
       command:
       - "curl"

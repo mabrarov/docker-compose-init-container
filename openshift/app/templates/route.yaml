@@ -4,6 +4,7 @@ metadata:
   name: {{ include "app.routeName" . | quote }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
+    {{- include "app.componentLabels" . | nindent 4 }}
 spec:
   host: {{ .Values.route.host | quote }}
   path: {{ .Values.route.path | quote }}

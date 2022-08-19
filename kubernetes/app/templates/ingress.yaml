@@ -10,6 +10,7 @@ metadata:
   name: {{ include "app.ingressName" . | quote }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
+    {{- include "app.componentLabels" . | nindent 4 }}
 spec:
   tls:
     - hosts:
