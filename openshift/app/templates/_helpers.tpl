@@ -42,13 +42,13 @@ app.kubernetes.io/instance: {{ .Release.Name | quote }}
 Common labels
 */}}
 {{- define "app.labels" -}}
-app: {{ include "app.name" . | quote }}
 helm.sh/chart: {{ include "app.chart" . | quote }}
 {{ include "app.matchLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+app: {{ include "app.fullname" . | quote }}
 {{- end }}
 
 {{/*
