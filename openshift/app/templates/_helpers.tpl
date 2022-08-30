@@ -55,7 +55,7 @@ app: {{ include "app.fullname" . | quote }}
 Component labels
 */}}
 {{- define "app.componentLabels" -}}
-app.kubernetes.io/component: {{ include "app.name" . | quote }}
+app.kubernetes.io/component: "app"
 {{- end }}
 
 {{/*
@@ -220,3 +220,16 @@ Docker authentication config for image registry.
 {{- $email := .credentials.email }}
 {{- printf "{\"auths\":{\"%s\":{\"username\":\"%s\",\"password\":\"%s\",\"email\":\"%s\",\"auth\":\"%s\"}}}" $registry $username $password $email (printf "%s:%s" $username $password | b64enc) | b64enc }}
 {{- end }}
+
+{{/*
+Renders a value that contains template.
+Usage:
+{{ include "app.tplValuesRender" ( dict "value" .Values.path.to.the.Value "context" $) }}
+*/}}
+{{- define "app.tplValuesRender" -}}
+{{- if typeIs "string" .value }}
+{{- tpl .value .context }}
+{{- else }}
+{{- tpl (.value | toYaml) .context }}
+{{- end }}
+{{- end -}}

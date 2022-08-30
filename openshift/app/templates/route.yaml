@@ -5,6 +5,21 @@ metadata:
   labels:
     {{- include "app.labels" . | nindent 4 }}
     {{- include "app.componentLabels" . | nindent 4 }}
+    {{- if .Values.labels }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.labels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.route.labels }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.route.labels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.annotations .Values.route.annotations }}
+  annotations:
+    {{- if .Values.annotations }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.route.annotations }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.route.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
 spec:
   host: {{ .Values.route.host | quote }}
   path: {{ .Values.route.path | quote }}
