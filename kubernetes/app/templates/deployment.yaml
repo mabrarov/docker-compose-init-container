@@ -5,6 +5,21 @@ metadata:
   labels:
     {{- include "app.labels" . | nindent 4 }}
     {{- include "app.componentLabels" . | nindent 4 }}
+    {{- if .Values.labels }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.labels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.deploymentLabels }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.deploymentLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.annotations .Values.deploymentAnnotations }}
+  annotations:
+    {{- if .Values.annotations }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.deploymentAnnotations }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.deploymentAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicas }}
   selector:
@@ -16,6 +31,21 @@ spec:
       labels:
         {{- include "app.labels" . | nindent 8 }}
         {{- include "app.componentLabels" . | nindent 8 }}
+        {{- if .Values.labels }}
+        {{- include "app.tplValuesRender" ( dict "value" .Values.labels "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.podLabels }}
+        {{- include "app.tplValuesRender" ( dict "value" .Values.podLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+      {{- if or .Values.annotations .Values.podAnnotations }}
+      annotations:
+        {{- if .Values.annotations }}
+        {{- include "app.tplValuesRender" ( dict "value" .Values.annotations "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.podAnnotations }}
+        {{- include "app.tplValuesRender" ( dict "value" .Values.podAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+      {{- end }}
     spec:
       {{- if .Values.image.pull.secret }}
       imagePullSecrets:

@@ -1,16 +1,25 @@
-{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" -}}
 apiVersion: "networking.k8s.io/v1"
-{{- else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" -}}
-apiVersion: "networking.k8s.io/v1beta1"
-{{- else -}}
-apiVersion: "extensions/v1beta1"
-{{- end }}
 kind: "Ingress"
 metadata:
   name: {{ include "app.ingressName" . | quote }}
   labels:
     {{- include "app.labels" . | nindent 4 }}
     {{- include "app.componentLabels" . | nindent 4 }}
+    {{- if .Values.labels }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.labels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.ingress.labels }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.ingress.labels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.annotations .Values.ingress.annotations }}
+  annotations:
+    {{- if .Values.annotations }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.ingress.annotations }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.ingress.annotations "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- end }}
 spec:
   tls:
     - hosts:
