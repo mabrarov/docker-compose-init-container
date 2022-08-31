@@ -1,6 +1,13 @@
 nameOverride: ""
 fullnameOverride: ""
 
+labels: { }
+annotations: { }
+deploymentLabels: { }
+deploymentAnnotations: { }
+podLabels: { }
+podAnnotations: { }
+
 containerName: "app"
 
 image:
@@ -23,9 +30,13 @@ securityContext:
   runAsNonRoot: true
 
 service:
+  labels: { }
+  annotations: { }
   port: 8443
 
 route:
+  labels: { }
+  annotations: { }
   host: ""
   path: "/"
   tls:
@@ -42,7 +53,7 @@ app:
   configDir: "/config"
   defaultJvmOptions:
     - "-XX:+PerfDisableSharedMem"
-  extraJvmOptions: []
+  extraJvmOptions: [ ]
 
 init:
   containerName: "init"
@@ -54,6 +65,8 @@ init:
       policy: "IfNotPresent"
 
 test:
+  podLabels: { }
+  podAnnotations: { }
   containerName: "test"
   image:
     registry: "docker.io"

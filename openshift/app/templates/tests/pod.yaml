@@ -1,0 +1,35 @@
+apiVersion: "v1"
+kind: "Pod"
+metadata:
+  name: {{ include "app.test.podName" . | quote }}
+  labels:
+    {{- include "app.labels" . | nindent 4 }}
+    {{- include "app.test.componentLabels" . | nindent 4 }}
+    {{- if .Values.labels }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.labels "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.test.podLabels }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.test.podLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  annotations:
+    "helm.sh/hook": "test"
+    {{- if .Values.test.podAnnotations }}
+    {{- include "app.tplValuesRender" ( dict "value" .Values.test.podAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.test.image.pull.secret }}
+  imagePullSecrets:
+    - name: {{ include "app.test.imagePullSecretName" . | quote }}
+  {{- end }}
+  containers:
+    - name: {{ .Values.test.containerName | quote }}
+      image: {{ include "app.test.imageFullName" . | quote }}
+      imagePullPolicy: {{ .Values.test.image.pull.policy | quote }}
+      command:
+      - "curl"
+      args:
+        - "-s"
+        - "--cacert"
+        - {{ include "app.serviceCaCertifciateMountPath" . | quote }}
+        - {{ (printf "%s://%s.%s.svc:%d" (include "app.portScheme" . | lower) (include "app.serviceName" .) .Release.Namespace (.Values.service.port | int)) | quote }}
+  restartPolicy: "Never"
