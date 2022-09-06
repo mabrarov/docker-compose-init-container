@@ -54,7 +54,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
 Component labels
 */}}
 {{- define "app.componentLabels" -}}
-app.kubernetes.io/component: "app"
+app.kubernetes.io/component: {{ .Chart.Name | quote }}
 {{- end }}
 
 {{/*
@@ -138,7 +138,7 @@ Application main container image tag.
 Application main container image full name.
 */}}
 {{- define "app.mainContainer.imageFullName" -}}
-{{ printf "%s/%s:%s" .Values.image.registry .Values.image.name (include "app.mainContainer.imageTag" . ) }}
+{{ printf "%s/%s:%s" .Values.image.registry .Values.image.repository (include "app.mainContainer.imageTag" . ) }}
 {{- end }}
 
 {{/*
@@ -152,7 +152,7 @@ Application init container image tag.
 Application init container image full name.
 */}}
 {{- define "app.initContainer.imageFullName" -}}
-{{ printf "%s/%s:%s" .Values.init.image.registry .Values.init.image.name (include "app.initContainer.imageTag" . ) }}
+{{ printf "%s/%s:%s" .Values.init.image.registry .Values.init.image.repository (include "app.initContainer.imageTag" . ) }}
 {{- end }}
 
 {{/*
@@ -173,7 +173,7 @@ Test container image tag.
 Test container image full name.
 */}}
 {{- define "app.test.imageFullName" -}}
-{{ printf "%s/%s:%s" .Values.test.image.registry .Values.test.image.name (include "app.test.imageTag" . ) }}
+{{ printf "%s/%s:%s" .Values.test.image.registry .Values.test.image.repository (include "app.test.imageTag" . ) }}
 {{- end }}
 
 {{/*
@@ -196,7 +196,7 @@ Space separated JVM options
 
 {{/*
 Docker authentication config for image registry.
-{{ include "app.dockerRegistryAuthenticationConfig" (dict "imageRegistry" .Values.image.registry "credentials" .Values.image.pull.secret) }}
+{{ include "app.dockerRegistryAuthenticationConfig" (dict "imageRegistry" .Values.image.registry "credentials" .Values.image.pullSecret) }}
 */}}
 {{- define "app.dockerRegistryAuthenticationConfig" -}}
 {{- $registry := .imageRegistry }}
@@ -209,7 +209,7 @@ Docker authentication config for image registry.
 {{/*
 Renders a value that contains template.
 Usage:
-{{ include "app.tplValuesRender" ( dict "value" .Values.path.to.the.Value "context" $) }}
+{{ include "app.tplValuesRender" (dict "value" .Values.path.to.the.Value "context" $) }}
 */}}
 {{- define "app.tplValuesRender" -}}
 {{- if typeIs "string" .value }}

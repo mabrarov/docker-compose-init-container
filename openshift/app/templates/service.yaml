@@ -6,18 +6,18 @@ metadata:
     {{- include "app.labels" . | nindent 4 }}
     {{- include "app.componentLabels" . | nindent 4 }}
     {{- if .Values.labels }}
-    {{- include "app.tplValuesRender" ( dict "value" .Values.labels "context" $ ) | nindent 4 }}
+    {{- include "app.tplValuesRender" (dict "value" .Values.labels "context" $) | nindent 4 }}
     {{- end }}
     {{- if .Values.service.labels }}
-    {{- include "app.tplValuesRender" ( dict "value" .Values.service.labels "context" $ ) | nindent 4 }}
+    {{- include "app.tplValuesRender" (dict "value" .Values.service.labels "context" $) | nindent 4 }}
     {{- end }}
   annotations:
     service.alpha.openshift.io/serving-cert-secret-name: {{ include "app.serviceTlsSecretName" . | quote }}
     {{- if .Values.annotations }}
-    {{- include "app.tplValuesRender" ( dict "value" .Values.annotations "context" $ ) | nindent 4 }}
+    {{- include "app.tplValuesRender" (dict "value" .Values.annotations "context" $) | nindent 4 }}
     {{- end }}
     {{- if .Values.service.annotations }}
-    {{- include "app.tplValuesRender" ( dict "value" .Values.service.annotations "context" $ ) | nindent 4 }}
+    {{- include "app.tplValuesRender" (dict "value" .Values.service.annotations "context" $) | nindent 4 }}
     {{- end }}
 spec:
   type: "ClusterIP"

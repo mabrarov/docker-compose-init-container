@@ -90,9 +90,9 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
    ```bash
    docker run --rm \
      --network "${compose_project}_default" \
-     --volume "$(pwd)/certificates/ca-cert.crt:/ca-cert.crt:ro" \
+     --volume "$(pwd)/certificates/ca.crt:/ca.crt:ro" \
      curlimages/curl \
-     curl -s --cacert "/ca-cert.crt" \
+     curl -s --cacert "/ca.crt" \
      "https://${app_subdomain}.docker-compose-init-container.local:8443"
    ```
 
@@ -267,13 +267,13 @@ openshift_registry='172.30.1.1:5000'
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
      --set image.registry="${openshift_registry}" \
-     --set image.name="${openshift_project}/app" \
+     --set image.repository="${openshift_project}/app" \
      --set init.image.registry="${openshift_registry}" \
-     --set init.image.name="${openshift_project}/app-initializer" \
+     --set init.image.repository="${openshift_project}/app-initializer" \
      --set route.host="${openshift_app}.docker-compose-init-container.local" \
-     --set-file route.tls.caCertificate="$(pwd)/certificates/ca-cert.crt" \
-     --set-file route.tls.certificate="$(pwd)/certificates/tls-cert.crt" \
-     --set-file route.tls.key="$(pwd)/certificates/tls-key.pem" \
+     --set-file route.tls.caCertificate="$(pwd)/certificates/ca.crt" \
+     --set-file route.tls.certificate="$(pwd)/certificates/tls.crt" \
+     --set-file route.tls.key="$(pwd)/certificates/tls.key" \
      --install --wait
    ```
 
@@ -290,13 +290,13 @@ openshift_registry='172.30.1.1:5000'
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
      --set image.registry="${openshift_registry}" \
-     --set image.name="${openshift_project}/app" \
+     --set image.repository="${openshift_project}/app" \
      --set init.image.registry="${openshift_registry}" \
-     --set init.image.name="${openshift_project}/app-initializer" \
+     --set init.image.repository="${openshift_project}/app-initializer" \
      --set route.host="${openshift_app}.docker-compose-init-container.local" \
-     --set-file route.tls.caCertificate="$(pwd)/certificates/ca-cert.crt" \
-     --set-file route.tls.certificate="$(pwd)/certificates/tls-cert.crt" \
-     --set-file route.tls.key="$(pwd)/certificates/tls-key.pem" \
+     --set-file route.tls.caCertificate="$(pwd)/certificates/ca.crt" \
+     --set-file route.tls.certificate="$(pwd)/certificates/tls.crt" \
+     --set-file route.tls.key="$(pwd)/certificates/tls.key" \
      --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
      --install --wait
    ```
@@ -339,7 +339,7 @@ openshift_registry='172.30.1.1:5000'
 1. Check `https://${openshift_app}.docker-compose-init-container.local`, e.g. with curl:
 
    ```bash
-   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
+   curl -s --cacert "$(pwd)/certificates/ca.crt" \
       --resolve "${openshift_app}.docker-compose-init-container.local:443:${openshift_address}" \
      "https://${openshift_app}.docker-compose-init-container.local"
    ```
@@ -563,13 +563,13 @@ helm_release='dcic'
      -n "${k8s_namespace}" \
      --set nameOverride="${k8s_app}" \
      --set image.registry='localhost:5000' \
-     --set image.name='app' \
+     --set image.repository='app' \
      --set init.image.registry='localhost:5000' \
-     --set init.image.name='app-initializer' \
+     --set init.image.repository='app-initializer' \
      --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
-     --set-file ingress.tls.caCertificate="$(pwd)/certificates/ca-cert.crt" \
-     --set-file ingress.tls.certificate="$(pwd)/certificates/tls-cert.crt" \
-     --set-file ingress.tls.key="$(pwd)/certificates/tls-key.pem" \
+     --set-file ingress.tls.caCertificate="$(pwd)/certificates/ca.crt" \
+     --set-file ingress.tls.certificate="$(pwd)/certificates/tls.crt" \
+     --set-file ingress.tls.key="$(pwd)/certificates/tls.key" \
      --install --wait
    ```
 
@@ -581,13 +581,13 @@ helm_release='dcic'
      -n "${k8s_namespace}" \
      --set nameOverride="${k8s_app}" \
      --set image.registry='localhost:5000' \
-     --set image.name='app' \
+     --set image.repository='app' \
      --set init.image.registry='localhost:5000' \
-     --set init.image.name='app-initializer' \
+     --set init.image.repository='app-initializer' \
      --set ingress.host="${k8s_app}.docker-compose-init-container.local" \
-     --set-file ingress.tls.caCertificate="$(pwd)/certificates/ca-cert.crt" \
-     --set-file ingress.tls.certificate="$(pwd)/certificates/tls-cert.crt" \
-     --set-file ingress.tls.key="$(pwd)/certificates/tls-key.pem" \
+     --set-file ingress.tls.caCertificate="$(pwd)/certificates/ca.crt" \
+     --set-file ingress.tls.certificate="$(pwd)/certificates/tls.crt" \
+     --set-file ingress.tls.key="$(pwd)/certificates/tls.key" \
      --set "app.extraJvmOptions={-javaagent:/jacoco.jar=output=tcpserver\\,address=0.0.0.0\\,port=${jacoco_port}\\,includes=org.mabrarov.dockercomposeinitcontainer.*}" \
      --install --wait
    ```
@@ -621,7 +621,7 @@ helm_release='dcic'
 
    ```bash
    ingress_ip="$(minikube ip)" && \
-   curl -s --cacert "$(pwd)/certificates/ca-cert.crt" \
+   curl -s --cacert "$(pwd)/certificates/ca.crt" \
       --resolve "${k8s_app}.docker-compose-init-container.local:443:${ingress_ip}" \
      "https://${k8s_app}.docker-compose-init-container.local"
    ```

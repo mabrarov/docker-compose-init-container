@@ -27,12 +27,12 @@ services:
     command: *helper-wrapper-script
     environment:
       INIT_COMMAND: '/run.sh'
-      CA_BUNDLE_FILE: '/ca-cert.crt'
+      CA_BUNDLE_FILE: '/ca.crt'
       TRUST_STORE_FILE: *trust-store-file
       TRUST_STORE_PASSWORD: *trust-store-password
-      CA_CRT_FILE: '/ca-cert.crt'
-      CRT_FILE: '/tls-cert.crt'
-      KEY_FILE: '/tls-key.pem'
+      CA_CRT_FILE: '/ca.crt'
+      CRT_FILE: '/tls.crt'
+      KEY_FILE: '/tls.key'
       KEYSTORE_FILE: *keystore-file
       KEYSTORE_PASSWORD: *https-keystore-password
       KEY_ALIAS: *https-keystore-alias
@@ -40,9 +40,9 @@ services:
     volumes:
       - '/tmp'
       - *producer-config-volume
-      - '../certificates/ca-cert.crt:/ca-cert.crt:ro'
-      - '../certificates/tls-cert.crt:/tls-cert.crt:ro'
-      - '../certificates/tls-key.pem:/tls-key.pem:ro'
+      - '../certificates/ca.crt:/ca.crt:ro'
+      - '../certificates/tls.crt:/tls.crt:ro'
+      - '../certificates/tls.key:/tls.key:ro'
     volumes_from:
       - 'helper:ro'
   app:
