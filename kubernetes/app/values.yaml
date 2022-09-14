@@ -1,26 +1,28 @@
 nameOverride: ""
 fullnameOverride: ""
 
-container:
-  main:
-    name: "app"
-    image:
-      repository: "localhost:5000/app"
-      tag: "latest"
-  init:
-    name: "init"
-    image:
-      repository: "localhost:5000/app-initializer"
-      tag: "latest"
-  test:
-    name: "test"
-    image:
-      repository: "curlimages/curl"
-      tag: "latest"
+labels: { }
+annotations: { }
+deploymentLabels: { }
+deploymentAnnotations: { }
+podLabels: { }
+podAnnotations: { }
 
-replicas: 1
-imagePullPolicy: "IfNotPresent"
-imagePullSecrets: []
+containerName: "app"
+
+image:
+  registry: "docker.io"
+  repository: "abrarov/docker-compose-init-container-app"
+  tag: "latest"
+  pullPolicy: "IfNotPresent"
+
+livenessProbe:
+  initialDelay: 5
+
+readinessProbe:
+  initialDelay: 5
+
+replicaCount: 1
 
 securityContext:
   readOnlyRootFilesystem: true
@@ -28,16 +30,19 @@ securityContext:
   runAsUser: 1000
 
 service:
-  type: "ClusterIP"
+  labels: { }
+  annotations: { }
   port: 8080
 
 ingress:
-  host:
+  labels: { }
+  annotations: { }
+  host: ""
   path: "/"
   tls:
-    caCertificate:
-    certificate:
-    key:
+    caCertificate: ""
+    certificate: ""
+    key: ""
 
 app:
   trustStorePassword: "password_of_6_chars_min"
@@ -45,4 +50,22 @@ app:
   configDir: "/config"
   defaultJvmOptions:
     - "-XX:+PerfDisableSharedMem"
-  extraJvmOptions: []
+  extraJvmOptions: [ ]
+
+init:
+  containerName: "init"
+  image:
+    registry: "docker.io"
+    repository: "abrarov/docker-compose-init-container-initializer"
+    tag: "latest"
+    pullPolicy: "IfNotPresent"
+
+test:
+  podLabels: { }
+  podAnnotations: { }
+  containerName: "test"
+  image:
+    registry: "docker.io"
+    repository: "curlimages/curl"
+    tag: "latest"
+    pullPolicy: "IfNotPresent"

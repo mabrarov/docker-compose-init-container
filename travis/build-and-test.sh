@@ -70,9 +70,9 @@ request_application() {
   echo "Requesting application"
   docker run --rm \
     --network "${docker_compose_project_network}" \
-    --volume "${TRAVIS_BUILD_DIR}/certificates/ca-cert.crt:/ca-cert.crt:ro" \
+    --volume "${TRAVIS_BUILD_DIR}/certificates/ca.crt:/ca.crt:ro" \
     curlimages/curl \
-    curl -s --cacert "/ca-cert.crt" "https://${app_host}:${app_port}"
+    curl -s --cacert "/ca.crt" "https://${app_host}:${app_port}"
   echo
 }
 
@@ -127,13 +127,13 @@ test_images() {
   mvn_expression_evaluate_cmd="$(maven_runner)$(maven_settings)$(maven_project_file) --batch-mode --non-recursive"
   mvn_expression_evaluate_cmd="${mvn_expression_evaluate_cmd:+${mvn_expression_evaluate_cmd} }org.apache.maven.plugins:maven-help-plugin:3.2.0:evaluate"
 
-  docker_image_registry_cmd="${mvn_expression_evaluate_cmd:+${mvn_expression_evaluate_cmd} }--define expression=docker.image.registry"
-  docker_image_registry="$(eval "${docker_image_registry_cmd}" | sed -e '/^\[.*\].*$/d')"
+  docker_image_repository_base_cmd="${mvn_expression_evaluate_cmd:+${mvn_expression_evaluate_cmd} }--define expression=docker.image.repository.base"
+  docker_image_repository_base="$(eval "${docker_image_repository_base_cmd}" | sed -e '/^\[.*\].*$/d')"
 
   maven_project_version_cmd="${mvn_expression_evaluate_cmd:+${mvn_expression_evaluate_cmd} }--define expression=project.version"
   maven_project_version="$(eval "${maven_project_version_cmd}" | sed -n -e '/^\[.*\]/ !{ /^[0-9]/ { p; q } }')"
 
-  app_image_name="${docker_image_registry}/docker-compose-init-container-app:${maven_project_version}"
+  app_image_name="${docker_image_repository_base}docker-compose-init-container-app:${maven_project_version}"
   echo "Running container created from ${app_image_name} image"
   docker run --rm "${app_image_name}" java --version
 
