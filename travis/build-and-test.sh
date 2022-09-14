@@ -70,9 +70,9 @@ request_application() {
   echo "Requesting application"
   docker run --rm \
     --network "${docker_compose_project_network}" \
-    --volume "${TRAVIS_BUILD_DIR}/certificates/ca-cert.crt:/ca-cert.crt:ro" \
+    --volume "${TRAVIS_BUILD_DIR}/certificates/ca.crt:/ca.crt:ro" \
     curlimages/curl \
-    curl -s --cacert "/ca-cert.crt" "https://${app_host}:${app_port}"
+    curl -s --cacert "/ca.crt" "https://${app_host}:${app_port}"
   echo
 }
 

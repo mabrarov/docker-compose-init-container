@@ -6,22 +6,22 @@ metadata:
     {{- include "app.labels" . | nindent 4 }}
     {{- include "app.componentLabels" . | nindent 4 }}
     {{- if .Values.labels }}
-    {{- include "app.tplValuesRender" ( dict "value" .Values.labels "context" $ ) | nindent 4 }}
+    {{- include "app.tplValuesRender" (dict "value" .Values.labels "context" $) | nindent 4 }}
     {{- end }}
     {{- if .Values.deploymentLabels }}
-    {{- include "app.tplValuesRender" ( dict "value" .Values.deploymentLabels "context" $ ) | nindent 4 }}
+    {{- include "app.tplValuesRender" (dict "value" .Values.deploymentLabels "context" $) | nindent 4 }}
     {{- end }}
   {{- if or .Values.annotations .Values.deploymentAnnotations }}
   annotations:
     {{- if .Values.annotations }}
-    {{- include "app.tplValuesRender" ( dict "value" .Values.annotations "context" $ ) | nindent 4 }}
+    {{- include "app.tplValuesRender" (dict "value" .Values.annotations "context" $) | nindent 4 }}
     {{- end }}
     {{- if .Values.deploymentAnnotations }}
-    {{- include "app.tplValuesRender" ( dict "value" .Values.deploymentAnnotations "context" $ ) | nindent 4 }}
+    {{- include "app.tplValuesRender" (dict "value" .Values.deploymentAnnotations "context" $) | nindent 4 }}
     {{- end }}
   {{- end }}
 spec:
-  replicas: {{ .Values.replicas }}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "app.matchLabels" . | nindent 6 }}
@@ -32,29 +32,29 @@ spec:
         {{- include "app.labels" . | nindent 8 }}
         {{- include "app.componentLabels" . | nindent 8 }}
         {{- if .Values.labels }}
-        {{- include "app.tplValuesRender" ( dict "value" .Values.labels "context" $ ) | nindent 8 }}
+        {{- include "app.tplValuesRender" (dict "value" .Values.labels "context" $) | nindent 8 }}
         {{- end }}
         {{- if .Values.podLabels }}
-        {{- include "app.tplValuesRender" ( dict "value" .Values.podLabels "context" $ ) | nindent 8 }}
+        {{- include "app.tplValuesRender" (dict "value" .Values.podLabels "context" $) | nindent 8 }}
         {{- end }}
       {{- if or .Values.annotations .Values.podAnnotations }}
       annotations:
         {{- if .Values.annotations }}
-        {{- include "app.tplValuesRender" ( dict "value" .Values.annotations "context" $ ) | nindent 8 }}
+        {{- include "app.tplValuesRender" (dict "value" .Values.annotations "context" $) | nindent 8 }}
         {{- end }}
         {{- if .Values.podAnnotations }}
-        {{- include "app.tplValuesRender" ( dict "value" .Values.podAnnotations "context" $ ) | nindent 8 }}
+        {{- include "app.tplValuesRender" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
         {{- end }}
       {{- end }}
     spec:
-      {{- if .Values.image.pull.secret }}
+      {{- if .Values.image.pullSecret }}
       imagePullSecrets:
         - name: {{ include "app.imagePullSecretName" . | quote }}
       {{- end }}
       containers:
         - name: {{ .Values.containerName | quote }}
           image: {{ include "app.mainContainer.imageFullName" . | quote }}
-          imagePullPolicy: {{ .Values.image.pull.policy | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
           env:
             - name: "JAVA_TOOL_OPTIONS"
               value: {{ include "app.finalJvmOptions" . | quote }}
@@ -75,13 +75,13 @@ spec:
               path: "/actuator/health/liveness"
               port: {{ include "app.containerPortName" . | quote }}
               scheme: {{ include "app.portScheme" . | upper | quote }}
-            initialDelaySeconds: {{ .Values.liveness.initialDelay }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelay }}
           readinessProbe:
             httpGet:
               path: "/actuator/health/readiness"
               port: {{ include "app.containerPortName" . | quote }}
               scheme: {{ include "app.portScheme" . | upper | quote }}
-            initialDelaySeconds: {{ .Values.readiness.initialDelay }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelay }}
           securityContext:
             readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
             runAsNonRoot: {{ .Values.securityContext.readOnlyRootFilesystem }}
@@ -93,14 +93,14 @@ spec:
             {{- end }}
           volumeMounts:
             - mountPath: "{{ .Values.app.configDir }}"
-              name: "config-volume"
+              name: "config"
               readOnly: true
             - mountPath: "/tmp"
-              name: "app-tmp-volume"
+              name: "app-tmp"
       initContainers:
         - name: {{ .Values.init.containerName | quote }}
           image: {{ include "app.initContainer.imageFullName" . | quote }}
-          imagePullPolicy: {{ .Values.init.image.pull.policy | quote }}
+          imagePullPolicy: {{ .Values.init.image.pullPolicy | quote }}
           env:
             - name: "TRUST_STORE_FILE"
               value: "{{ .Values.app.configDir }}/truststore.jks"
@@ -120,13 +120,13 @@ spec:
             {{- end }}
           volumeMounts:
             - mountPath: {{ .Values.app.configDir | quote }}
-              name: "config-volume"
+              name: "config"
             - mountPath: "/tmp"
-              name: "init-tmp-volume"
+              name: "init-tmp"
       volumes:
-        - name: "config-volume"
+        - name: "config"
           emptyDir: {}
-        - name: "app-tmp-volume"
+        - name: "app-tmp"
           emptyDir: {}
-        - name: "init-tmp-volume"
+        - name: "init-tmp"
           emptyDir: {}

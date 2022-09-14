@@ -12,18 +12,17 @@ containerName: "app"
 
 image:
   registry: "docker.io"
-  name: "abrarov/docker-compose-init-container-app"
+  repository: "abrarov/docker-compose-init-container-app"
   tag: "latest"
-  pull:
-    policy: "IfNotPresent"
+  pullPolicy: "IfNotPresent"
 
-liveness:
+livenessProbe:
   initialDelay: 5
 
-readiness:
+readinessProbe:
   initialDelay: 5
 
-replicas: 1
+replicaCount: 1
 
 securityContext:
   readOnlyRootFilesystem: true
@@ -46,7 +45,7 @@ route:
 
 app:
   tls:
-    keyStorePassword: "pass"
+    serverKeyStorePassword: "pass"
     keyAlias: "alias"
   trustStorePassword: "password_of_6_chars_min"
   port: 8443
@@ -59,10 +58,9 @@ init:
   containerName: "init"
   image:
     registry: "docker.io"
-    name: "abrarov/docker-compose-init-container-initializer"
+    repository: "abrarov/docker-compose-init-container-initializer"
     tag: "latest"
-    pull:
-      policy: "IfNotPresent"
+    pullPolicy: "IfNotPresent"
 
 test:
   podLabels: { }
@@ -70,7 +68,6 @@ test:
   containerName: "test"
   image:
     registry: "docker.io"
-    name: "curlimages/curl"
+    repository: "curlimages/curl"
     tag: "latest"
-    pull:
-      policy: "IfNotPresent"
+    pullPolicy: "IfNotPresent"
