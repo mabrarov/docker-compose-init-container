@@ -204,13 +204,12 @@ In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to 
    docker pull "docker.io/openshift/origin-pod:v${openshift_short_version}" && \
    docker pull "docker.io/openshift/origin-deployer:v${openshift_short_version}" && \
    docker pull "docker.io/openshift/origin-cli:v${openshift_short_version}" && \
-   docker pull "docker.io/openshift/origin-docker-registry:v${openshift_short_version}" && \
    docker pull "docker.io/openshift/origin-web-console:v${openshift_short_version}" && \
    docker pull "docker.io/openshift/origin-service-serving-cert-signer:v${openshift_short_version}" && \
    oc cluster up \
      --base-dir="${HOME}/openshift.local.clusterup" \
      --public-hostname="${openshift_address}" \
-     --enable="registry,router,web-console"
+     --enable="router,web-console"
    ```
 
 ### OpenShift Testing Assumptions
@@ -222,7 +221,6 @@ In case of need in OpenShift instance one can use [OKD](https://www.okd.io/) to 
    variable
 1. Name of OpenShift application is defined by `openshift_app` environment variable
 1. Name of Helm release is defined by `helm_release` environment variable
-1. OpenShift registry is defined by `openshift_registry` environment variable
 1. Project is built (refer to "[Building](#building)" section)
 1. Current directory is directory where this repository is cloned
 
@@ -236,25 +234,10 @@ openshift_user='developer' && \
 openshift_password='developer' && \
 openshift_project='myproject' && \
 openshift_app='app' && \
-helm_release='dcic' && \
-openshift_registry='172.30.1.1:5000'
+helm_release='dcic'
 ```
 
 ### OpenShift Testing Steps
-
-1. Push built docker images into OpenShift registry
-
-   ```bash
-   docker tag abrarov/docker-compose-init-container-app \
-     "${openshift_registry}/${openshift_project}/app" && \
-   docker tag abrarov/docker-compose-init-container-initializer \
-     "${openshift_registry}/${openshift_project}/app-initializer" && \
-   oc login -u "${openshift_user}" -p "${openshift_password}" \
-     --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
-   docker login -p "$(oc whoami -t)" -u unused "${openshift_registry}" && \
-   docker push "${openshift_registry}/${openshift_project}/app" && \
-   docker push "${openshift_registry}/${openshift_project}/app-initializer"
-   ```
 
 1. Deploy application using [openshift/app](openshift/app) Helm chart and wait for
    completion of rollout
@@ -266,10 +249,6 @@ openshift_registry='172.30.1.1:5000'
      --kube-apiserver "https://${openshift_address}:8443" \
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
-     --set image.registry="${openshift_registry}" \
-     --set image.repository="${openshift_project}/app" \
-     --set init.image.registry="${openshift_registry}" \
-     --set init.image.repository="${openshift_project}/app-initializer" \
      --set route.host="${openshift_app}.docker-compose-init-container.local" \
      --set-file route.tls.caCertificate="$(pwd)/certificates/ca.crt" \
      --set-file route.tls.certificate="$(pwd)/certificates/tls.crt" \
@@ -289,10 +268,6 @@ openshift_registry='172.30.1.1:5000'
      --kube-apiserver "https://${openshift_address}:8443" \
      -n "${openshift_project}" \
      --set nameOverride="${openshift_app}" \
-     --set image.registry="${openshift_registry}" \
-     --set image.repository="${openshift_project}/app" \
-     --set init.image.registry="${openshift_registry}" \
-     --set init.image.repository="${openshift_project}/app-initializer" \
      --set route.host="${openshift_app}.docker-compose-init-container.local" \
      --set-file route.tls.caCertificate="$(pwd)/certificates/ca.crt" \
      --set-file route.tls.certificate="$(pwd)/certificates/tls.crt" \
@@ -403,18 +378,14 @@ openshift_registry='172.30.1.1:5000'
    After successful execution of command JaCoCo HTML report can be found in `${jacoco_report_dir}`
    directory (`${jacoco_report_dir}/index.html` file is report entry point).
 
-1. Stop and remove OpenShift application, remove images from OpenShift registry and from local Docker registry
+1. Stop and remove OpenShift application
 
    ```bash
    oc login -u "${openshift_user}" -p "${openshift_password}" \
      --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
    helm uninstall "${helm_release}" \
      --kube-apiserver "https://${openshift_address}:8443" \
-     -n "${openshift_project}" && \
-   oc delete imagestream 'app' && \
-   oc delete imagestream 'app-initializer' && \
-   docker rmi "${openshift_registry}/${openshift_project}/app" && \
-   docker rmi "${openshift_registry}/${openshift_project}/app-initializer"
+     -n "${openshift_project}"
    ```
 
 ### OKD Removal
