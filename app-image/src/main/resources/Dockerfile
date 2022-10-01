@@ -5,6 +5,8 @@ ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 ADD ["dependencies.tar", "/"]
 ADD ["spring-boot-loader.tar", "/"]
 ADD ["snapshot-dependencies.tar", "/"]
+# Workaround for https://github.com/moby/moby/issues/37965, because the previous layer can be empty (without files)
+RUN ["openssl", "version"]
 ADD ["application.tar", "/"]
 
 USER nonroot
