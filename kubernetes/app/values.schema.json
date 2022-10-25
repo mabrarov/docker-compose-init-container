@@ -20,22 +20,40 @@
       "type": "string"
     },
     "labels": {
-      "type": ["object", "string"]
+      "type": [
+        "object",
+        "string"
+      ]
     },
     "annotations": {
-      "type": ["object", "string"]
+      "type": [
+        "object",
+        "string"
+      ]
     },
     "deploymentLabels": {
-      "type": ["object", "string"]
+      "type": [
+        "object",
+        "string"
+      ]
     },
     "deploymentAnnotations": {
-      "type": ["object", "string"]
+      "type": [
+        "object",
+        "string"
+      ]
     },
     "podLabels": {
-      "type": ["object", "string"]
+      "type": [
+        "object",
+        "string"
+      ]
     },
     "podAnnotations": {
-      "type": ["object", "string"]
+      "type": [
+        "object",
+        "string"
+      ]
     },
     "containerName": {
       "type": "string",
@@ -62,7 +80,11 @@
         },
         "pullPolicy": {
           "type": "string",
-          "pattern": "^(Always|Never|IfNotPresent)$"
+          "enum": [
+            "Always",
+            "Never",
+            "IfNotPresent"
+          ]
         },
         "pullSecret": {
           "description": "docker authentication credentials for image registry",
@@ -148,10 +170,16 @@
       ],
       "properties": {
         "labels": {
-          "type": ["object", "string"]
+          "type": [
+            "object",
+            "string"
+          ]
         },
         "annotations": {
-          "type": ["object", "string"]
+          "type": [
+            "object",
+            "string"
+          ]
         },
         "port": {
           "description": "service port",
@@ -170,10 +198,16 @@
       ],
       "properties": {
         "labels": {
-          "type": ["object", "string"]
+          "type": [
+            "object",
+            "string"
+          ]
         },
         "annotations": {
-          "type": ["object", "string"]
+          "type": [
+            "object",
+            "string"
+          ]
         },
         "host": {
           "description": "ingress hostname",
@@ -286,7 +320,11 @@
             },
             "pullPolicy": {
               "type": "string",
-              "pattern": "^(Always|Never|IfNotPresent)$"
+              "enum": [
+                "Always",
+                "Never",
+                "IfNotPresent"
+              ]
             }
           }
         }
@@ -301,10 +339,16 @@
       ],
       "properties": {
         "podLabels": {
-          "type": ["object", "string"]
+          "type": [
+            "object",
+            "string"
+          ]
         },
         "podAnnotations": {
-          "type": ["object", "string"]
+          "type": [
+            "object",
+            "string"
+          ]
         },
         "containerName": {
           "type": "string",
@@ -331,7 +375,11 @@
             },
             "pullPolicy": {
               "type": "string",
-              "pattern": "^(Always|Never|IfNotPresent)$"
+              "enum": [
+                "Always",
+                "Never",
+                "IfNotPresent"
+              ]
             },
             "pullSecret": {
               "description": "docker authentication credentials for image registry",
