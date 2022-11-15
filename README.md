@@ -465,7 +465,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 
     ```json
     {
-      "insecure-registries": ["192.168.49.2/16"]
+      "insecure-registries": ["192.168.49.0/24"]
     }
     ```
 
