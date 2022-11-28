@@ -41,15 +41,14 @@ spec:
         {{- if .Values.podLabels }}
         {{- include "app.tplValuesRender" (dict "value" .Values.podLabels "context" $) | nindent 8 }}
         {{- end }}
-      {{- if or .Values.annotations .Values.podAnnotations }}
       annotations:
+        checksum/secret: {{ omit (include (print $.Template.BasePath "/app-secret.yaml") . | fromYaml) "metadata" | toYaml | sha256sum | quote }}
         {{- if .Values.annotations }}
         {{- include "app.tplValuesRender" (dict "value" .Values.annotations "context" $) | nindent 8 }}
         {{- end }}
         {{- if .Values.podAnnotations }}
         {{- include "app.tplValuesRender" (dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
         {{- end }}
-      {{- end }}
     spec:
       {{- if .Values.image.pullSecret }}
       imagePullSecrets:

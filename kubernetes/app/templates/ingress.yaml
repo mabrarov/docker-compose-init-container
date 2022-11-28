@@ -11,15 +11,14 @@ metadata:
     {{- if .Values.ingress.labels }}
     {{- include "app.tplValuesRender" (dict "value" .Values.ingress.labels "context" $) | nindent 4 }}
     {{- end }}
-  {{- if or .Values.annotations .Values.ingress.annotations }}
   annotations:
+    checksum/secret: {{ omit (include (print $.Template.BasePath "/ingress-tls-secret.yaml") . | fromYaml) "metadata" | toYaml | sha256sum | quote }}
     {{- if .Values.annotations }}
     {{- include "app.tplValuesRender" (dict "value" .Values.annotations "context" $) | nindent 4 }}
     {{- end }}
     {{- if .Values.ingress.annotations }}
     {{- include "app.tplValuesRender" (dict "value" .Values.ingress.annotations "context" $) | nindent 4 }}
     {{- end }}
-  {{- end }}
 spec:
   tls:
     - hosts:
