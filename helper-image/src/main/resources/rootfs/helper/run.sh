@@ -17,10 +17,15 @@ run_server() {
   "${script_dir}/http-echo" -listen=:8080 -text="ready" &
   server_pid="${!}"
 
+  # shellcheck disable=SC2064
   trap "kill -HUP \"${server_pid}\"" HUP
+  # shellcheck disable=SC2064
   trap "kill -INT \"${server_pid}\"" INT
+  # shellcheck disable=SC2064
   trap "kill -INT \"${server_pid}\"" QUIT
+  # shellcheck disable=SC2064
   trap "kill -PIPE \"${server_pid}\"" PIPE
+  # shellcheck disable=SC2064
   trap "kill -INT \"${server_pid}\"" TERM
 
   wait "${server_pid}" || true
