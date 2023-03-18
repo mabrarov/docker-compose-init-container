@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.0</version>
+        <version>2.7.9</version>
     </parent>
 
     <groupId>org.mabrarov.docker-compose-init-container</groupId>
     <artifactId>docker-compose-init-container</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <packaging>pom</packaging>
 
     <scm>
@@ -43,12 +43,12 @@
         <exec-maven-plugin.version>3.0.0</exec-maven-plugin.version>
         <tini.version>0.19.0</tini.version>
         <tini.sha512>8053cc21a3a9bdd6042a495349d1856ae8d3b3e7664c9654198de0087af031f5d41139ec85a2f5d7d2febd22ec3f280767ff23b9d5f63d490584e2b7ad3c218c</tini.sha512>
-        <busybox.version>1.31.0</busybox.version>
-        <busybox.sha512>89dafd4be9d51135ec8ad78a9ac24c29f47673a9fb3920dac9df81c7b6b850ad8e7219a0ded755c2b106a736804c9de3174302a2fba6130196919777cb516a4f</busybox.sha512>
+        <busybox.version>1.35.0</busybox.version>
+        <busybox.sha512>f44863b48048b9c6b7a4f4666bf1399117739a76f339ce178ab232d84e839685e6e92c624553b00943c694a73fa8aeaaf8841f7ef7b66f4b5b633f51cc43db24</busybox.sha512>
         <httpecho.version>0.2.3</httpecho.version>
         <httpecho.sha512>a34fb083c95afb1e09725b2d6204c1a77548aaa3bd341cbaf65548586a496ed5284af6f2d0cfaec63b171992b143dd832e9395f634a3683c95315820e90cbf92</httpecho.sha512>
-        <dockerize.version>0.16.0</dockerize.version>
-        <dockerize.sha256>6981643dfb8e0b731f4b48b35d1fdd742b374ec66d1471a9ed7ed91781f2aca7</dockerize.sha256>
+        <dockerize.version>0.19.0</dockerize.version>
+        <dockerize.sha256>251ba488ce2bacd8f70d556fefcbb9a85fb6572e85eedc5a8a3d16a56861af83</dockerize.sha256>
         <jacoco.version>0.8.8</jacoco.version>
         <docker.verbose>true</docker.verbose>
         <docker.skip>true</docker.skip>

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.mabrarov.docker-compose-init-container</groupId>
         <artifactId>docker-compose-init-container</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.6</version>
     </parent>
 
     <artifactId>init-image</artifactId>
@@ -30,7 +30,7 @@
                             <goal>wget</goal>
                         </goals>
                         <configuration>
-                            <url>https://busybox.net/downloads/binaries/${busybox.version}-defconfig-multiarch-musl/busybox-x86_64</url>
+                            <url>https://busybox.net/downloads/binaries/${busybox.version}-x86_64-linux-musl/busybox</url>
                             <outputFileName>busybox</outputFileName>
                             <sha512>${busybox.sha512}</sha512>
                         </configuration>
