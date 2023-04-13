@@ -189,9 +189,9 @@ Space separated JVM options
 {{- define "app.finalJvmOptions" -}}
 {{- $first := true }}
 {{- range .Values.app.defaultJvmOptions }}
-{{- if $first }}{{- $first = false }}{{- else }} {{ end -}}{{ . }}{{- end }}
+{{- if $first }}{{- $first = false }}{{- else }} {{ end -}}{{ . | quote }}{{- end }}
 {{- range .Values.app.extraJvmOptions }}
-{{- if $first }}{{- $first = false }}{{- else }} {{ end -}}{{ . }}{{- end }}
+{{- if $first }}{{- $first = false }}{{- else }} {{ end -}}{{ . | quote }}{{- end }}
 {{- end }}
 
 {{/*
