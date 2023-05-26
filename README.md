@@ -78,9 +78,20 @@ Refer to [docker-compose](docker-compose) directory for Docker Compose project.
 
 1. Wait till application starts
 
+    For Docker Compose 1.x
+
     ```bash
     while [[ "$(docker inspect --format '{{ .State.Health.Status }}' \
       "${compose_project}_app_1")" != 'healthy' ]]; do \
+      sleep 5s; \
+    done
+    ```
+
+    For Docker Compose 2.x
+
+    ```bash
+    while [[ "$(docker inspect --format '{{ .State.Health.Status }}' \
+      "${compose_project}-app-1")" != 'healthy' ]]; do \
       sleep 5s; \
     done
     ```
