@@ -29,11 +29,11 @@ spec:
     insecureEdgeTerminationPolicy: "Redirect"
     termination: "reencrypt"
     caCertificate: |-
-      {{- .Values.route.tls.caCertificate | nindent 6 }}
+      {{- .Values.route.tls.caCertificate | trim | nindent 6 }}
     certificate: |-
-      {{- .Values.route.tls.certificate | nindent 6 }}
+      {{- .Values.route.tls.certificate | trim | nindent 6 }}
     key: |-
-      {{- .Values.route.tls.key | nindent 6 }}
+      {{- .Values.route.tls.key | trim | nindent 6 }}
   to:
     kind: "Service"
     name: {{ include "app.serviceName" . | quote }}
