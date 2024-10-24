@@ -429,8 +429,8 @@ Curl is required for testing outside Kubernetes.
 ### kubectl Setup
 
 ```bash
-k8s_version='1.25.2' && \
-curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
+k8s_version='1.31.2' && \
+curl -Ls "https://dl.k8s.io/release/v${k8s_version}/bin/linux/amd64/kubectl" \
   | sudo tee /usr/local/bin/kubectl > /dev/null && \
 sudo chmod +x /usr/local/bin/kubectl
 ```
