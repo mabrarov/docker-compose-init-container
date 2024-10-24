@@ -396,7 +396,7 @@ helm_release='dcic'
       --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
     helm uninstall "${helm_release}" \
       --kube-apiserver "https://${openshift_address}:8443" \
-      -n "${openshift_project}"
+      -n "${openshift_project}" --wait --cascade foreground
     ```
 
 ### OKD Removal
@@ -668,7 +668,7 @@ helm_release='dcic'
 1. Stop and remove K8s application, remove temporary images from local Docker registry
 
     ```bash
-    helm uninstall "${helm_release}" -n "${k8s_namespace}" && \
+    helm uninstall "${helm_release}" -n "${k8s_namespace}" --wait --cascade foreground && \
     minikube_registry="$(minikube ip):5000" && \
     docker rmi "${minikube_registry}/app" && \
     docker rmi "${minikube_registry}/app-initializer"
