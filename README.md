@@ -396,7 +396,7 @@ helm_release='dcic'
       --insecure-skip-tls-verify=true "${openshift_address}:8443" && \
     helm uninstall "${helm_release}" \
       --kube-apiserver "https://${openshift_address}:8443" \
-      -n "${openshift_project}"
+      -n "${openshift_project}" --wait --cascade foreground
     ```
 
 ### OKD Removal
@@ -429,8 +429,8 @@ Curl is required for testing outside Kubernetes.
 ### kubectl Setup
 
 ```bash
-k8s_version='1.25.2' && \
-curl -Ls "https://storage.googleapis.com/kubernetes-release/release/v${k8s_version}/bin/linux/amd64/kubectl" \
+k8s_version='1.31.2' && \
+curl -Ls "https://dl.k8s.io/release/v${k8s_version}/bin/linux/amd64/kubectl" \
   | sudo tee /usr/local/bin/kubectl > /dev/null && \
 sudo chmod +x /usr/local/bin/kubectl
 ```
@@ -438,7 +438,7 @@ sudo chmod +x /usr/local/bin/kubectl
 ### Helm Setup
 
 ```bash
-helm_version='3.9.3' && \
+helm_version='3.16.2' && \
 curl -Ls "https://get.helm.sh/helm-v${helm_version}-linux-amd64.tar.gz" \
   | sudo tar -xz --strip-components=1 -C /usr/local/bin "linux-amd64/helm"
 ```
@@ -450,7 +450,7 @@ In case of need in Kubernetes (K8s) instance one can use [Minikube](https://kube
 1. Download Minikube executable (minikube)
 
     ```bash
-    minikube_version='1.27.0' && \
+    minikube_version='1.34.0' && \
     curl -Ls "https://github.com/kubernetes/minikube/releases/download/v${minikube_version}/minikube-linux-amd64.tar.gz" \
       | tar -xzO --strip-components=1 "out/minikube-linux-amd64" \
       | sudo tee /usr/local/bin/minikube > /dev/null && \
@@ -668,7 +668,7 @@ helm_release='dcic'
 1. Stop and remove K8s application, remove temporary images from local Docker registry
 
     ```bash
-    helm uninstall "${helm_release}" -n "${k8s_namespace}" && \
+    helm uninstall "${helm_release}" -n "${k8s_namespace}" --wait --cascade foreground && \
     minikube_registry="$(minikube ip):5000" && \
     docker rmi "${minikube_registry}/app" && \
     docker rmi "${minikube_registry}/app-initializer"
